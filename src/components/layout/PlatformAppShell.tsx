@@ -2,12 +2,6 @@
 
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import {
-  LogOut,
-  UserCircle,
-} from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
 import {
   Sidebar,
   SidebarHeader,
@@ -17,14 +11,14 @@ import {
   SidebarInset,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ThemeSwitcher } from '../shared/ThemeSwitcher';
 import { Breadcrumbs } from '../shared/Breadcrumbs';
-import { Skeleton } from '../ui/skeleton';
 import { cn } from '@/lib/utils';
 import type { NavItem } from './AppShell';
 import { NavMenuItem } from './AppShell';
+import { UserProfile } from '../shared/UserProfile';
+
 
 function Logo() {
   const { state } = useSidebar();
@@ -42,39 +36,6 @@ function Logo() {
         <h1 className="text-xl font-bold font-serif tracking-tight">ResourceWise</h1>
       )}
     </Link>
-  );
-}
-
-function UserProfile() {
-  const { userProfile, logout } = useAuth();
-  const { state } = useSidebar();
-
-  if (!userProfile) {
-    return (
-      <div className="flex items-center gap-3 p-2">
-        <Skeleton className="h-8 w-8 rounded-full" />
-        {state === 'expanded' && <Skeleton className="h-4 w-24" />}
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex w-full items-center justify-between">
-      <div className="flex items-center gap-3">
-        <UserCircle className="h-8 w-8 text-muted-foreground" />
-        {state === 'expanded' && (
-          <div className="flex flex-col">
-            <span className="text-sm font-medium">{userProfile.firstName} {userProfile.lastName}</span>
-            <span className="text-xs text-muted-foreground">{userProfile.email}</span>
-          </div>
-        )}
-      </div>
-      {state === 'expanded' && (
-        <Button variant="ghost" size="icon" onClick={logout} className="h-8 w-8">
-          <LogOut />
-        </Button>
-      )}
-    </div>
   );
 }
 

@@ -14,9 +14,6 @@ import {
   Settings,
   Users,
   UsersRound,
-  LogOut,
-  UserCircle,
-  ChevronDown,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -29,7 +26,6 @@ import {
   SidebarInset,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ThemeSwitcher } from '../shared/ThemeSwitcher';
 import { Breadcrumbs } from '../shared/Breadcrumbs';
@@ -41,6 +37,8 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
+import { UserProfile } from '../shared/UserProfile';
+
 
 export type NavItem = {
   href: string;
@@ -165,38 +163,6 @@ function Logo() {
   );
 }
 
-function UserProfile() {
-  const { userProfile, logout } = useAuth();
-  const { state } = useSidebar();
-
-  if (!userProfile) {
-    return (
-      <div className="flex items-center gap-3 p-2">
-        <Skeleton className="h-8 w-8 rounded-full" />
-        {state === 'expanded' && <Skeleton className="h-4 w-24" />}
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex w-full items-center justify-between">
-      <div className="flex items-center gap-3">
-        <UserCircle className="h-8 w-8 text-muted-foreground" />
-        {state === 'expanded' && (
-          <div className="flex flex-col">
-            <span className="text-sm font-medium">{userProfile.firstName} {userProfile.lastName}</span>
-            <span className="text-xs text-muted-foreground">{userProfile.email}</span>
-          </div>
-        )}
-      </div>
-      {state === 'expanded' && (
-        <Button variant="ghost" size="icon" onClick={logout} className="h-8 w-8">
-          <LogOut />
-        </Button>
-      )}
-    </div>
-  );
-}
 
 export const NavMenuItem = ({ item }: { item: NavItem }) => {
   const pathname = usePathname();
