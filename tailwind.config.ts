@@ -13,9 +13,9 @@ export default {
         sans: ['var(--font-sans)', 'sans-serif'],
         serif: ['var(--font-serif)', 'serif'],
         mono: ['var(--font-mono)', 'monospace'],
-        body: ['Poppins', 'sans-serif'],
-        headline: ['Poppins', 'sans-serif'],
-        code: ['Montserrat', 'monospace'],
+        body: ['var(--font-sans)', 'sans-serif'],
+        headline: ['var(--font-serif)', 'serif'],
+        code: ['var(--font-mono)', 'monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -73,6 +73,7 @@ export default {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+        xl: 'calc(var(--radius) + 4px)',
       },
       keyframes: {
         'accordion-down': {

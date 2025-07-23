@@ -28,6 +28,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  Legend,
 } from 'recharts';
 import { PageHeader } from '@/components/shared/PageHeader';
 import {
@@ -39,28 +40,28 @@ import {
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-const COLORS = ['hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--destructive))'];
+const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))'];
 
 export default function Dashboard() {
   return (
-    <div className="flex flex-col gap-4">
-      <PageHeader title="Executive Summary" />
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {kpis.map((kpi) => (
-          <Card key={kpi.title}>
+    <div className="flex flex-col gap-6">
+      <PageHeader title="Executive Dashboard" />
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {kpis.map((kpi, index) => (
+          <Card key={kpi.title} className="flex flex-col">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">{kpi.title}</CardTitle>
-              <kpi.icon className="h-4 w-4 text-muted-foreground" />
+              <kpi.icon className="h-5 w-5 text-muted-foreground" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{kpi.value}</div>
-              <p className="text-xs text-muted-foreground">{kpi.change}</p>
+            <CardContent className="flex flex-col flex-grow justify-end">
+              <div className="text-3xl font-bold font-serif">{kpi.value}</div>
+              <p className="text-xs text-muted-foreground pt-1">{kpi.change}</p>
             </CardContent>
           </Card>
         ))}
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
+        <Card className="xl:col-span-3">
           <CardHeader>
             <CardTitle>Resource Utilization</CardTitle>
             <CardDescription>
@@ -73,13 +74,13 @@ export default function Dashboard() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis
                   dataKey="name"
-                  stroke="#888888"
+                  stroke="hsl(var(--muted-foreground))"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
-                  stroke="#888888"
+                  stroke="hsl(var(--muted-foreground))"
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
@@ -90,15 +91,19 @@ export default function Dashboard() {
                   contentStyle={{
                     backgroundColor: 'hsl(var(--background))',
                     border: '1px solid hsl(var(--border))',
+                    borderRadius: 'var(--radius-md)'
                   }}
                 />
+                <Legend wrapperStyle={{fontSize: '0.8rem', paddingTop: '1rem'}}/>
                 <Bar
                   dataKey="billable"
+                  name="Billable"
                   fill="hsl(var(--chart-1))"
                   radius={[4, 4, 0, 0]}
                 />
                 <Bar
                   dataKey="nonBillable"
+                  name="Non-Billable"
                   fill="hsl(var(--chart-2))"
                   radius={[4, 4, 0, 0]}
                 />
@@ -106,7 +111,7 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-        <Card className="col-span-4 lg:col-span-3">
+        <Card className="xl:col-span-2">
           <CardHeader>
             <CardTitle>Project Health</CardTitle>
             <CardDescription>
@@ -121,7 +126,9 @@ export default function Dashboard() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  outerRadius={120}
+                  outerRadius={110}
+                  innerRadius={60}
+                  paddingAngle={5}
                   dataKey="value"
                   label={({ name, percent }) =>
                     `${name}: ${(percent * 100).toFixed(0)}%`
@@ -131,6 +138,7 @@ export default function Dashboard() {
                     <Cell
                       key={`cell-${index}`}
                       fill={COLORS[index % COLORS.length]}
+                      stroke={COLORS[index % COLORS.length]}
                     />
                   ))}
                 </Pie>
@@ -138,8 +146,10 @@ export default function Dashboard() {
                    contentStyle={{
                     backgroundColor: 'hsl(var(--background))',
                     border: '1px solid hsl(var(--border))',
+                    borderRadius: 'var(--radius-md)'
                   }}
                 />
+                <Legend wrapperStyle={{fontSize: '0.8rem', paddingTop: '1rem'}}/>
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -147,7 +157,8 @@ export default function Dashboard() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle>Upcoming Deadlines</CardTitle>
+          <CardTitle>Approaching Deadlines</CardTitle>
+          <CardDescription>Projects with deadlines in the near future.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -156,23 +167,23 @@ export default function Dashboard() {
                 <TableHead>Project</TableHead>
                 <TableHead>Client</TableHead>
                 <TableHead>Deadline</TableHead>
-                <TableHead>Progress</TableHead>
-                <TableHead></TableHead>
+                <TableHead className="w-[250px]">Progress</TableHead>
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {upcomingDeadlines.map((item) => (
                 <TableRow key={item.project}>
-                  <TableCell className="font-medium">{item.project}</TableCell>
+                  <TableCell className="font-medium font-serif">{item.project}</TableCell>
                   <TableCell>{item.client}</TableCell>
                   <TableCell>{item.deadline}</TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Progress value={item.progress} className="w-40" />
-                      <span>{item.progress}%</span>
+                    <div className="flex items-center gap-3">
+                      <Progress value={item.progress} className="w-full" />
+                      <span className="text-muted-foreground font-mono text-xs">{item.progress}%</span>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                     <Button variant="outline" size="sm" asChild>
                       <Link href="/projects">View Project</Link>
                     </Button>

@@ -57,17 +57,17 @@ const settingsNav: NavItem = {
 function Logo() {
   const { state } = useSidebar();
   return (
-    <Link href="/" className="flex items-center gap-2">
+    <Link href="/" className="flex items-center gap-2.5">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
-        className="h-6 w-6 text-primary"
+        className="h-7 w-7 text-primary"
         fill="currentColor"
       >
         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5-10-5-10 5z" />
       </svg>
       {state === 'expanded' && (
-        <h1 className="text-lg font-bold">ResourceWise</h1>
+        <h1 className="text-xl font-bold font-serif tracking-tight">ResourceWise</h1>
       )}
     </Link>
   );
@@ -126,14 +126,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-14 items-center gap-4 border-b bg-background px-4 md:px-6">
+        <header className="flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6">
           <SidebarTrigger className="md:hidden" />
           <div className="flex-1">
             {/* Can add breadcrumbs or page title here */}
           </div>
           <ThemeSwitcher />
         </header>
-        <main className="flex-1 p-4 md:p-6">{children}</main>
+        <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );
