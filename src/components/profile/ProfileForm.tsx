@@ -121,14 +121,10 @@ export function ProfileForm({ currentUser }: { currentUser: UserProfileProps }) 
 
   async function onSubmit(data: ProfileFormValues) {
     setLoading(true);
-    const updatePayload = {
-      ...data,
-      dateOfBirth: data.dateOfBirth ? Timestamp.fromDate(data.dateOfBirth) : undefined,
-    }
     const result = await updateUserProfileAction(
       currentUser.id,
       currentUser.userRole,
-      updatePayload
+      data
     );
     setLoading(false);
 

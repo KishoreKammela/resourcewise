@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase';
-import { doc, setDoc, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { doc, setDoc, updateDoc, serverTimestamp, getDoc, Timestamp } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import type { UserProfileUpdate } from '@/lib/types';
 
@@ -52,11 +52,13 @@ export const updateUserProfile = async (
     updatedAt: serverTimestamp(),
   };
 
+  const aDate = data.dateOfBirth ? Timestamp.fromDate(new Date(data.dateOfBirth)) : undefined;
+
   if (userRole === 'company') {
     updateData['personalInfo.firstName'] = data.firstName;
     updateData['personalInfo.lastName'] = data.lastName;
     updateData['personalInfo.phone'] = data.phone;
-    updateData['personalInfo.dateOfBirth'] = data.dateOfBirth;
+    updateData['personalInfo.dateOfBirth'] = aDate;
     updateData['personalInfo.gender'] = data.gender;
     updateData['address.city'] = data.city;
     updateData['address.country'] = data.country;
@@ -66,7 +68,7 @@ export const updateUserProfile = async (
     updateData['personalInfo.firstName'] = data.firstName;
     updateData['personalInfo.lastName'] = data.lastName;
     updateData['personalInfo.phone'] = data.phone;
-    updateData['personalInfo.dateOfBirth'] = data.dateOfBirth;
+    updateData['personalInfo.dateOfBirth'] = aDate;
     updateData['personalInfo.gender'] = data.gender;
     updateData['personalInfo.city'] = data.city;
     updateData['personalInfo.country'] = data.country;
