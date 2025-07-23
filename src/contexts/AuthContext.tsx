@@ -33,6 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       if (user) {
         setUser(user);
+        // Check for PlatformUser first
         const platformUserDocRef = doc(db, 'platformUsers', user.uid);
         const platformUserDoc = await getDoc(platformUserDocRef);
 
@@ -40,12 +41,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUserProfile(platformUserDoc.data() as PlatformUser);
           setUserRole('platform');
         } else {
+          // Fallback to check for TeamMember
           const teamMemberDocRef = doc(db, 'teamMembers', user.uid);
           const teamMemberDoc = await getDoc(teamMemberDocRef);
           if (teamMemberDoc.exists()) {
             setUserProfile(teamMemberDoc.data() as TeamMember);
             setUserRole('company');
           } else {
+            // This case handles a user that is authenticated with Firebase Auth
+            // but does not have a corresponding document in either collection.
             console.warn('User authenticated but no profile document found.');
             setUserProfile(null);
             setUserRole(null);
@@ -64,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     await signOut(auth);
+    // Reset all state upon logout
     setUser(null);
     setUserProfile(null);
     setUserRole(null);

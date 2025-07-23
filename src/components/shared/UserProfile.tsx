@@ -30,7 +30,7 @@ import { cn } from '@/lib/utils';
 import { ChangePasswordDialog } from '../profile/ChangePasswordDialog';
 
 export function UserProfile() {
-  const { userProfile, logout } = useAuth();
+  const { userProfile, userRole, logout } = useAuth();
   const { state } = useSidebar();
   const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
@@ -43,11 +43,27 @@ export function UserProfile() {
       </div>
     );
   }
+  
+  // This logic robustly extracts user info, handling both PlatformUser and TeamMember structures.
+  const getUserInfo = () => {
+    if (userRole === 'company' && 'personalInfo' in userProfile) {
+      return {
+        firstName: userProfile.personalInfo.firstName || '',
+        lastName: userProfile.personalInfo.lastName || '',
+        email: userProfile.personalInfo.email || '',
+      };
+    }
+    if (userRole === 'platform' && 'firstName' in userProfile) {
+       return {
+        firstName: userProfile.firstName || '',
+        lastName: userProfile.lastName || '',
+        email: userProfile.email || '',
+       };
+    }
+    return { firstName: 'User', lastName: '', email: 'No email found' };
+  };
 
-  const isCompanyUser = 'personalInfo' in userProfile && userProfile.personalInfo;
-  const firstName = isCompanyUser ? userProfile.personalInfo.firstName : ('firstName' in userProfile ? userProfile.firstName : '');
-  const lastName = isCompanyUser ? userProfile.personalInfo.lastName : ('lastName' in userProfile ? userProfile.lastName : '');
-  const email = isCompanyUser ? userProfile.personalInfo.email : ('email' in userProfile ? userProfile.email : '');
+  const { firstName, lastName, email } = getUserInfo();
   
   const triggerContent = (
     <div className="flex w-full items-center justify-between">

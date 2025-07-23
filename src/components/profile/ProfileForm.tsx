@@ -51,23 +51,29 @@ export function ProfileForm({ currentUser }: { currentUser: UserProfileProps }) 
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  const isCompanyUser = currentUser.userRole === 'company' && 'personalInfo' in currentUser;
-
-  const defaultValues: Partial<ProfileFormValues> = {
-    firstName: isCompanyUser 
-      ? currentUser.personalInfo.firstName 
-      : ('firstName' in currentUser ? currentUser.firstName : ''),
-    lastName: isCompanyUser 
-      ? currentUser.personalInfo.lastName 
-      : ('lastName' in currentUser ? currentUser.lastName : ''),
-    email: isCompanyUser 
-      ? currentUser.personalInfo.email 
-      : ('email' in currentUser ? currentUser.email : ''),
+  // This function robustly determines the default values based on the user's role and data structure.
+  const getInitialValues = () => {
+    if (currentUser.userRole === 'company' && 'personalInfo' in currentUser) {
+      return {
+        firstName: currentUser.personalInfo.firstName || '',
+        lastName: currentUser.personalInfo.lastName || '',
+        email: currentUser.personalInfo.email || '',
+      };
+    }
+    if (currentUser.userRole === 'platform' && 'firstName' in currentUser) {
+      return {
+        firstName: currentUser.firstName || '',
+        lastName: currentUser.lastName || '',
+        email: currentUser.email || '',
+      };
+    }
+    // Fallback for any unexpected cases
+    return { firstName: '', lastName: '', email: '' };
   };
 
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues,
+    defaultValues: getInitialValues(),
     mode: 'onChange',
   });
 

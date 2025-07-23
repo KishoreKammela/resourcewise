@@ -42,22 +42,27 @@ export const updateUserProfile = async (
   const userRef = doc(db, collectionName, userId);
   const now = serverTimestamp();
 
+  // This object will hold the fields to be updated.
   let updateData: { [key: string]: any } = {
     updatedAt: now,
   };
 
+  // The key difference: for 'company' users, the fields are nested under 'personalInfo'.
+  // We must use dot notation to update nested fields in Firestore.
   if (userRole === 'company') {
     updateData['personalInfo.firstName'] = data.firstName;
     updateData['personalInfo.lastName'] = data.lastName;
   } else {
+    // For 'platform' users, the fields are at the top level.
     updateData.firstName = data.firstName;
     updateData.lastName = data.lastName;
   }
 
   try {
+    // This will now correctly update either a top-level field or a nested field.
     await updateDoc(userRef, updateData);
   } catch (error) {
-    console.error('Error updating user profile', error);
+    console.error('Error updating user profile in Firestore:', error);
     throw error;
   }
 };
