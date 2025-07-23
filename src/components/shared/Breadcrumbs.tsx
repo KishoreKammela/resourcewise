@@ -6,24 +6,33 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronRight } from 'lucide-react';
 
+// A helper function to format segment names
+const formatSegment = (segment: string) => {
+  return segment
+    .replace(/-/g, ' ') // Replace hyphens with spaces
+    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize each word
+};
+
 export function Breadcrumbs() {
   const pathname = usePathname();
   const segments = pathname.split('/').filter(Boolean);
 
+  // If we are on the root dashboard, don't show any breadcrumbs.
+  if (segments.length === 0 || (segments.length === 1 && segments[0] === 'dashboard')) {
+     return (
+       <div className="flex items-center gap-2 text-sm text-muted-foreground">
+         <span className="font-semibold text-foreground">Dashboard</span>
+       </div>
+     );
+  }
+  
   const breadcrumbs = segments.map((segment, index) => {
     const href = '/' + segments.slice(0, index + 1).join('/');
     const isLast = index === segments.length - 1;
-    const name = segment.charAt(0).toUpperCase() + segment.slice(1);
+    const name = formatSegment(segment);
     return { name, href, isLast };
   });
 
-  if (segments.length === 0) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span className="font-semibold text-foreground">Dashboard</span>
-      </div>
-    );
-  }
 
   return (
     <nav aria-label="Breadcrumb" className="hidden md:flex">
