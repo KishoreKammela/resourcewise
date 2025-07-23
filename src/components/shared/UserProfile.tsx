@@ -23,37 +23,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-import { sendPasswordResetEmailAction } from '@/app/actions/userActions';
 import { UserCircle, LogOut, KeyRound, User, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ChangePasswordDialog } from '../profile/ChangePasswordDialog';
 
 export function UserProfile() {
   const { user, userProfile, logout } = useAuth();
   const { state } = useSidebar();
-  const { toast } = useToast();
   const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
-  const [isPasswordAlertOpen, setIsPasswordAlertOpen] = useState(false);
-
-  const handlePasswordReset = async () => {
-    if (user?.email) {
-      const result = await sendPasswordResetEmailAction(user.email);
-      if (result.success) {
-        toast({
-          title: 'Password Reset Email Sent',
-          description: `An email has been sent to ${user.email} with instructions to reset your password.`,
-        });
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'Error Sending Email',
-          description: result.error,
-        });
-      }
-    }
-    setIsPasswordAlertOpen(false);
-  };
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
 
   if (!userProfile) {
     return (
@@ -87,44 +67,49 @@ export function UserProfile() {
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className={cn(
-            "h-auto w-full justify-start p-2",
-            state === 'collapsed' && 'h-10 w-10 justify-center p-0'
-          )}>
-            {triggerContent}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">
-                {userProfile.firstName} {userProfile.lastName}
-              </p>
-              <p className="text-xs leading-none text-muted-foreground">
-                {userProfile.email}
-              </p>
-            </div>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link href="/profile">
-              <User className="mr-2 h-4 w-4" />
-              <span>My Profile</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => setIsPasswordAlertOpen(true)}>
-            <KeyRound className="mr-2 h-4 w-4" />
-            <span>Change Password</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => setIsLogoutAlertOpen(true)}>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Log out</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className={cn(
+              "h-auto w-full justify-start p-2",
+              state === 'collapsed' && 'h-10 w-10 justify-center p-0'
+            )}>
+              {triggerContent}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">
+                  {userProfile.firstName} {userProfile.lastName}
+                </p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  {userProfile.email}
+                </p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/profile">
+                <User className="mr-2 h-4 w-4" />
+                <span>My Profile</span>
+              </Link>
+            </DropdownMenuItem>
+             <DialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <KeyRound className="mr-2 h-4 w-4" />
+                  <span>Change Password</span>
+                </DropdownMenuItem>
+             </DialogTrigger>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={() => setIsLogoutAlertOpen(true)}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <ChangePasswordDialog setOpen={setIsPasswordDialogOpen}/>
+      </Dialog>
 
       <AlertDialog open={isLogoutAlertOpen} onOpenChange={setIsLogoutAlertOpen}>
         <AlertDialogContent>
@@ -137,21 +122,6 @@ export function UserProfile() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={() => logout()}>Log Out</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog open={isPasswordAlertOpen} onOpenChange={setIsPasswordAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Change Password?</AlertDialogTitle>
-            <AlertDialogDescription>
-              We will send a password reset link to your email address: <strong>{user?.email}</strong>. Are you sure you want to proceed?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handlePasswordReset}>Send Email</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
