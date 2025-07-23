@@ -10,12 +10,12 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-sans)', 'sans-serif'],
-        serif: ['var(--font-serif)', 'serif'],
-        mono: ['var(--font-mono)', 'monospace'],
-        body: ['var(--font-sans)', 'sans-serif'],
-        headline: ['var(--font-serif)', 'serif'],
-        code: ['var(--font-mono)', 'monospace'],
+        sans: ['Poppins', 'sans-serif'],
+        serif: ['Libre Baskerville', 'serif'],
+        mono: ['IBM Plex Mono', 'monospace'],
+        body: ['Poppins', 'sans-serif'],
+        headline: ['Libre Baskerville', 'serif'],
+        code: ['IBM Plex Mono', 'monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',
