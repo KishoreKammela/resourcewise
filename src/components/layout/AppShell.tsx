@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { ReactNode } from 'react';
@@ -31,6 +32,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ThemeSwitcher } from '../shared/ThemeSwitcher';
+import { Breadcrumbs } from '../shared/Breadcrumbs';
 
 type NavItem = {
   href: string;
@@ -127,7 +129,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       </Sidebar>
       <SidebarInset>
         <header className="flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6">
-          <SidebarTrigger className="md:hidden" />
+          <SidebarTrigger />
+          <Breadcrumbs />
           <div className="flex-1">
             {/* Can add breadcrumbs or page title here */}
           </div>
