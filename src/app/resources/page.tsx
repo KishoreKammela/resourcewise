@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,26 +26,27 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, PlusCircle, UserPlus } from 'lucide-react';
+import { MoreHorizontal, UserPlus } from 'lucide-react';
 import { resources } from '@/lib/placeholder-data';
 import type { Resource } from '@/lib/types';
 
 const getAvailabilityBadgeVariant = (
-  availability: Resource['availability']
+  availability: Resource['availability']['status']
 ): 'default' | 'secondary' | 'outline' => {
   switch (availability) {
     case 'Available':
       return 'default';
-    case 'Partially Allocated':
+    case 'Partially Available':
       return 'secondary';
-    case 'Fully Allocated':
+    case 'Unavailable':
       return 'outline';
     default:
       return 'secondary';
   }
 };
 
-export default function ResourcesPage() {
+
+function ResourcesContent() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader title="Resource Pool">
@@ -79,26 +81,26 @@ export default function ResourcesPage() {
             <TableBody>
               {resources.map((resource) => (
                 <TableRow key={resource.id}>
-                  <TableCell className="font-medium">{resource.name}</TableCell>
-                  <TableCell>{resource.designation}</TableCell>
+                  <TableCell className="font-medium">{resource.personalInfo.firstName} {resource.personalInfo.lastName}</TableCell>
+                  <TableCell>{resource.professionalInfo.designation}</TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
-                      {resource.skills.map((skill) => (
-                        <Badge key={skill} variant="secondary">
-                          {skill}
+                      {resource.skills.technical.slice(0, 3).map((skill) => (
+                        <Badge key={skill.skill} variant="secondary">
+                          {skill.skill}
                         </Badge>
                       ))}
                     </div>
                   </TableCell>
                   <TableCell>
                     <Badge
-                      variant={getAvailabilityBadgeVariant(resource.availability)}
+                      variant={getAvailabilityBadgeVariant(resource.availability.status)}
                     >
-                      {resource.availability}
+                      {resource.availability.status}
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Progress value={resource.allocation} className="w-24" />
+                    <Progress value={resource.availability.currentAllocationPercentage} className="w-24" />
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
@@ -127,5 +129,12 @@ export default function ResourcesPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+export default function ResourcesPage() {
+  return (
+    <AppShell>
+      <ResourcesContent />
+    </AppShell>
   );
 }

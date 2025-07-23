@@ -1,3 +1,4 @@
+import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,7 +29,7 @@ import { clients } from '@/lib/placeholder-data';
 import type { Client } from '@/lib/types';
 
 const getStatusBadgeVariant = (
-  status: Client['status']
+  status: Client['relationship']['status']
 ): 'default' | 'secondary' | 'destructive' => {
   switch (status) {
     case 'Active':
@@ -42,7 +43,7 @@ const getStatusBadgeVariant = (
   }
 };
 
-export default function ClientsPage() {
+function ClientsContent() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader title="Clients">
@@ -75,15 +76,15 @@ export default function ClientsPage() {
             <TableBody>
               {clients.map((client) => (
                 <TableRow key={client.id}>
-                  <TableCell className="font-medium">{client.name}</TableCell>
-                  <TableCell>{client.contactPerson}</TableCell>
-                  <TableCell>{client.email}</TableCell>
+                  <TableCell className="font-medium">{client.basicInfo.clientName}</TableCell>
+                  <TableCell>{client.contactInfo.primary.name}</TableCell>
+                  <TableCell>{client.contactInfo.primary.email}</TableCell>
                   <TableCell>
-                    <Badge variant={getStatusBadgeVariant(client.status)}>
-                      {client.status}
+                    <Badge variant={getStatusBadgeVariant(client.relationship.status)}>
+                      {client.relationship.status}
                     </Badge>
                   </TableCell>
-                  <TableCell>{client.projectCount}</TableCell>
+                  <TableCell>{client.analytics.activeProjectsCount}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -111,5 +112,13 @@ export default function ClientsPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function ClientsPage() {
+  return (
+    <AppShell>
+      <ClientsContent />
+    </AppShell>
   );
 }

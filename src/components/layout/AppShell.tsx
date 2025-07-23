@@ -276,7 +276,7 @@ export const NavMenuItem = ({ item }: { item: NavItem }) => {
 
 const unauthenticatedRoutes = ['/login', '/signup', '/signup/platform'];
 
-function AuthenticatedAppShell({ children, navItems, settingsNav }: { children: ReactNode, navItems: NavItem[], settingsNav: NavItem }) {
+function AuthenticatedCompanyShell({ children }: { children: ReactNode }) {
     const { state } = useSidebar();
   return (
     <>
@@ -286,7 +286,7 @@ function AuthenticatedAppShell({ children, navItems, settingsNav }: { children: 
         </SidebarHeader>
         <SidebarContent>
            <div className="flex flex-col gap-1">
-              {[...navItems].map((item) => (
+              {[...companyNavItems].map((item) => (
                 <NavMenuItem key={item.href} item={item} />
               ))}
             </div>
@@ -294,7 +294,7 @@ function AuthenticatedAppShell({ children, navItems, settingsNav }: { children: 
         <SidebarFooter>
           <Separator className="my-2" />
            <div className="flex flex-col gap-1">
-              <NavMenuItem item={settingsNav} />
+              <NavMenuItem item={companySettingsNav} />
            </div>
           <Separator className="my-2" />
           <div className={cn("p-2", state === 'collapsed' && 'p-0 flex justify-center')}>
@@ -356,20 +356,32 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   }
 
-  const isUnauthenticatedRoute = unauthenticatedRoutes.some(route => pathname.startsWith(route));
-  if ((!user && !isUnauthenticatedRoute) || (user && isUnauthenticatedRoute)) {
-      return null;
+  // This prevents rendering the children (which could be an authenticated page)
+  // before the redirect has a chance to happen.
+  if (!user && !unauthenticatedRoutes.some(route => pathname.startsWith(route))) {
+    return null;
+  }
+  
+  if (user && unauthenticatedRoutes.some(route => pathname.startsWith(route))) {
+    return null;
+  }
+  
+  // If we are on a platform route, the platform layout will handle the shell.
+  // We don't want to render another shell here.
+  if (userRole === 'platform') {
+      return <>{children}</>
   }
 
-  if (!user && isUnauthenticatedRoute) {
-    return <>{children}</>;
+  if (userRole === 'company') {
+    return (
+      <SidebarProvider>
+        <AuthenticatedCompanyShell>
+            {children}
+        </AuthenticatedCompanyShell>
+      </SidebarProvider>
+    );
   }
 
-  return (
-    <SidebarProvider>
-      <AuthenticatedAppShell navItems={companyNavItems} settingsNav={companySettingsNav}>
-        {children}
-      </AuthenticatedAppShell>
-    </SidebarProvider>
-  );
+  // Fallback for unauthenticated routes (login, signup)
+  return <>{children}</>;
 }

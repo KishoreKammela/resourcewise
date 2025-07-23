@@ -1,3 +1,4 @@
+import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,18 +26,19 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
-import { projects } from '@/lib/placeholder-data';
+import { projects, clients } from '@/lib/placeholder-data';
 import type { Project } from '@/lib/types';
+import { format } from 'date-fns';
 
 const getStatusBadgeVariant = (
-  status: Project['status']
+  status: Project['status']['projectStatus']
 ): 'default' | 'secondary' | 'destructive' | 'outline' => {
   switch (status) {
-    case 'On Track':
+    case 'Active':
       return 'default';
-    case 'At Risk':
+    case 'On Hold':
       return 'secondary';
-    case 'Off Track':
+    case 'Cancelled':
       return 'destructive';
     case 'Completed':
       return 'outline';
@@ -45,7 +47,7 @@ const getStatusBadgeVariant = (
   }
 };
 
-export default function ProjectsPage() {
+function ProjectsContent() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader title="Projects">
@@ -78,16 +80,16 @@ export default function ProjectsPage() {
             <TableBody>
               {projects.map((project) => (
                 <TableRow key={project.id}>
-                  <TableCell className="font-medium">{project.name}</TableCell>
-                  <TableCell>{project.client}</TableCell>
+                  <TableCell className="font-medium">{project.basicInfo.projectName}</TableCell>
+                  <TableCell>{clients.find(c => c.id === project.clientId)?.basicInfo.clientName || 'N/A'}</TableCell>
                   <TableCell>
-                    <Badge variant={getStatusBadgeVariant(project.status)}>
-                      {project.status}
+                    <Badge variant={getStatusBadgeVariant(project.status.projectStatus)}>
+                      {project.status.projectStatus}
                     </Badge>
                   </TableCell>
-                  <TableCell>{project.deadline}</TableCell>
+                  <TableCell>{project.timeline.plannedEndDate ? format(project.timeline.plannedEndDate.toDate(), 'PPP') : 'N/A'}</TableCell>
                   <TableCell>
-                    <Progress value={project.progress} className="w-32" />
+                    <Progress value={project.status.progressPercentage} className="w-32" />
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>
@@ -116,4 +118,13 @@ export default function ProjectsPage() {
       </Card>
     </div>
   );
+}
+
+
+export default function ProjectsPage() {
+  return (
+    <AppShell>
+      <ProjectsContent />
+    </AppShell>
+  )
 }

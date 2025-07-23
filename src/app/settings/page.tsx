@@ -1,3 +1,4 @@
+import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,11 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
 
-export default function SettingsPage() {
+function SettingsContent() {
   return (
-    <div className="flex flex-col gap-6">
+     <div className="flex flex-col gap-6">
       <PageHeader title="Settings" />
       <div className="grid gap-6">
         <Card>
@@ -112,5 +112,12 @@ export default function SettingsPage() {
         <Button>Save Changes</Button>
       </div>
     </div>
+  )
+}
+export default function SettingsPage() {
+  return (
+    <AppShell>
+      <SettingsContent />
+    </AppShell>
   );
 }

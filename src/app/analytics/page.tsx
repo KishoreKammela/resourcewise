@@ -1,5 +1,6 @@
 'use client';
 
+import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import {
   Card,
@@ -21,10 +22,10 @@ import {
 } from 'recharts';
 import {
   resourceUtilizationData,
-  projectHealthData,
 } from '@/lib/placeholder-data';
 
-export default function AnalyticsPage() {
+
+function AnalyticsContent() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader title="Analytics & Reports" />
@@ -108,5 +109,13 @@ export default function AnalyticsPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function AnalyticsPage() {
+  return (
+    <AppShell>
+      <AnalyticsContent />
+    </AppShell>
   );
 }

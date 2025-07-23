@@ -1,3 +1,4 @@
+import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import {
   Card,
@@ -10,7 +11,8 @@ import { Separator } from '@/components/ui/separator';
 import { allocations } from '@/lib/placeholder-data';
 import { Users, GanttChartSquare } from 'lucide-react';
 
-export default function AllocationsPage() {
+
+function AllocationsContent() {
   const projects = [...new Set(allocations.map((a) => a.projectName))];
 
   return (
@@ -66,5 +68,12 @@ export default function AllocationsPage() {
          </Card>
       )}
     </div>
+  );
+}
+export default function AllocationsPage() {
+  return (
+    <AppShell>
+      <AllocationsContent />
+    </AppShell>
   );
 }

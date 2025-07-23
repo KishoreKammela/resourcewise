@@ -1,3 +1,4 @@
+import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
 import {
@@ -29,23 +30,24 @@ import { teamMembers } from '@/lib/placeholder-data';
 import type { TeamMember } from '@/lib/types';
 
 const getStatusBadgeVariant = (
-  status: TeamMember['status']
+  status: TeamMember['employmentDetails']['status']
 ): 'default' | 'secondary' | 'destructive' => {
   switch (status) {
-    case 'Active':
+    case 'active':
       return 'default';
-    case 'Invited':
+    case 'on_leave':
       return 'secondary';
-    case 'Inactive':
+    case 'inactive':
       return 'destructive';
     default:
       return 'secondary';
   }
 };
 
-export default function TeamPage() {
+
+function TeamContent() {
   return (
-    <div className="flex flex-col gap-4">
+     <div className="flex flex-col gap-4">
       <PageHeader title="Team Members">
         <Button>
           <PlusCircle className="mr-2" />
@@ -75,12 +77,12 @@ export default function TeamPage() {
             <TableBody>
               {teamMembers.map((member) => (
                 <TableRow key={member.id}>
-                  <TableCell className="font-medium">{member.name}</TableCell>
-                  <TableCell>{member.email}</TableCell>
-                  <TableCell>{member.role}</TableCell>
+                  <TableCell className="font-medium">{member.personalInfo.firstName} {member.personalInfo.lastName}</TableCell>
+                  <TableCell>{member.personalInfo.email}</TableCell>
+                  <TableCell>{member.authInfo.userType}</TableCell>
                   <TableCell>
-                    <Badge variant={getStatusBadgeVariant(member.status)}>
-                      {member.status}
+                    <Badge variant={getStatusBadgeVariant(member.employmentDetails.status)}>
+                      {member.employmentDetails.status}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -113,5 +115,12 @@ export default function TeamPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+export default function TeamPage() {
+  return (
+    <AppShell>
+      <TeamContent />
+    </AppShell>
   );
 }
