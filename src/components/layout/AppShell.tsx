@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   BarChart3,
   Briefcase,
+  ChevronDown,
   FolderKanban,
   GanttChartSquare,
   LayoutDashboard,
