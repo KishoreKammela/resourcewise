@@ -1,10 +1,6 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
-// This will be replaced with company creation logic later
-// import { createPlatformUserDocument } from '@/services/user.services';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -33,29 +29,13 @@ export default function SignupPage() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // TODO: Replace with company and team member creation logic
-    // For now, it will just create an auth user.
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      // const { user } = await createUserWithEmailAndPassword(
-      //   auth,
-      //   email,
-      //   password
-      // );
-      // await createCompanyAndFirstUser(user, { companyName, firstName, lastName });
-      toast({
-        title: 'Account Created (Auth Only)',
-        description: 'Next step is to create company and user documents.',
-      });
-      router.push('/');
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Sign Up Failed',
-        description: error.message,
-      });
-      setLoading(false);
-    }
+    // Backend logic removed
+    console.log('Company signup logic to be re-implemented.');
+    toast({
+      title: 'In Progress',
+      description: 'Company registration is being rebuilt.',
+    });
+    setLoading(false);
   };
 
   return (

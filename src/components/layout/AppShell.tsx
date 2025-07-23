@@ -470,12 +470,10 @@ export function AppShell({ children }: { children: ReactNode }) {
     }
   }, [user, loading, pathname, router]);
 
-  if (
-    loading ||
-    (!user &&
-      !unauthenticatedRoutes.some((route) => pathname.startsWith(route))) ||
-    (user && unauthenticatedRoutes.some((route) => pathname.startsWith(route)))
-  ) {
+  const isAuthRoute = unauthenticatedRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+  if (loading && !isAuthRoute) {
     return (
       <div className="flex h-screen items-center justify-center">
         <svg
@@ -490,7 +488,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   }
 
-  if (unauthenticatedRoutes.some((route) => pathname.startsWith(route))) {
+  if (isAuthRoute) {
     return <>{children}</>;
   }
 

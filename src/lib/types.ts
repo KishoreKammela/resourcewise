@@ -2,14 +2,25 @@ import type { LucideIcon } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
 
 export type UserProfileUpdate = {
-  firstName: string;
-  lastName: string;
-  phone?: string;
-  dateOfBirth?: Date;
-  gender?: string;
-  city?: string;
-  country?: string;
-  designation?: string;
+  personalInfo: {
+    firstName: string;
+    lastName: string;
+    phone?: string;
+    dateOfBirth?: Date;
+    gender?: string;
+  };
+  address: {
+    line1?: string;
+    line2?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+  };
+  professionalInfo: {
+    designation?: string;
+    department?: string;
+  };
 };
 
 export type UserProfile = {
@@ -363,13 +374,6 @@ export interface Resource {
       lastUsed?: Timestamp;
     }>;
     soft: string[];
-    assessmentScores?: {
-      [skillName: string]: {
-        score: number;
-        maxScore: number;
-        assessmentDate: Timestamp;
-      };
-    };
     aiExtractedSkills?: string[];
     endorsements?: Array<{
       skill: string;

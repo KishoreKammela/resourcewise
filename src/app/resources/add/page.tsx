@@ -1,5 +1,5 @@
 import { PageHeader } from '@/components/shared/PageHeader';
-import { AddResourceForm } from '@/components/resources/AddResourceForm';
+// import { AddResourceForm } from '@/components/resources/AddResourceForm';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
@@ -31,9 +31,7 @@ export default function AddResourcePage() {
             resume to automatically extract skills.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <AddResourceForm />
-        </CardContent>
+        <CardContent>{/* <AddResourceForm /> */}</CardContent>
       </Card>
     </div>
   );

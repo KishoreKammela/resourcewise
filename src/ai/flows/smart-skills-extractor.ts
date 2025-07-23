@@ -30,28 +30,6 @@ export type ExtractSkillsOutput = z.infer<typeof ExtractSkillsOutputSchema>;
 export async function extractSkills(
   input: ExtractSkillsInput
 ): Promise<ExtractSkillsOutput> {
-  return extractSkillsFlow(input);
+  console.log('extractSkills AI flow to be re-implemented');
+  return { skills: [] };
 }
-
-const prompt = ai.definePrompt({
-  name: 'extractSkillsPrompt',
-  input: { schema: ExtractSkillsInputSchema },
-  output: { schema: ExtractSkillsOutputSchema },
-  prompt: `You are an expert HR assistant specializing in skill extraction from resumes.
-
-You will use this information to extract the skills from the resume.
-
-Resume: {{media url=resumeDataUri}}`,
-});
-
-const extractSkillsFlow = ai.defineFlow(
-  {
-    name: 'extractSkillsFlow',
-    inputSchema: ExtractSkillsInputSchema,
-    outputSchema: ExtractSkillsOutputSchema,
-  },
-  async (input) => {
-    const { output } = await prompt(input);
-    return output!;
-  }
-);

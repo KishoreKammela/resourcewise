@@ -24,12 +24,6 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { auth } from '@/lib/firebase';
-import {
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-  updatePassword,
-} from 'firebase/auth';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -75,52 +69,13 @@ export function ChangePasswordDialog({
 
   async function onSubmit(data: ChangePasswordFormValues) {
     setLoading(true);
-    const user = auth.currentUser;
-
-    if (!user || !user.email) {
-      toast({
-        variant: 'destructive',
-        title: 'Authentication Error',
-        description: 'No user is currently logged in.',
-      });
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const credential = EmailAuthProvider.credential(
-        user.email,
-        data.currentPassword
-      );
-
-      // Re-authenticate the user to ensure they are the rightful owner of the account
-      await reauthenticateWithCredential(user, credential);
-
-      // If re-authentication is successful, update the password
-      await updatePassword(user, data.newPassword);
-
-      toast({
-        title: 'Password Changed',
-        description: 'Your password has been updated successfully.',
-      });
-      setOpen(false);
-    } catch (error: any) {
-      console.error('Password change failed:', error);
-      let errorMessage = 'An unexpected error occurred. Please try again.';
-      if (error.code === 'auth/wrong-password') {
-        errorMessage = 'The current password you entered is incorrect.';
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage =
-          'The new password is too weak. Please choose a stronger password.';
-      }
-      toast({
-        variant: 'destructive',
-        title: 'Change Password Failed',
-        description: errorMessage,
-      });
-    } finally {
-      setLoading(false);
-    }
+    // Backend logic removed
+    console.log('Change password logic to be re-implemented.');
+    toast({
+      title: 'In Progress',
+      description: 'Change password functionality is being rebuilt.',
+    });
+    setLoading(false);
   }
 
   return (
