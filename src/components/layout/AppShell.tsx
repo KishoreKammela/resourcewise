@@ -116,67 +116,68 @@ const unauthenticatedRoutes = ['/login', '/signup'];
 function AuthenticatedAppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   return (
-    <Sidebar>
-      <SidebarHeader>
-        <Logo />
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarMenu>
-          {navItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
+    <>
+      <Sidebar>
+        <SidebarHeader>
+          <Logo />
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarMenu>
+            {navItems.map((item) => (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={
+                    item.href === '/'
+                      ? pathname === item.href
+                      : pathname.startsWith(item.href)
+                  }
+                  tooltip={{
+                    children: item.label,
+                    side: 'right',
+                  }}
+                >
+                  <Link href={item.href}>
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter>
+          <Separator className="my-2" />
+          <SidebarMenu>
+            <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
-                isActive={
-                  item.href === '/'
-                    ? pathname === item.href
-                    : pathname.startsWith(item.href)
-                }
-                tooltip={{
-                  children: item.label,
-                  side: 'right',
-                }}
+                isActive={pathname.startsWith(settingsNav.href)}
+                tooltip={{ children: settingsNav.label, side: 'right' }}
               >
-                <Link href={item.href}>
-                  <item.icon />
-                  <span>{item.label}</span>
+                <Link href={settingsNav.href}>
+                  <settingsNav.icon />
+                  <span>{settingsNav.label}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarContent>
-      <SidebarFooter>
-        <Separator className="my-2" />
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={pathname.startsWith(settingsNav.href)}
-              tooltip={{ children: settingsNav.label, side: 'right' }}
-            >
-              <Link href={settingsNav.href}>
-                <settingsNav.icon />
-                <span>{settingsNav.label}</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-           <Separator className="my-2" />
-           <div className="p-2">
-              <UserProfile />
-           </div>
-        </SidebarMenu>
-      </SidebarFooter>
-    </Sidebar>
-    <SidebarInset>
-      <header className="flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6">
-        <SidebarTrigger />
-        <Breadcrumbs />
-        <div className="flex-1">
-        </div>
-        <ThemeSwitcher />
-      </header>
-      <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
-    </SidebarInset>
+             <Separator className="my-2" />
+             <div className="p-2">
+                <UserProfile />
+             </div>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset>
+        <header className="flex h-16 items-center gap-4 border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10 px-4 md:px-6">
+          <SidebarTrigger />
+          <Breadcrumbs />
+          <div className="flex-1" />
+          <ThemeSwitcher />
+        </header>
+        <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+      </SidebarInset>
+    </>
   );
 }
 
