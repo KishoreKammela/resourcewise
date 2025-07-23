@@ -35,7 +35,7 @@ function ResourcesContent() {
         <CardHeader>
           <CardTitle>Talent Pool</CardTitle>
           <CardDescription>
-            Browse, manage, and assign your company's resources.
+            Browse, manage, and assign your company&apos;s resources.
           </CardDescription>
         </CardHeader>
         <CardContent>

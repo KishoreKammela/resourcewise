@@ -32,7 +32,7 @@ function ProjectsContent() {
         <CardHeader>
           <CardTitle>Project Portfolio</CardTitle>
           <CardDescription>
-            An overview of all your company's projects.
+            An overview of all your company&apos;s projects.
           </CardDescription>
         </CardHeader>
         <CardContent>

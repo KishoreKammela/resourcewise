@@ -79,7 +79,7 @@ export const updateUserProfile = async (
     updateData['personalInfo.phone'] = data.phone || '';
     updateData['personalInfo.dateOfBirth'] = aDate;
     updateData['personalInfo.gender'] = data.gender || '';
-    updateData['designation'] = data.designation || '';
+    updateData['professionalInfo.designation'] = data.designation || '';
   }
 
   try {

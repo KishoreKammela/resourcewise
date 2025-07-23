@@ -27,7 +27,7 @@ function SettingsContent() {
           <CardHeader>
             <CardTitle>Company Profile</CardTitle>
             <CardDescription>
-              Update your company's profile information.
+              Update your company&apos;s profile information.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -52,7 +52,7 @@ function SettingsContent() {
           <CardHeader>
             <CardTitle>Operational Data</CardTitle>
             <CardDescription>
-              Configure your company's operational settings.
+              Configure your company&apos;s operational settings.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

@@ -5,7 +5,7 @@ export type UserProfileUpdate = {
   firstName: string;
   lastName: string;
   phone?: string;
-  dateOfBirth?: Timestamp;
+  dateOfBirth?: Date;
   gender?: string;
   city?: string;
   country?: string;
@@ -40,8 +40,6 @@ export interface PlatformUser {
     phone?: string;
     dateOfBirth?: Timestamp;
     gender?: string;
-    city?: string;
-    country?: string;
   };
 
   // Address Information
