@@ -33,21 +33,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(true);
       if (user) {
         setUser(user);
-        // Check if the user is a platform user first
         const platformUserDocRef = doc(db, 'platformUsers', user.uid);
         const platformUserDoc = await getDoc(platformUserDocRef);
+
         if (platformUserDoc.exists()) {
           setUserProfile(platformUserDoc.data() as PlatformUser);
           setUserRole('platform');
         } else {
-          // If not a platform user, check if they are a company user (team member)
           const teamMemberDocRef = doc(db, 'teamMembers', user.uid);
           const teamMemberDoc = await getDoc(teamMemberDocRef);
           if (teamMemberDoc.exists()) {
             setUserProfile(teamMemberDoc.data() as TeamMember);
             setUserRole('company');
           } else {
-             // Handle case where user exists in Auth but not in Firestore
+            console.warn('User authenticated but no profile document found.');
             setUserProfile(null);
             setUserRole(null);
           }
@@ -65,7 +64,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     await signOut(auth);
-    // On logout, clear all state
     setUser(null);
     setUserProfile(null);
     setUserRole(null);

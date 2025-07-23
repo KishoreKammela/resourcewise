@@ -54,9 +54,15 @@ export function ProfileForm({ currentUser }: { currentUser: UserProfileProps }) 
   const isCompanyUser = currentUser.userRole === 'company' && 'personalInfo' in currentUser;
 
   const defaultValues: Partial<ProfileFormValues> = {
-    firstName: isCompanyUser ? currentUser.personalInfo.firstName : ('firstName' in currentUser ? currentUser.firstName : ''),
-    lastName: isCompanyUser ? currentUser.personalInfo.lastName : ('lastName' in currentUser ? currentUser.lastName : ''),
-    email: isCompanyUser ? currentUser.personalInfo.email : ('email' in currentUser ? currentUser.email : ''),
+    firstName: isCompanyUser 
+      ? currentUser.personalInfo.firstName 
+      : ('firstName' in currentUser ? currentUser.firstName : ''),
+    lastName: isCompanyUser 
+      ? currentUser.personalInfo.lastName 
+      : ('lastName' in currentUser ? currentUser.lastName : ''),
+    email: isCompanyUser 
+      ? currentUser.personalInfo.email 
+      : ('email' in currentUser ? currentUser.email : ''),
   };
 
   const form = useForm<ProfileFormValues>({

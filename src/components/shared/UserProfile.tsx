@@ -44,10 +44,10 @@ export function UserProfile() {
     );
   }
 
-  const isCompanyUser = 'personalInfo' in userProfile;
-  const firstName = isCompanyUser ? userProfile.personalInfo.firstName : userProfile.firstName;
-  const lastName = isCompanyUser ? userProfile.personalInfo.lastName : userProfile.lastName;
-  const email = isCompanyUser ? userProfile.personalInfo.email : userProfile.email;
+  const isCompanyUser = 'personalInfo' in userProfile && userProfile.personalInfo;
+  const firstName = isCompanyUser ? userProfile.personalInfo.firstName : ('firstName' in userProfile ? userProfile.firstName : '');
+  const lastName = isCompanyUser ? userProfile.personalInfo.lastName : ('lastName' in userProfile ? userProfile.lastName : '');
+  const email = isCompanyUser ? userProfile.personalInfo.email : ('email' in userProfile ? userProfile.email : '');
   
   const triggerContent = (
     <div className="flex w-full items-center justify-between">
