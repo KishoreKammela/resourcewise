@@ -4,6 +4,12 @@ import type { Timestamp } from 'firebase/firestore';
 export type UserProfileUpdate = {
   firstName: string;
   lastName: string;
+  phone?: string;
+  dateOfBirth?: Timestamp;
+  gender?: string;
+  city?: string;
+  country?: string;
+  designation?: string;
 }
 
 export type UserProfile = {
@@ -19,14 +25,23 @@ export interface PlatformUser {
   // Core Fields
   id: string; // Document ID (auto-generated)
   email: string;
-  firstName: string;
-  lastName: string;
   userType:
     | 'admin'
     | 'superAdmin'
     | 'moderator'
     | 'supportAgent'
     | 'dataAnalyst';
+
+  // Personal Information
+  personalInfo: {
+      firstName: string;
+      lastName: string;
+      phone?: string;
+      dateOfBirth?: Timestamp;
+      gender?: string;
+      city?: string;
+      country?: string;
+  }
 
   // Professional Information
   employeeId?: string;
@@ -176,6 +191,17 @@ export interface TeamMember {
     dateOfBirth?: Timestamp;
     gender?: string;
   };
+  
+  // Address Information
+  address: {
+    line1?: string;
+    line2?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+  };
+
 
   // Professional Information
   professionalInfo: {
