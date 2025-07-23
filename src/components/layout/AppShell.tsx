@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { ThemeSwitcher } from '../shared/ThemeSwitcher';
 
 type NavItem = {
   href: string;
@@ -130,6 +131,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="flex-1">
             {/* Can add breadcrumbs or page title here */}
           </div>
+          <ThemeSwitcher />
         </header>
         <main className="flex-1 p-4 md:p-6">{children}</main>
       </SidebarInset>
