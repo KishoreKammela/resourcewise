@@ -51,8 +51,8 @@ export const updateUserProfile = async (
   let updateData: { [key: string]: any } = {
     updatedAt: serverTimestamp(),
   };
-
-  const aDate = data.dateOfBirth ? Timestamp.fromDate(new Date(data.dateOfBirth)) : undefined;
+  
+  const aDate = data.dateOfBirth ? Timestamp.fromDate(data.dateOfBirth) : undefined;
 
   if (userRole === 'company') {
     updateData['personalInfo.firstName'] = data.firstName;
