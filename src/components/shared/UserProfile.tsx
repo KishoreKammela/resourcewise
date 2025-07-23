@@ -28,9 +28,11 @@ import { Button } from '@/components/ui/button';
 import { UserCircle, LogOut, KeyRound, User, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChangePasswordDialog } from '../profile/ChangePasswordDialog';
+import type { PlatformUser, TeamMember } from '@/lib/types';
+
 
 export function UserProfile() {
-  const { user, userProfile, logout } = useAuth();
+  const { userProfile, logout } = useAuth();
   const { state } = useSidebar();
   const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
@@ -43,6 +45,27 @@ export function UserProfile() {
       </div>
     );
   }
+
+  const getFirstName = () => {
+    if ('personalInfo' in userProfile) {
+      return userProfile.personalInfo.firstName;
+    }
+    return userProfile.firstName;
+  }
+
+  const getLastName = () => {
+     if ('personalInfo' in userProfile) {
+      return userProfile.personalInfo.lastName;
+    }
+    return userProfile.lastName;
+  }
+
+  const getEmail = () => {
+     if ('personalInfo' in userProfile) {
+      return userProfile.personalInfo.email;
+    }
+    return userProfile.email;
+  }
   
   const triggerContent = (
     <div className="flex w-full items-center justify-between">
@@ -51,10 +74,10 @@ export function UserProfile() {
         {state === 'expanded' && (
           <div className="flex flex-col items-start overflow-hidden">
             <span className="truncate text-sm font-medium">
-              {userProfile.firstName} {userProfile.lastName}
+              {getFirstName()} {getLastName()}
             </span>
             <span className="truncate text-xs text-muted-foreground">
-              {userProfile.email}
+              {getEmail()}
             </span>
           </div>
         )}
@@ -81,10 +104,10 @@ export function UserProfile() {
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">
-                  {userProfile.firstName} {userProfile.lastName}
+                  {getFirstName()} {getLastName()}
                 </p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  {userProfile.email}
+                  {getEmail()}
                 </p>
               </div>
             </DropdownMenuLabel>

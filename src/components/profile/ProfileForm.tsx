@@ -51,10 +51,41 @@ export function ProfileForm({ currentUser }: { currentUser: UserProfileProps }) 
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
+  const getFirstName = () => {
+    if (currentUser.userRole === 'company' && 'personalInfo' in currentUser) {
+      return currentUser.personalInfo.firstName;
+    }
+    if ('firstName' in currentUser) {
+      return currentUser.firstName;
+    }
+    return '';
+  }
+
+  const getLastName = () => {
+    if (currentUser.userRole === 'company' && 'personalInfo' in currentUser) {
+      return currentUser.personalInfo.lastName;
+    }
+    if ('lastName' in currentUser) {
+      return currentUser.lastName;
+    }
+    return '';
+  }
+  
+  const getEmail = () => {
+    if (currentUser.userRole === 'company' && 'personalInfo' in currentUser) {
+      return currentUser.personalInfo.email;
+    }
+    if ('email' in currentUser) {
+      return currentUser.email;
+    }
+    return '';
+  }
+
+
   const defaultValues: Partial<ProfileFormValues> = {
-    firstName: currentUser.personalInfo?.firstName || currentUser.firstName,
-    lastName: currentUser.personalInfo?.lastName || currentUser.lastName,
-    email: currentUser.personalInfo?.email || currentUser.email,
+    firstName: getFirstName(),
+    lastName: getLastName(),
+    email: getEmail(),
   };
 
   const form = useForm<ProfileFormValues>({
