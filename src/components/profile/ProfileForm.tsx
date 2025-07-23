@@ -16,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Loader2, CalendarIcon } from 'lucide-react';
-import type { PlatformUser, TeamMember } from '@/lib/types';
+import type { PlatformUser, TeamMember, UserProfileUpdate } from '@/lib/types';
 import { updateUserProfileAction } from '@/app/actions/userActions';
 import {
   AlertDialog,
@@ -88,7 +88,7 @@ export function ProfileForm({
         gender: currentUser.personalInfo.gender || '',
         city: currentUser.address?.city || '',
         country: currentUser.address?.country || '',
-        designation: currentUser.professionalInfo.designation || '',
+        designation: currentUser.professionalInfo?.designation || '',
       };
     }
     if (currentUser.userRole === 'platform' && 'personalInfo' in currentUser) {
@@ -99,9 +99,9 @@ export function ProfileForm({
         phone: currentUser.personalInfo.phone || '',
         dateOfBirth: toDate(currentUser.personalInfo.dateOfBirth),
         gender: currentUser.personalInfo.gender || '',
-        city: currentUser.address.city || '',
-        country: currentUser.address.country || '',
-        designation: currentUser.professionalInfo.designation || '',
+        city: currentUser.address?.city || '',
+        country: currentUser.address?.country || '',
+        designation: currentUser.professionalInfo?.designation || '',
       };
     }
     return {

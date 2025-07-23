@@ -29,6 +29,8 @@ export const createPlatformUserDocument = async (
         firstName: additionalData.firstName,
         lastName: additionalData.lastName,
       },
+      address: {},
+      professionalInfo: {},
       userType: 'admin', // Default userType
       permissions: {},
       isActive: true,
@@ -57,7 +59,7 @@ export const updateUserProfile = async (
     throw new Error("User document doesn't exist.");
   }
 
-  let updateData: { [key: string]: any } = {
+  const updateData: { [key: string]: any } = {
     updatedAt: serverTimestamp(),
   };
 
@@ -66,6 +68,7 @@ export const updateUserProfile = async (
     : undefined;
 
   if (userRole === 'company') {
+    // This structure matches the TeamMember type
     updateData['personalInfo.firstName'] = data.firstName;
     updateData['personalInfo.lastName'] = data.lastName;
     updateData['personalInfo.phone'] = data.phone || '';
@@ -75,12 +78,14 @@ export const updateUserProfile = async (
     updateData['address.country'] = data.country || '';
     updateData['professionalInfo.designation'] = data.designation || '';
   } else {
-    // For 'platform' users
+    // This structure matches the PlatformUser type
     updateData['personalInfo.firstName'] = data.firstName;
     updateData['personalInfo.lastName'] = data.lastName;
     updateData['personalInfo.phone'] = data.phone || '';
     updateData['personalInfo.dateOfBirth'] = aDate;
     updateData['personalInfo.gender'] = data.gender || '';
+    updateData['address.city'] = data.city || '';
+    updateData['address.country'] = data.country || '';
     updateData['professionalInfo.designation'] = data.designation || '';
   }
 
