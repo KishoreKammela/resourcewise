@@ -28,8 +28,6 @@ import { Button } from '@/components/ui/button';
 import { UserCircle, LogOut, KeyRound, User, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChangePasswordDialog } from '../profile/ChangePasswordDialog';
-import type { PlatformUser, TeamMember } from '@/lib/types';
-
 
 export function UserProfile() {
   const { userProfile, logout } = useAuth();
@@ -46,26 +44,10 @@ export function UserProfile() {
     );
   }
 
-  const getFirstName = () => {
-    if ('personalInfo' in userProfile) {
-      return userProfile.personalInfo.firstName;
-    }
-    return userProfile.firstName;
-  }
-
-  const getLastName = () => {
-     if ('personalInfo' in userProfile) {
-      return userProfile.personalInfo.lastName;
-    }
-    return userProfile.lastName;
-  }
-
-  const getEmail = () => {
-     if ('personalInfo' in userProfile) {
-      return userProfile.personalInfo.email;
-    }
-    return userProfile.email;
-  }
+  const isCompanyUser = 'personalInfo' in userProfile;
+  const firstName = isCompanyUser ? userProfile.personalInfo.firstName : userProfile.firstName;
+  const lastName = isCompanyUser ? userProfile.personalInfo.lastName : userProfile.lastName;
+  const email = isCompanyUser ? userProfile.personalInfo.email : userProfile.email;
   
   const triggerContent = (
     <div className="flex w-full items-center justify-between">
@@ -74,10 +56,10 @@ export function UserProfile() {
         {state === 'expanded' && (
           <div className="flex flex-col items-start overflow-hidden">
             <span className="truncate text-sm font-medium">
-              {getFirstName()} {getLastName()}
+              {firstName} {lastName}
             </span>
             <span className="truncate text-xs text-muted-foreground">
-              {getEmail()}
+              {email}
             </span>
           </div>
         )}
@@ -104,10 +86,10 @@ export function UserProfile() {
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">
-                  {getFirstName()} {getLastName()}
+                  {firstName} {lastName}
                 </p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  {getEmail()}
+                  {email}
                 </p>
               </div>
             </DropdownMenuLabel>
