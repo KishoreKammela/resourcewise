@@ -30,7 +30,7 @@ import type { Client } from '@/lib/types';
 
 const getStatusBadgeVariant = (
   status: Client['relationship']['status']
-): 'default' | 'secondary' | 'destructive' => {
+): 'default' | 'secondary' | 'destructive' | 'outline' => {
   switch (status) {
     case 'Active':
       return 'default';
@@ -39,7 +39,7 @@ const getStatusBadgeVariant = (
     case 'Inactive':
       return 'destructive';
     default:
-      return 'secondary';
+      return 'outline';
   }
 };
 

@@ -8,26 +8,27 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { allocations } from '@/lib/placeholder-data';
+import { allocations, projects as allProjects, resources, clients } from '@/lib/placeholder-data';
 import { Users, GanttChartSquare } from 'lucide-react';
 
 
 function AllocationsContent() {
-  const projects = [...new Set(allocations.map((a) => a.projectName))];
+  const allocatedProjectIds = [...new Set(allocations.map((a) => a.projectId))];
+  const allocatedProjects = allProjects.filter(p => allocatedProjectIds.includes(p.id));
 
   return (
     <div className="flex flex-col gap-4">
       <PageHeader title="Allocation Board" />
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {projects.map((project) => (
-          <Card key={project}>
+        {allocatedProjects.map((project) => (
+          <Card key={project.id}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <GanttChartSquare className="h-5 w-5 text-primary" />
-                {project}
+                {project.basicInfo.projectName}
               </CardTitle>
               <CardDescription>
-                Client: {allocations.find((a) => a.projectName === project)?.clientName}
+                Client: {clients.find(c => c.id === project.clientId)?.basicInfo.clientName || 'N/A'}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -39,8 +40,9 @@ function AllocationsContent() {
                 <Separator />
                 <ul className="space-y-2">
                   {allocations
-                    .filter((a) => a.projectName === project)
-                    .map((allocation) => (
+                    .filter((a) => a.projectId === project.id)
+                    // @ts-ignore
+                    .map((allocation: any) => (
                       <li
                         key={allocation.id}
                         className="flex justify-between items-center text-sm"
@@ -57,7 +59,7 @@ function AllocationsContent() {
           </Card>
         ))}
       </div>
-      {projects.length === 0 && (
+      {allocatedProjects.length === 0 && (
          <Card className="mt-4">
             <CardContent className="pt-6">
                 <div className="text-center text-muted-foreground">
