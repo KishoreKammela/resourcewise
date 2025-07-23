@@ -84,20 +84,20 @@ export function ProfileForm({ currentUser }: { currentUser: UserProfileProps }) 
         gender: currentUser.personalInfo.gender || '',
         city: currentUser.address?.city || '',
         country: currentUser.address?.country || '',
-        designation: currentUser.professionalInfo?.designation || '',
-      };
+        designation: currentUser.professionalInfo.designation || '',
+      };  
     }
     if (currentUser.userRole === 'platform' && 'personalInfo' in currentUser) {
       return {
         firstName: currentUser.personalInfo.firstName || '',
         lastName: currentUser.personalInfo.lastName || '',
-        email: currentUser.email || '',
+        email: currentUser.personalInfo.email || '',
         phone: currentUser.personalInfo.phone || '',
         dateOfBirth: toDate(currentUser.personalInfo.dateOfBirth),
         gender: currentUser.personalInfo.gender || '',
-        city: currentUser.personalInfo.city || '',
-        country: currentUser.personalInfo.country || '',
-        designation: currentUser.designation || '',
+        city: currentUser.address.city|| '',
+        country: currentUser.address.country || '',
+        designation: currentUser.professionalInfo.designation || '',
       };
     }
     return {

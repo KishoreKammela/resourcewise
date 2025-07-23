@@ -36,20 +36,33 @@ export interface PlatformUser {
   personalInfo: {
       firstName: string;
       lastName: string;
+      email:string;
       phone?: string;
       dateOfBirth?: Timestamp;
       gender?: string;
       city?: string;
       country?: string;
-  }
+  };
+
+ // Address Information
+ address: {
+  line1?: string;
+  line2?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  postalCode?: string;
+};
 
   // Professional Information
-  employeeId?: string;
-  designation?: string;
-  department?: string;
-  reportingManagerId?: string; // Reference to another platformUser document
-  joiningDate?: Timestamp;
-  profilePictureUrl?: string;
+  professionalInfo: {
+    designation?: string;
+    department?: string;
+    reportingManagerId?: string; // Reference to platformUser document
+    joiningDate?: Timestamp;
+    probationEndDate?: Timestamp;
+  };
+
 
   // Access & Security
   permissions: {

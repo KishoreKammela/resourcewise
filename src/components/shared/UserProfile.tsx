@@ -58,7 +58,7 @@ export function UserProfile() {
         } else if (userRole === 'platform' && 'personalInfo' in userProfile) {
             firstName = userProfile.personalInfo.firstName || '';
             lastName = userProfile.personalInfo.lastName || '';
-            email = userProfile.email || user?.email || '';
+            email = userProfile.personalInfo.email || user?.email || '';
         }
     }
     
