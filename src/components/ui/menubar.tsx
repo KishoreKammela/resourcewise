@@ -1,3 +1,4 @@
+// This component is not used in the project. It can be removed.
 'use client';
 
 import * as React from 'react';
