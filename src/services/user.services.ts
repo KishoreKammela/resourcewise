@@ -37,20 +37,21 @@ export const updateUserProfile = async (
   userRole: 'platform' | 'company',
   data: UserProfileUpdate
 ) => {
-  const collectionName = userRole === 'platform' ? 'platformUsers' : 'teamMembers';
+  const collectionName =
+    userRole === 'platform' ? 'platformUsers' : 'teamMembers';
   const userRef = doc(db, collectionName, userId);
   const now = serverTimestamp();
 
-  const updateData: any = {
-      updatedAt: now,
+  let updateData: { [key: string]: any } = {
+    updatedAt: now,
   };
-  
-  if(userRole === 'company') {
-      updateData['personalInfo.firstName'] = data.firstName;
-      updateData['personalInfo.lastName'] = data.lastName;
+
+  if (userRole === 'company') {
+    updateData['personalInfo.firstName'] = data.firstName;
+    updateData['personalInfo.lastName'] = data.lastName;
   } else {
-      updateData.firstName = data.firstName;
-      updateData.lastName = data.lastName;
+    updateData.firstName = data.firstName;
+    updateData.lastName = data.lastName;
   }
 
   try {
