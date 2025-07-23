@@ -3,7 +3,7 @@
 
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   BarChart3,
   Briefcase,
@@ -14,8 +14,10 @@ import {
   Settings,
   Users,
   UsersRound,
+  LogOut,
+  UserCircle,
 } from 'lucide-react';
-
+import { useAuth } from '@/contexts/AuthContext';
 import {
   SidebarProvider,
   Sidebar,
@@ -33,6 +35,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ThemeSwitcher } from '../shared/ThemeSwitcher';
 import { Breadcrumbs } from '../shared/Breadcrumbs';
+import { Skeleton } from '../ui/skeleton';
 
 type NavItem = {
   href: string;
@@ -75,8 +78,75 @@ function Logo() {
   );
 }
 
+function UserProfile() {
+  const { userProfile, logout } = useAuth();
+  const { state } = useSidebar();
+  
+  if (!userProfile) {
+    return (
+      <div className="flex items-center gap-3 p-2">
+        <Skeleton className="h-8 w-8 rounded-full" />
+        <Skeleton className="h-4 w-24" />
+      </div>
+    );
+  }
+
+  return (
+     <div className="flex w-full items-center justify-between">
+      <div className="flex items-center gap-3">
+        <UserCircle className="h-8 w-8 text-muted-foreground" />
+        {state === 'expanded' && (
+          <div className="flex flex-col">
+            <span className="text-sm font-medium">{userProfile.displayName}</span>
+            <span className="text-xs text-muted-foreground">{userProfile.email}</span>
+          </div>
+        )}
+      </div>
+      {state === 'expanded' && (
+        <Button variant="ghost" size="icon" onClick={logout} className="h-8 w-8">
+          <LogOut />
+        </Button>
+      )}
+    </div>
+  )
+}
+
+const unauthenticatedRoutes = ['/login', '/signup'];
+
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, loading } = useAuth();
+  const { state } = useSidebar();
+
+  if (loading) {
+     return (
+       <div className="flex h-screen items-center justify-center">
+         <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            className="h-12 w-12 animate-spin text-primary"
+            fill="currentColor"
+          >
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5-10-5-10 5z" />
+         </svg>
+       </div>
+     );
+  }
+
+  if (!user && !unauthenticatedRoutes.includes(pathname)) {
+    router.push('/login');
+    return null;
+  }
+  
+  if (user && unauthenticatedRoutes.includes(pathname)) {
+    router.push('/');
+    return null;
+  }
+  
+  if (unauthenticatedRoutes.includes(pathname)) {
+    return <>{children}</>;
+  }
 
   return (
     <SidebarProvider>
@@ -124,6 +194,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
+             <Separator className="my-2" />
+             <div className="p-2">
+                <UserProfile />
+             </div>
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
@@ -132,7 +206,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           <SidebarTrigger />
           <Breadcrumbs />
           <div className="flex-1">
-            {/* Can add breadcrumbs or page title here */}
           </div>
           <ThemeSwitcher />
         </header>

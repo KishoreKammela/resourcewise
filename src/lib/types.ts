@@ -1,4 +1,12 @@
 import type { LucideIcon } from 'lucide-react';
+import type { Timestamp } from 'firebase/firestore';
+
+export type UserProfile = {
+  uid: string;
+  email: string;
+  displayName?: string;
+  createdAt: Timestamp;
+};
 
 export type Resource = {
   id: string;
