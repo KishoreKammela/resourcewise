@@ -14,7 +14,6 @@ export interface PlatformUser {
   // Core Fields
   id: string; // Document ID (auto-generated)
   email: string;
-  passwordHash: string;
   firstName: string;
   lastName: string;
   userType:

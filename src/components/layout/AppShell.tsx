@@ -184,7 +184,7 @@ function UserProfile() {
         <UserCircle className="h-8 w-8 text-muted-foreground" />
         {state === 'expanded' && (
           <div className="flex flex-col">
-            <span className="text-sm font-medium">{userProfile.displayName}</span>
+            <span className="text-sm font-medium">{userProfile.firstName} {userProfile.lastName}</span>
             <span className="text-xs text-muted-foreground">{userProfile.email}</span>
           </div>
         )}

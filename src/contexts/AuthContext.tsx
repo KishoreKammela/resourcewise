@@ -1,14 +1,20 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from 'react';
 import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import type { UserProfile } from '@/lib/types';
+import type { PlatformUser } from '@/lib/types';
 
 interface AuthContextType {
   user: User | null;
-  userProfile: UserProfile | null;
+  userProfile: PlatformUser | null;
   loading: boolean;
   logout: () => Promise<void>;
 }
@@ -17,17 +23,17 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<PlatformUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUser(user);
-        const userDocRef = doc(db, 'users', user.uid);
+        const userDocRef = doc(db, 'platformUsers', user.uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
-          setUserProfile(userDoc.data() as UserProfile);
+          setUserProfile(userDoc.data() as PlatformUser);
         }
       } else {
         setUser(null);
@@ -45,7 +51,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = { user, userProfile, loading, logout };
 
-  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
