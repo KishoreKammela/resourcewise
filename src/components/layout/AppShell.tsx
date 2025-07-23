@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -33,7 +33,6 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { ThemeSwitcher } from '../shared/ThemeSwitcher';
 import { Breadcrumbs } from '../shared/Breadcrumbs';
-import { useEffect, useState } from 'react';
 import {
   Collapsible,
   CollapsibleContent,
@@ -456,7 +455,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (loading) return;
+    if (loading) {
+      return;
+    }
 
     const isUnauthenticatedRoute = unauthenticatedRoutes.some((route) =>
       pathname.startsWith(route)

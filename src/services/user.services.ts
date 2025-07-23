@@ -14,7 +14,9 @@ export const createPlatformUserDocument = async (
   user: User,
   additionalData: { firstName: string; lastName: string }
 ) => {
-  if (!user) return;
+  if (!user) {
+    return;
+  }
 
   const userRef = doc(db, `platformUsers/${user.uid}`);
   const now = serverTimestamp();

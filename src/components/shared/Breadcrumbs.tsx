@@ -32,10 +32,12 @@ export function Breadcrumbs() {
 
   const breadcrumbs = segments
     .map((segment, index) => {
-      const href = '/' + segments.slice(0, index + 1).join('/');
+      const href = `/${segments.slice(0, index + 1).join('/')}`;
       const isLast = index === segments.length - 1;
       let name = formatSegment(segment);
-      if (name === 'Dashboard') return null; // Don't show 'Dashboard' again in path
+      if (name === 'Dashboard') {
+        return null;
+      } // Don't show 'Dashboard' again in path
 
       return { name, href, isLast };
     })

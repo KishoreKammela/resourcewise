@@ -108,7 +108,9 @@ export function AddResourceForm() {
         const fileInput = document.getElementById(
           'resume-upload'
         ) as HTMLInputElement;
-        if (fileInput) fileInput.value = '';
+        if (fileInput) {
+          fileInput.value = '';
+        }
       };
       reader.onerror = () => {
         toast({
