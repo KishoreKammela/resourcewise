@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useToast } from '@/hooks/use-toast';
 import {
   Form,
   FormControl,
@@ -16,19 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Loader2, CalendarIcon } from 'lucide-react';
-import type { PlatformUser, TeamMember, UserProfileUpdate } from '@/lib/types';
-import { updateUserProfileAction } from '@/app/actions/userActions';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+import type { PlatformUser, TeamMember } from '@/lib/types';
 import {
   Select,
   SelectContent,
@@ -44,7 +31,7 @@ import {
 import { Calendar } from '../ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { Timestamp } from 'firebase/firestore';
+import type { Timestamp } from 'firebase/firestore';
 
 const profileFormSchema = z.object({
   firstName: z.string().min(2, 'First name is required'),
@@ -74,28 +61,16 @@ export function ProfileForm({
 }: {
   currentUser: UserProfileProps;
 }) {
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   const getInitialValues = () => {
-    if (currentUser.userRole === 'company' && 'personalInfo' in currentUser) {
+    const email = currentUser.email || '';
+
+    if ('personalInfo' in currentUser) {
       return {
         firstName: currentUser.personalInfo.firstName || '',
         lastName: currentUser.personalInfo.lastName || '',
-        email: currentUser.personalInfo.email || '',
-        phone: currentUser.personalInfo.phone || '',
-        dateOfBirth: toDate(currentUser.personalInfo.dateOfBirth),
-        gender: currentUser.personalInfo.gender || '',
-        city: currentUser.address?.city || '',
-        country: currentUser.address?.country || '',
-        designation: currentUser.professionalInfo?.designation || '',
-      };
-    }
-    if (currentUser.userRole === 'platform' && 'personalInfo' in currentUser) {
-      return {
-        firstName: currentUser.personalInfo.firstName || '',
-        lastName: currentUser.personalInfo.lastName || '',
-        email: currentUser.personalInfo.email || '',
+        email,
         phone: currentUser.personalInfo.phone || '',
         dateOfBirth: toDate(currentUser.personalInfo.dateOfBirth),
         gender: currentUser.personalInfo.gender || '',
@@ -107,7 +82,7 @@ export function ProfileForm({
     return {
       firstName: '',
       lastName: '',
-      email: '',
+      email,
       phone: '',
       dateOfBirth: undefined,
       gender: '',
@@ -122,30 +97,6 @@ export function ProfileForm({
     defaultValues: getInitialValues(),
     mode: 'onChange',
   });
-
-  async function onSubmit(data: ProfileFormValues) {
-    setLoading(true);
-    const result = await updateUserProfileAction(
-      currentUser.id,
-      currentUser.userRole,
-      data
-    );
-    setLoading(false);
-
-    if (result.success) {
-      toast({
-        title: 'Profile Updated',
-        description: 'Your information has been successfully updated.',
-      });
-      form.reset(data);
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Update Failed',
-        description: result.error,
-      });
-    }
-  }
 
   return (
     <Form {...form}>
@@ -325,31 +276,10 @@ export function ProfileForm({
         </div>
 
         <div className="flex justify-end">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button
-                type="button"
-                disabled={loading || !form.formState.isDirty}
-              >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Confirm Profile Update</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to save these changes to your profile?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={form.handleSubmit(onSubmit)}>
-                  Save
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Button type="submit" disabled>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Save Changes
+          </Button>
         </div>
       </form>
     </Form>

@@ -190,7 +190,7 @@ export interface TeamMember {
   id: string; // Document ID (should match Firebase Auth UID)
   companyId: string; // Reference to company document
   employeeId?: string;
-
+  email: string;
   // Personal Information
   personalInfo: {
     firstName: string;
