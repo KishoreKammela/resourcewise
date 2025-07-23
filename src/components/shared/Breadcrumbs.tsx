@@ -5,6 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronRight } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 // A helper function to format segment names
 const formatSegment = (segment: string) => {
@@ -15,13 +16,17 @@ const formatSegment = (segment: string) => {
 
 export function Breadcrumbs() {
   const pathname = usePathname();
+  const { userRole } = useAuth();
   const segments = pathname.split('/').filter(Boolean);
 
+  const homeText = userRole === 'platform' ? 'Platform Dashboard' : 'Dashboard';
+  const homeLink = '/';
+
   // If we are on the root dashboard, don't show any breadcrumbs.
-  if (segments.length === 0 || (segments.length === 1 && segments[0] === 'dashboard')) {
+  if (segments.length === 0 || segments[0] === 'dashboard') {
      return (
        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-         <span className="font-semibold text-foreground">Dashboard</span>
+         <span className="font-semibold text-foreground">{homeText}</span>
        </div>
      );
   }
@@ -29,21 +34,23 @@ export function Breadcrumbs() {
   const breadcrumbs = segments.map((segment, index) => {
     const href = '/' + segments.slice(0, index + 1).join('/');
     const isLast = index === segments.length - 1;
-    const name = formatSegment(segment);
+    let name = formatSegment(segment);
+    if (name === 'Dashboard') return null; // Don't show 'Dashboard' again in path
+
     return { name, href, isLast };
-  });
+  }).filter(Boolean);
 
 
   return (
     <nav aria-label="Breadcrumb" className="hidden md:flex">
       <ol className="flex items-center gap-2 text-sm">
         <li>
-          <Link href="/" className="text-muted-foreground hover:text-foreground">
-            Dashboard
+          <Link href={homeLink} className="text-muted-foreground hover:text-foreground">
+            {homeText}
           </Link>
         </li>
         {breadcrumbs.map((breadcrumb) => (
-          <li key={breadcrumb.href}>
+          breadcrumb && <li key={breadcrumb.href}>
             <div className="flex items-center gap-2">
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
               <Link

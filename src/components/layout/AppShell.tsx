@@ -5,14 +5,18 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
+  AreaChart,
   BarChart3,
   Briefcase,
+  Building,
   ChevronDown,
   FolderKanban,
   GanttChartSquare,
   LayoutDashboard,
   LucideIcon,
   Settings,
+  ShieldCheck,
+  Ticket,
   Users,
   UsersRound,
 } from 'lucide-react';
@@ -30,7 +34,6 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { ThemeSwitcher } from '../shared/ThemeSwitcher';
 import { Breadcrumbs } from '../shared/Breadcrumbs';
-import { Skeleton } from '../ui/skeleton';
 import { useEffect, useState } from 'react';
 import {
   Collapsible,
@@ -145,10 +148,59 @@ export const companySettingsNav: NavItem = {
   ]
 };
 
+const platformNavItems: NavItem[] = [
+  {
+    href: '/',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+  },
+  {
+    href: '/companies',
+    label: 'Customer Companies',
+    icon: Building,
+  },
+  {
+    href: '/platform-analytics',
+    label: 'Platform Analytics',
+    icon: AreaChart,
+  },
+  {
+    href: '/subscriptions',
+    label: 'Subscriptions',
+    icon: Ticket,
+  },
+  {
+    href: '/support',
+    label: 'Support Tickets',
+    icon: Ticket,
+  },
+];
+
+const platformSettingsNav: NavItem = {
+  href: '/settings',
+  label: 'System Admin',
+  icon: Settings,
+  children: [
+    {
+      href: '/settings/users',
+      label: 'Platform Users',
+      icon: Users
+    },
+    {
+      href: '/settings/roles',
+      label: 'Roles & Permissions',
+      icon: ShieldCheck
+    }
+  ]
+};
+
 function Logo() {
   const { state } = useSidebar();
+  const { userRole } = useAuth();
+  const href = userRole === 'platform' ? '/' : '/';
+  
   return (
-    <Link href="/" className="flex items-center gap-2.5">
+    <Link href={href} className="flex items-center gap-2.5">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
@@ -168,7 +220,7 @@ function Logo() {
 export const NavMenuItem = ({ item }: { item: NavItem }) => {
   const pathname = usePathname();
   const { state } = useSidebar();
-  const [isOpen, setIsOpen] = useState(pathname.startsWith(item.href));
+  const [isOpen, setIsOpen] = useState(pathname.startsWith(item.href) && item.href !== '/');
 
   useEffect(() => {
     if (state === 'collapsed') {
@@ -183,7 +235,7 @@ export const NavMenuItem = ({ item }: { item: NavItem }) => {
   if (!item.children || state === 'collapsed') {
     return (
       <Link
-        href={item.children ? item.children[0].href : item.href}
+        href={item.href}
         className={cn(
           'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
           isActive
@@ -243,8 +295,13 @@ export const NavMenuItem = ({ item }: { item: NavItem }) => {
 
 const unauthenticatedRoutes = ['/login', '/signup', '/signup/platform'];
 
-function AuthenticatedCompanyShell({ children }: { children: ReactNode }) {
+function AuthenticatedShell({ children }: { children: ReactNode }) {
     const { state } = useSidebar();
+    const { userRole } = useAuth();
+    
+    const navItems = userRole === 'platform' ? platformNavItems : companyNavItems;
+    const settingsNav = userRole === 'platform' ? platformSettingsNav : companySettingsNav;
+
   return (
     <>
       <Sidebar>
@@ -253,7 +310,7 @@ function AuthenticatedCompanyShell({ children }: { children: ReactNode }) {
         </SidebarHeader>
         <SidebarContent>
            <div className="flex flex-col gap-1">
-              {[...companyNavItems].map((item) => (
+              {[...navItems].map((item) => (
                 <NavMenuItem key={item.href} item={item} />
               ))}
             </div>
@@ -261,7 +318,7 @@ function AuthenticatedCompanyShell({ children }: { children: ReactNode }) {
         <SidebarFooter>
           <Separator className="my-2" />
            <div className="flex flex-col gap-1">
-              <NavMenuItem item={companySettingsNav} />
+              <NavMenuItem item={settingsNav} />
            </div>
           <Separator className="my-2" />
           <div className={cn("p-2", state === 'collapsed' && 'p-0 flex justify-center')}>
@@ -285,30 +342,22 @@ function AuthenticatedCompanyShell({ children }: { children: ReactNode }) {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loading, userRole } = useAuth();
+  const { user, loading } = useAuth();
   
   useEffect(() => {
     if (loading) return;
 
     const isUnauthenticatedRoute = unauthenticatedRoutes.some(route => pathname.startsWith(route));
-    const isPlatformArea = pathname.startsWith('/platform-admin');
 
     if (!user && !isUnauthenticatedRoute) {
       router.push('/login');
-    } else if (user) {
-      if (isUnauthenticatedRoute) {
-         if (userRole === 'platform') router.push('/platform-admin/dashboard');
-         else router.push('/');
-      } else if (userRole === 'platform' && !isPlatformArea) {
-         router.push('/platform-admin/dashboard');
-      } else if (userRole === 'company' && isPlatformArea) {
-        router.push('/');
-      }
+    } else if (user && isUnauthenticatedRoute) {
+       router.push('/');
     }
-  }, [user, userRole, loading, pathname, router]);
+  }, [user, loading, pathname, router]);
 
 
-  if (loading) {
+  if (loading || (!user && !unauthenticatedRoutes.some(route => pathname.startsWith(route))) || (user && unauthenticatedRoutes.some(route => pathname.startsWith(route)))) {
     return (
       <div className="flex h-screen items-center justify-center">
         <svg
@@ -323,32 +372,15 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   }
 
-  // This prevents rendering the children (which could be an authenticated page)
-  // before the redirect has a chance to happen.
-  if (!user && !unauthenticatedRoutes.some(route => pathname.startsWith(route))) {
-    return null;
-  }
-  
-  if (user && unauthenticatedRoutes.some(route => pathname.startsWith(route))) {
-    return null;
-  }
-  
-  // If we are on a platform route, the platform layout will handle the shell.
-  // We don't want to render another shell here.
-  if (userRole === 'platform') {
-      return <>{children}</>
+  if (unauthenticatedRoutes.some(route => pathname.startsWith(route))) {
+    return <>{children}</>;
   }
 
-  if (userRole === 'company') {
-    return (
-      <SidebarProvider>
-        <AuthenticatedCompanyShell>
-            {children}
-        </AuthenticatedCompanyShell>
-      </SidebarProvider>
-    );
-  }
-
-  // Fallback for unauthenticated routes (login, signup)
-  return <>{children}</>;
+  return (
+    <SidebarProvider>
+      <AuthenticatedShell>
+          {children}
+      </AuthenticatedShell>
+    </SidebarProvider>
+  );
 }

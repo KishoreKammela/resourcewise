@@ -1,5 +1,6 @@
 'use client';
 
+import { useAuth } from '@/contexts/AuthContext';
 import { AppShell } from '@/components/layout/AppShell';
 import {
   Card,
@@ -43,7 +44,20 @@ import Link from 'next/link';
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))'];
 
-function DashboardContents() {
+
+function PlatformAdminDashboard() {
+  return (
+    <div>
+      <PageHeader title="Platform Admin Dashboard" />
+      <div className="p-4">
+        <p>Welcome to the platform administration area.</p>
+        <p>Here you can manage companies, subscriptions, and platform settings.</p>
+      </div>
+    </div>
+  );
+}
+
+function CompanyDashboardContents() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader title="Executive Dashboard" />
@@ -201,9 +215,11 @@ function DashboardContents() {
 
 
 export default function Dashboard() {
+  const { userRole } = useAuth();
+  
   return (
     <AppShell>
-      <DashboardContents />
+      {userRole === 'platform' ? <PlatformAdminDashboard /> : <CompanyDashboardContents />}
     </AppShell>
   )
 }
