@@ -16,36 +16,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
-import { projects, clients } from '@/lib/placeholder-data';
-import type { Project } from '@/lib/types';
-import { format } from 'date-fns';
+import { PlusCircle } from 'lucide-react';
+import { projects } from '@/lib/placeholder-data';
 
-const getStatusBadgeVariant = (
-  status: Project['status']['projectStatus']
-): 'default' | 'secondary' | 'destructive' | 'outline' => {
-  switch (status) {
-    case 'Active':
-      return 'default';
-    case 'On Hold':
-      return 'secondary';
-    case 'Cancelled':
-      return 'destructive';
-    case 'Completed':
-      return 'outline';
-    default:
-      return 'secondary';
-  }
-};
 
 function ProjectsContent() {
   return (
@@ -78,40 +51,15 @@ function ProjectsContent() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {projects.map((project) => (
-                <TableRow key={project.id}>
-                  <TableCell className="font-medium">{project.basicInfo.projectName}</TableCell>
-                  <TableCell>{clients.find(c => c.id === project.clientId)?.basicInfo.clientName || 'N/A'}</TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusBadgeVariant(project.status.projectStatus)}>
-                      {project.status.projectStatus}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{project.timeline.plannedEndDate ? format(project.timeline.plannedEndDate.toDate(), 'PPP') : 'N/A'}</TableCell>
-                  <TableCell>
-                    <Progress value={project.status.progressPercentage} className="w-32" />
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          aria-haspopup="true"
-                          size="icon"
-                          variant="ghost"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                        <DropdownMenuItem>Manage Allocations</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+             {projects.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
+                    No projects found. Start by adding a new project.
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                <></>
+              )}
             </TableBody>
           </Table>
         </CardContent>

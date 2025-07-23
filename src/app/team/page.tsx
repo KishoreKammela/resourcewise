@@ -16,33 +16,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
+import { PlusCircle } from 'lucide-react';
 import { teamMembers } from '@/lib/placeholder-data';
-import type { TeamMember } from '@/lib/types';
-
-const getStatusBadgeVariant = (
-  status: TeamMember['employmentDetails']['status']
-): 'default' | 'secondary' | 'destructive' => {
-  switch (status) {
-    case 'active':
-      return 'default';
-    case 'on_leave':
-      return 'secondary';
-    case 'inactive':
-      return 'destructive';
-    default:
-      return 'secondary';
-  }
-};
 
 
 function TeamContent() {
@@ -75,41 +50,15 @@ function TeamContent() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {teamMembers.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell className="font-medium">{member.personalInfo.firstName} {member.personalInfo.lastName}</TableCell>
-                  <TableCell>{member.personalInfo.email}</TableCell>
-                  <TableCell>{member.authInfo.userType}</TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusBadgeVariant(member.employmentDetails.status)}>
-                      {member.employmentDetails.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          aria-haspopup="true"
-                          size="icon"
-                          variant="ghost"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Toggle menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Resend Invitation</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
-                          Deactivate
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {teamMembers.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center">
+                      No team members found. Start by adding a new member.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  <></>
+              )}
             </TableBody>
           </Table>
         </CardContent>
