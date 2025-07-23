@@ -12,7 +12,6 @@ import {
   AreaChart,
   ShieldCheck,
   LayoutDashboard,
-  LucideIcon,
   Settings
 } from 'lucide-react';
 import { NavItem } from '@/components/layout/AppShell';
