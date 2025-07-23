@@ -13,7 +13,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check-all": "npm run format:check && npm run lint && npm run typecheck",
-    "postinstall": "husky install"
+    "prepare": "husky install"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.14.1",
@@ -76,10 +76,8 @@
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "prettier --write",
-      "eslint --fix"
-    ],
-    "*.{ts,tsx}": [
-      "bash -c 'tsc --noEmit'"
+      "eslint --fix",
+      "bash -c 'npm run typecheck'"
     ]
   }
 }
