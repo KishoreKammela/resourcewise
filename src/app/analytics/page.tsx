@@ -20,10 +20,7 @@ import {
   Line,
   CartesianGrid,
 } from 'recharts';
-import {
-  resourceUtilizationData,
-} from '@/lib/placeholder-data';
-
+import { resourceUtilizationData } from '@/lib/placeholder-data';
 
 function AnalyticsContent() {
   return (
@@ -33,7 +30,9 @@ function AnalyticsContent() {
         <Card>
           <CardHeader>
             <CardTitle>Monthly Revenue</CardTitle>
-            <CardDescription>Revenue trends over the past months.</CardDescription>
+            <CardDescription>
+              Revenue trends over the past months.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -41,7 +40,7 @@ function AnalyticsContent() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{
                     backgroundColor: 'hsl(var(--background))',
                     border: '1px solid hsl(var(--border))',
@@ -71,7 +70,7 @@ function AnalyticsContent() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="name" />
                 <YAxis />
-                <Tooltip 
+                <Tooltip
                   cursor={{ fill: 'hsla(var(--muted))' }}
                   contentStyle={{
                     backgroundColor: 'hsl(var(--background))',
@@ -109,7 +108,7 @@ function AnalyticsContent() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
 
 export default function AnalyticsPage() {

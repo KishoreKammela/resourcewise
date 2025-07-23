@@ -105,8 +105,10 @@ export function AddResourceForm() {
         }
         setIsExtracting(false);
         setResumeFile(null);
-        const fileInput = document.getElementById('resume-upload') as HTMLInputElement;
-        if(fileInput) fileInput.value = '';
+        const fileInput = document.getElementById(
+          'resume-upload'
+        ) as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
       };
       reader.onerror = () => {
         toast({
@@ -126,13 +128,18 @@ export function AddResourceForm() {
       setIsExtracting(false);
     }
   };
-  
+
   const handleAddSkill = () => {
-    if (skillInput.trim() && !fields.some(field => field.value.toLowerCase() === skillInput.trim().toLowerCase())) {
-        append({ value: skillInput.trim() });
-        setSkillInput('');
+    if (
+      skillInput.trim() &&
+      !fields.some(
+        (field) => field.value.toLowerCase() === skillInput.trim().toLowerCase()
+      )
+    ) {
+      append({ value: skillInput.trim() });
+      setSkillInput('');
     }
-  }
+  };
 
   function onSubmit(data: ResourceFormValues) {
     console.log(data);
@@ -148,85 +155,107 @@ export function AddResourceForm() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Jane Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g. jane.doe@example.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="designation"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Designation</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g. Senior Software Engineer"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="employmentType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Employment Type</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
-                        <Input placeholder="e.g. Jane Doe" {...field} />
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select employment type" />
+                        </SelectTrigger>
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. jane.doe@example.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                    control={form.control}
-                    name="designation"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Designation</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g. Senior Software Engineer" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="employmentType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Employment Type</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select employment type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Full-time">Full-time</SelectItem>
-                            <SelectItem value="Part-time">Part-time</SelectItem>
-                            <SelectItem value="Contractor">Contractor</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <SelectContent>
+                        <SelectItem value="Full-time">Full-time</SelectItem>
+                        <SelectItem value="Part-time">Part-time</SelectItem>
+                        <SelectItem value="Contractor">Contractor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           </div>
           <div className="space-y-4 rounded-lg border bg-muted/50 p-6">
-             <div className="space-y-1.5">
-                <h3 className="font-semibold">Smart Skills Extractor</h3>
-                <p className="text-sm text-muted-foreground">Upload a resume (PDF, DOCX) to automatically extract and add skills.</p>
-             </div>
-             <div className="space-y-2">
-                <Input id="resume-upload" type="file" onChange={handleFileChange} accept=".pdf,.doc,.docx"/>
-             </div>
-             <Button type="button" onClick={handleExtractSkills} disabled={isExtracting || !resumeFile} className="w-full">
-                {isExtracting ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Wand2 className="mr-2 h-4 w-4" />
-                )}
-                Extract Skills
-              </Button>
+            <div className="space-y-1.5">
+              <h3 className="font-semibold">Smart Skills Extractor</h3>
+              <p className="text-sm text-muted-foreground">
+                Upload a resume (PDF, DOCX) to automatically extract and add
+                skills.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Input
+                id="resume-upload"
+                type="file"
+                onChange={handleFileChange}
+                accept=".pdf,.doc,.docx"
+              />
+            </div>
+            <Button
+              type="button"
+              onClick={handleExtractSkills}
+              disabled={isExtracting || !resumeFile}
+              className="w-full"
+            >
+              {isExtracting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Wand2 className="mr-2 h-4 w-4" />
+              )}
+              Extract Skills
+            </Button>
           </div>
         </div>
 
@@ -239,7 +268,8 @@ export function AddResourceForm() {
             <FormItem>
               <FormLabel>Skills</FormLabel>
               <FormDescription>
-                Add skills manually or use the extractor. Press Enter to add a skill.
+                Add skills manually or use the extractor. Press Enter to add a
+                skill.
               </FormDescription>
               <div className="flex items-center gap-2">
                 <Input
@@ -248,20 +278,28 @@ export function AddResourceForm() {
                   onChange={(e) => setSkillInput(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddSkill();
+                      e.preventDefault();
+                      handleAddSkill();
                     }
                   }}
                 />
-                <Button type="button" variant="outline" onClick={handleAddSkill}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddSkill}
+                >
                   Add
                 </Button>
               </div>
               <div className="pt-2">
                 {fields.length > 0 && (
-                    <div className="flex flex-wrap gap-2 rounded-lg border p-4 min-h-24">
+                  <div className="flex flex-wrap gap-2 rounded-lg border p-4 min-h-24">
                     {fields.map((field, index) => (
-                      <Badge key={field.id} variant="secondary" className="text-sm">
+                      <Badge
+                        key={field.id}
+                        variant="secondary"
+                        className="text-sm"
+                      >
                         {field.value}
                         <button
                           type="button"
@@ -281,8 +319,10 @@ export function AddResourceForm() {
         />
 
         <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline">Cancel</Button>
-            <Button type="submit">Create Resource</Button>
+          <Button type="button" variant="outline">
+            Cancel
+          </Button>
+          <Button type="submit">Create Resource</Button>
         </div>
       </form>
     </Form>

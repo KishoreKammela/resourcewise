@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -44,33 +43,33 @@ export function UserProfile() {
       </div>
     );
   }
-  
+
   const getUserInfo = () => {
     let firstName = '';
     let lastName = '';
     let email = user?.email || 'No email found';
 
     if (userProfile) {
-        if (userRole === 'company' && 'personalInfo' in userProfile) {
-            firstName = userProfile.personalInfo.firstName || '';
-            lastName = userProfile.personalInfo.lastName || '';
-            email = userProfile.personalInfo.email || user?.email || '';
-        } else if (userRole === 'platform' && 'personalInfo' in userProfile) {
-            firstName = userProfile.personalInfo.firstName || '';
-            lastName = userProfile.personalInfo.lastName || '';
-            email = userProfile.personalInfo.email || user?.email || '';
-        }
+      if (userRole === 'company' && 'personalInfo' in userProfile) {
+        firstName = userProfile.personalInfo.firstName || '';
+        lastName = userProfile.personalInfo.lastName || '';
+        email = userProfile.personalInfo.email || user?.email || '';
+      } else if (userRole === 'platform' && 'personalInfo' in userProfile) {
+        firstName = userProfile.personalInfo.firstName || '';
+        lastName = userProfile.personalInfo.lastName || '';
+        email = userProfile.personalInfo.email || user?.email || '';
+      }
     }
-    
-    return { 
-        firstName: firstName || 'User', 
-        lastName: lastName || '', 
-        email 
+
+    return {
+      firstName: firstName || 'User',
+      lastName: lastName || '',
+      email,
     };
   };
 
   const { firstName, lastName, email } = getUserInfo();
-  
+
   const triggerContent = (
     <div className="flex w-full items-center justify-between">
       <div className="flex items-center gap-3 overflow-hidden">
@@ -86,21 +85,27 @@ export function UserProfile() {
           </div>
         )}
       </div>
-       {state === 'expanded' && (
-         <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
+      {state === 'expanded' && (
+        <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200" />
       )}
     </div>
   );
 
   return (
     <>
-      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+      <Dialog
+        open={isPasswordDialogOpen}
+        onOpenChange={setIsPasswordDialogOpen}
+      >
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className={cn(
-              "h-auto w-full justify-start p-2",
-              state === 'collapsed' && 'h-10 w-10 justify-center p-0'
-            )}>
+            <Button
+              variant="ghost"
+              className={cn(
+                'h-auto w-full justify-start p-2',
+                state === 'collapsed' && 'h-10 w-10 justify-center p-0'
+              )}
+            >
               {triggerContent}
             </Button>
           </DropdownMenuTrigger>
@@ -122,12 +127,12 @@ export function UserProfile() {
                 <span>My Profile</span>
               </Link>
             </DropdownMenuItem>
-             <DialogTrigger asChild>
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                  <KeyRound className="mr-2 h-4 w-4" />
-                  <span>Change Password</span>
-                </DropdownMenuItem>
-             </DialogTrigger>
+            <DialogTrigger asChild>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <KeyRound className="mr-2 h-4 w-4" />
+                <span>Change Password</span>
+              </DropdownMenuItem>
+            </DialogTrigger>
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={() => setIsLogoutAlertOpen(true)}>
               <LogOut className="mr-2 h-4 w-4" />
@@ -135,20 +140,24 @@ export function UserProfile() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <ChangePasswordDialog setOpen={setIsPasswordDialogOpen}/>
+        <ChangePasswordDialog setOpen={setIsPasswordDialogOpen} />
       </Dialog>
 
       <AlertDialog open={isLogoutAlertOpen} onOpenChange={setIsLogoutAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to log out?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Are you sure you want to log out?
+            </AlertDialogTitle>
             <AlertDialogDescription>
               You will be returned to the login page.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => logout()}>Log Out</AlertDialogAction>
+            <AlertDialogAction onClick={() => logout()}>
+              Log Out
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

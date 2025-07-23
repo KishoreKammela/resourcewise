@@ -1,4 +1,3 @@
-
 'use client';
 
 import type { ReactNode } from 'react';
@@ -43,7 +42,6 @@ import {
 import { cn } from '@/lib/utils';
 import { UserProfile } from '../shared/UserProfile';
 
-
 export type NavItem = {
   href: string;
   label: string;
@@ -57,10 +55,26 @@ export const companyNavItems: NavItem[] = [
     label: 'Dashboard',
     icon: LayoutDashboard,
     children: [
-      { href: '/dashboard/executive-summary', label: 'Executive Summary', icon: Users },
-      { href: '/dashboard/resource-overview', label: 'Resource Overview', icon: Users },
-      { href: '/dashboard/project-portfolio', label: 'Project Portfolio', icon: Users },
-      { href: '/dashboard/financial-summary', label: 'Financial Summary', icon: Users },
+      {
+        href: '/dashboard/executive-summary',
+        label: 'Executive Summary',
+        icon: Users,
+      },
+      {
+        href: '/dashboard/resource-overview',
+        label: 'Resource Overview',
+        icon: Users,
+      },
+      {
+        href: '/dashboard/project-portfolio',
+        label: 'Project Portfolio',
+        icon: Users,
+      },
+      {
+        href: '/dashboard/financial-summary',
+        label: 'Financial Summary',
+        icon: Users,
+      },
     ],
   },
   {
@@ -70,9 +84,21 @@ export const companyNavItems: NavItem[] = [
     children: [
       { href: '/resources', label: 'Resource Pool', icon: Users },
       { href: '/resources/skills-matrix', label: 'Skills Matrix', icon: Users },
-      { href: '/resources/performance-analytics', label: 'Performance Analytics', icon: Users },
-      { href: '/resources/availability-planning', label: 'Availability Planning', icon: Users },
-      { href: '/resources/resource-development', label: 'Resource Development', icon: Users },
+      {
+        href: '/resources/performance-analytics',
+        label: 'Performance Analytics',
+        icon: Users,
+      },
+      {
+        href: '/resources/availability-planning',
+        label: 'Availability Planning',
+        icon: Users,
+      },
+      {
+        href: '/resources/resource-development',
+        label: 'Resource Development',
+        icon: Users,
+      },
     ],
   },
   {
@@ -80,59 +106,123 @@ export const companyNavItems: NavItem[] = [
     label: 'Clients',
     icon: Briefcase,
     children: [
-        { href: '/clients', label: 'Client Portfolio', icon: Users },
-        { href: '/clients/relationship-management', label: 'Relationship Management', icon: Users },
-        { href: '/clients/contract-management', label: 'Contract Management', icon: Users },
-        { href: '/clients/client-analytics', label: 'Client Analytics', icon: Users },
-    ]
+      { href: '/clients', label: 'Client Portfolio', icon: Users },
+      {
+        href: '/clients/relationship-management',
+        label: 'Relationship Management',
+        icon: Users,
+      },
+      {
+        href: '/clients/contract-management',
+        label: 'Contract Management',
+        icon: Users,
+      },
+      {
+        href: '/clients/client-analytics',
+        label: 'Client Analytics',
+        icon: Users,
+      },
+    ],
   },
   {
     href: '/projects',
     label: 'Projects',
     icon: FolderKanban,
     children: [
-        { href: '/projects', label: 'Project Portfolio', icon: Users },
-        { href: '/projects/project-planning', label: 'Project Planning', icon: Users },
-        { href: '/projects/timeline-management', label: 'Timeline Management', icon: Users },
-        { href: '/projects/budget-tracking', label: 'Budget Tracking', icon: Users },
-        { href: '/projects/performance-metrics', label: 'Performance Metrics', icon: Users },
-    ]
+      { href: '/projects', label: 'Project Portfolio', icon: Users },
+      {
+        href: '/projects/project-planning',
+        label: 'Project Planning',
+        icon: Users,
+      },
+      {
+        href: '/projects/timeline-management',
+        label: 'Timeline Management',
+        icon: Users,
+      },
+      {
+        href: '/projects/budget-tracking',
+        label: 'Budget Tracking',
+        icon: Users,
+      },
+      {
+        href: '/projects/performance-metrics',
+        label: 'Performance Metrics',
+        icon: Users,
+      },
+    ],
   },
   {
     href: '/allocations',
     label: 'Allocations',
     icon: GanttChartSquare,
-     children: [
-        { href: '/allocations', label: 'Allocation Board', icon: Users },
-        { href: '/allocations/capacity-planning', label: 'Capacity Planning', icon: Users },
-        { href: '/allocations/conflict-resolution', label: 'Conflict Resolution', icon: Users },
-        { href: '/allocations/performance-tracking', label: 'Performance Tracking', icon: Users },
-        { href: '/allocations/time-management', label: 'Time Management', icon: Users },
-    ]
+    children: [
+      { href: '/allocations', label: 'Allocation Board', icon: Users },
+      {
+        href: '/allocations/capacity-planning',
+        label: 'Capacity Planning',
+        icon: Users,
+      },
+      {
+        href: '/allocations/conflict-resolution',
+        label: 'Conflict Resolution',
+        icon: Users,
+      },
+      {
+        href: '/allocations/performance-tracking',
+        label: 'Performance Tracking',
+        icon: Users,
+      },
+      {
+        href: '/allocations/time-management',
+        label: 'Time Management',
+        icon: Users,
+      },
+    ],
   },
   {
     href: '/team',
     label: 'Team',
     icon: UsersRound,
     children: [
-        { href: '/team', label: 'Team Members', icon: Users },
-        { href: '/team/role-management', label: 'Role Management', icon: Users },
-        { href: '/team/access-control', label: 'Access Control', icon: Users },
-        { href: '/team/team-analytics', label: 'Team Analytics', icon: Users },
-    ]
+      { href: '/team', label: 'Team Members', icon: Users },
+      { href: '/team/role-management', label: 'Role Management', icon: Users },
+      { href: '/team/access-control', label: 'Access Control', icon: Users },
+      { href: '/team/team-analytics', label: 'Team Analytics', icon: Users },
+    ],
   },
   {
     href: '/analytics',
     label: 'Analytics',
     icon: BarChart3,
     children: [
-        { href: '/analytics', label: 'Executive Dashboard', icon: Users },
-        { href: '/analytics/resource-analytics', label: 'Resource Analytics', icon: Users },
-        { href: '/analytics/project-performance', label: 'Project Performance', icon: Users },
-        { href: '/analytics/client-insights', label: 'Client Insights', icon: Users },
-        { href: '/analytics/financial-reports', label: 'Financial Reports', icon: Users },
-        { href: '/analytics/predictive-analytics', label: 'Predictive Analytics', icon: Users },
-    ]
+      { href: '/analytics', label: 'Executive Dashboard', icon: Users },
+      {
+        href: '/analytics/resource-analytics',
+        label: 'Resource Analytics',
+        icon: Users,
+      },
+      {
+        href: '/analytics/project-performance',
+        label: 'Project Performance',
+        icon: Users,
+      },
+      {
+        href: '/analytics/client-insights',
+        label: 'Client Insights',
+        icon: Users,
+      },
+      {
+        href: '/analytics/financial-reports',
+        label: 'Financial Reports',
+        icon: Users,
+      },
+      {
+        href: '/analytics/predictive-analytics',
+        label: 'Predictive Analytics',
+        icon: Users,
+      },
+    ],
   },
 ];
 
@@ -142,10 +232,22 @@ export const companySettingsNav: NavItem = {
   icon: Settings,
   children: [
     { href: '/settings', label: 'Company Profile', icon: Users },
-    { href: '/settings/platform-configuration', label: 'Platform Configuration', icon: Users },
-    { href: '/settings/integration-management', label: 'Integration Management', icon: Users },
-    { href: '/settings/subscription-management', label: 'Subscription Management', icon: Users },
-  ]
+    {
+      href: '/settings/platform-configuration',
+      label: 'Platform Configuration',
+      icon: Users,
+    },
+    {
+      href: '/settings/integration-management',
+      label: 'Integration Management',
+      icon: Users,
+    },
+    {
+      href: '/settings/subscription-management',
+      label: 'Subscription Management',
+      icon: Users,
+    },
+  ],
 };
 
 const platformNavItems: NavItem[] = [
@@ -184,21 +286,21 @@ const platformSettingsNav: NavItem = {
     {
       href: '/settings/users',
       label: 'Platform Users',
-      icon: Users
+      icon: Users,
     },
     {
       href: '/settings/roles',
       label: 'Roles & Permissions',
-      icon: ShieldCheck
-    }
-  ]
+      icon: ShieldCheck,
+    },
+  ],
 };
 
 function Logo() {
   const { state } = useSidebar();
   const { userRole } = useAuth();
   const href = userRole === 'platform' ? '/' : '/';
-  
+
   return (
     <Link href={href} className="flex items-center gap-2.5">
       <svg
@@ -210,17 +312,20 @@ function Logo() {
         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5-10-5-10 5z" />
       </svg>
       {state === 'expanded' && (
-        <h1 className="text-xl font-bold font-serif tracking-tight">ResourceWise</h1>
+        <h1 className="text-xl font-bold font-serif tracking-tight">
+          ResourceWise
+        </h1>
       )}
     </Link>
   );
 }
 
-
 export const NavMenuItem = ({ item }: { item: NavItem }) => {
   const pathname = usePathname();
   const { state } = useSidebar();
-  const [isOpen, setIsOpen] = useState(pathname.startsWith(item.href) && item.href !== '/');
+  const [isOpen, setIsOpen] = useState(
+    pathname.startsWith(item.href) && item.href !== '/'
+  );
 
   useEffect(() => {
     if (state === 'collapsed') {
@@ -296,11 +401,12 @@ export const NavMenuItem = ({ item }: { item: NavItem }) => {
 const unauthenticatedRoutes = ['/login', '/signup', '/signup/platform'];
 
 function AuthenticatedShell({ children }: { children: ReactNode }) {
-    const { state } = useSidebar();
-    const { userRole } = useAuth();
-    
-    const navItems = userRole === 'platform' ? platformNavItems : companyNavItems;
-    const settingsNav = userRole === 'platform' ? platformSettingsNav : companySettingsNav;
+  const { state } = useSidebar();
+  const { userRole } = useAuth();
+
+  const navItems = userRole === 'platform' ? platformNavItems : companyNavItems;
+  const settingsNav =
+    userRole === 'platform' ? platformSettingsNav : companySettingsNav;
 
   return (
     <>
@@ -309,19 +415,24 @@ function AuthenticatedShell({ children }: { children: ReactNode }) {
           <Logo />
         </SidebarHeader>
         <SidebarContent>
-           <div className="flex flex-col gap-1">
-              {[...navItems].map((item) => (
-                <NavMenuItem key={item.href} item={item} />
-              ))}
-            </div>
+          <div className="flex flex-col gap-1">
+            {[...navItems].map((item) => (
+              <NavMenuItem key={item.href} item={item} />
+            ))}
+          </div>
         </SidebarContent>
         <SidebarFooter>
           <Separator className="my-2" />
-           <div className="flex flex-col gap-1">
-              <NavMenuItem item={settingsNav} />
-           </div>
+          <div className="flex flex-col gap-1">
+            <NavMenuItem item={settingsNav} />
+          </div>
           <Separator className="my-2" />
-          <div className={cn("p-2", state === 'collapsed' && 'p-0 flex justify-center')}>
+          <div
+            className={cn(
+              'p-2',
+              state === 'collapsed' && 'p-0 flex justify-center'
+            )}
+          >
             <UserProfile />
           </div>
         </SidebarFooter>
@@ -343,21 +454,27 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading } = useAuth();
-  
+
   useEffect(() => {
     if (loading) return;
 
-    const isUnauthenticatedRoute = unauthenticatedRoutes.some(route => pathname.startsWith(route));
+    const isUnauthenticatedRoute = unauthenticatedRoutes.some((route) =>
+      pathname.startsWith(route)
+    );
 
     if (!user && !isUnauthenticatedRoute) {
       router.push('/login');
     } else if (user && isUnauthenticatedRoute) {
-       router.push('/');
+      router.push('/');
     }
   }, [user, loading, pathname, router]);
 
-
-  if (loading || (!user && !unauthenticatedRoutes.some(route => pathname.startsWith(route))) || (user && unauthenticatedRoutes.some(route => pathname.startsWith(route)))) {
+  if (
+    loading ||
+    (!user &&
+      !unauthenticatedRoutes.some((route) => pathname.startsWith(route))) ||
+    (user && unauthenticatedRoutes.some((route) => pathname.startsWith(route)))
+  ) {
     return (
       <div className="flex h-screen items-center justify-center">
         <svg
@@ -372,15 +489,13 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   }
 
-  if (unauthenticatedRoutes.some(route => pathname.startsWith(route))) {
+  if (unauthenticatedRoutes.some((route) => pathname.startsWith(route))) {
     return <>{children}</>;
   }
 
   return (
     <SidebarProvider>
-      <AuthenticatedShell>
-          {children}
-      </AuthenticatedShell>
+      <AuthenticatedShell>{children}</AuthenticatedShell>
     </SidebarProvider>
   );
 }

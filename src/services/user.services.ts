@@ -1,5 +1,12 @@
 import { db } from '@/lib/firebase';
-import { doc, setDoc, updateDoc, serverTimestamp, getDoc, Timestamp } from 'firebase/firestore';
+import {
+  doc,
+  setDoc,
+  updateDoc,
+  serverTimestamp,
+  getDoc,
+  Timestamp,
+} from 'firebase/firestore';
 import type { User } from 'firebase/auth';
 import type { UserProfileUpdate } from '@/lib/types';
 
@@ -17,8 +24,8 @@ export const createPlatformUserDocument = async (
       id: user.uid,
       email: user.email,
       personalInfo: {
-          firstName: additionalData.firstName,
-          lastName: additionalData.lastName,
+        firstName: additionalData.firstName,
+        lastName: additionalData.lastName,
       },
       userType: 'admin', // Default userType
       permissions: {},
@@ -51,8 +58,10 @@ export const updateUserProfile = async (
   let updateData: { [key: string]: any } = {
     updatedAt: serverTimestamp(),
   };
-  
-  const aDate = data.dateOfBirth ? Timestamp.fromDate(data.dateOfBirth) : undefined;
+
+  const aDate = data.dateOfBirth
+    ? Timestamp.fromDate(data.dateOfBirth)
+    : undefined;
 
   if (userRole === 'company') {
     updateData['personalInfo.firstName'] = data.firstName;

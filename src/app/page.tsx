@@ -11,14 +11,15 @@ import {
 } from '@/components/ui/card';
 import { PageHeader } from '@/components/shared/PageHeader';
 
-
 function PlatformAdminDashboard() {
   return (
     <div>
       <PageHeader title="Platform Admin Dashboard" />
       <div className="p-4">
         <p>Welcome to the platform administration area.</p>
-        <p>Here you can manage companies, subscriptions, and platform settings.</p>
+        <p>
+          Here you can manage companies, subscriptions, and platform settings.
+        </p>
       </div>
     </div>
   );
@@ -28,7 +29,7 @@ function CompanyDashboardContents() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader title="Executive Dashboard" />
-       <Card>
+      <Card>
         <CardHeader>
           <CardTitle>Welcome to ResourceWise</CardTitle>
           <CardDescription>
@@ -46,13 +47,16 @@ function CompanyDashboardContents() {
   );
 }
 
-
 export default function Dashboard() {
   const { userRole } = useAuth();
-  
+
   return (
     <AppShell>
-      {userRole === 'platform' ? <PlatformAdminDashboard /> : <CompanyDashboardContents />}
+      {userRole === 'platform' ? (
+        <PlatformAdminDashboard />
+      ) : (
+        <CompanyDashboardContents />
+      )}
     </AppShell>
-  )
+  );
 }

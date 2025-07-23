@@ -1,4 +1,3 @@
-
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -46,7 +45,7 @@ export default function SignupPage() {
       // await createCompanyAndFirstUser(user, { companyName, firstName, lastName });
       toast({
         title: 'Account Created (Auth Only)',
-        description: "Next step is to create company and user documents.",
+        description: 'Next step is to create company and user documents.',
       });
       router.push('/');
     } catch (error: any) {
@@ -70,16 +69,16 @@ export default function SignupPage() {
         </CardHeader>
         <form onSubmit={handleSignUp}>
           <CardContent className="grid gap-4">
-             <div className="grid gap-2">
-                <Label htmlFor="company-name">Company Name</Label>
-                <Input
-                  id="company-name"
-                  placeholder="Your Company Inc."
-                  required
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                />
-              </div>
+            <div className="grid gap-2">
+              <Label htmlFor="company-name">Company Name</Label>
+              <Input
+                id="company-name"
+                placeholder="Your Company Inc."
+                required
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+              />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="first-name">Your First Name</Label>

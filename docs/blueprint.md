@@ -4,7 +4,7 @@
 
 - Interactive Dashboards: User-friendly dashboards for platform admins, company executives, resource managers, project managers, and team members, offering at-a-glance insights into key performance indicators, resource utilization, project status, and client relationships.
 - Enhanced Team Management: Intuitive interface for managing team members, roles, access controls, and permissions. Streamlines team management workflows, ensures data security, and provides role-based access to platform features and data.
-- Smart Skills Extractor: AI-powered resource skills extraction tool to parse resume documents, and identify professional qualifications that would make them good candidates for projects and roles. 
+- Smart Skills Extractor: AI-powered resource skills extraction tool to parse resume documents, and identify professional qualifications that would make them good candidates for projects and roles.
 - Resource Management Hub: A consolidated hub for all resource-related activities including adding new resources, updating skills and certifications, assigning resources to projects, and tracking availability and utilization.
 - Project Definition: System for detailed project creation, outlining goals, scope, timelines, resource needs, and dependencies, so project activities are clear for collaborators.
 - Resource Allocation Board: Provides visibility into current allocations, potential conflicts, and resource availability across different projects. Simplifies resource planning, maximizes resource utilization, and ensures project success.

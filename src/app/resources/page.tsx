@@ -20,7 +20,6 @@ import {
 import { UserPlus } from 'lucide-react';
 import { resources } from '@/lib/placeholder-data';
 
-
 function ResourcesContent() {
   return (
     <div className="flex flex-col gap-4">

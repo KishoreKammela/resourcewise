@@ -3,7 +3,6 @@
 import { updateUserProfile } from '@/services/user.services';
 import type { UserProfileUpdate } from '@/lib/types';
 
-
 export async function updateUserProfileAction(
   userId: string,
   userRole: 'platform' | 'company',

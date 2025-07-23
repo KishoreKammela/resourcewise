@@ -19,7 +19,6 @@ import {
 import { PlusCircle } from 'lucide-react';
 import { projects } from '@/lib/placeholder-data';
 
-
 function ProjectsContent() {
   return (
     <div className="flex flex-col gap-4">
@@ -51,7 +50,7 @@ function ProjectsContent() {
               </TableRow>
             </TableHeader>
             <TableBody>
-             {projects.length === 0 ? (
+              {projects.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="h-24 text-center">
                     No projects found. Start by adding a new project.
@@ -68,11 +67,10 @@ function ProjectsContent() {
   );
 }
 
-
 export default function ProjectsPage() {
   return (
     <AppShell>
       <ProjectsContent />
     </AppShell>
-  )
+  );
 }

@@ -19,7 +19,6 @@ import {
 import { PlusCircle } from 'lucide-react';
 import { clients } from '@/lib/placeholder-data';
 
-
 function ClientsContent() {
   return (
     <div className="flex flex-col gap-4">

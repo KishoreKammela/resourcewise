@@ -8,8 +8,8 @@
  * - ExtractSkillsOutput - The return type for the extractSkills function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
 
 const ExtractSkillsInputSchema = z.object({
   resumeDataUri: z
@@ -21,18 +21,22 @@ const ExtractSkillsInputSchema = z.object({
 export type ExtractSkillsInput = z.infer<typeof ExtractSkillsInputSchema>;
 
 const ExtractSkillsOutputSchema = z.object({
-  skills: z.array(z.string()).describe('A list of skills extracted from the resume.'),
+  skills: z
+    .array(z.string())
+    .describe('A list of skills extracted from the resume.'),
 });
 export type ExtractSkillsOutput = z.infer<typeof ExtractSkillsOutputSchema>;
 
-export async function extractSkills(input: ExtractSkillsInput): Promise<ExtractSkillsOutput> {
+export async function extractSkills(
+  input: ExtractSkillsInput
+): Promise<ExtractSkillsOutput> {
   return extractSkillsFlow(input);
 }
 
 const prompt = ai.definePrompt({
   name: 'extractSkillsPrompt',
-  input: {schema: ExtractSkillsInputSchema},
-  output: {schema: ExtractSkillsOutputSchema},
+  input: { schema: ExtractSkillsInputSchema },
+  output: { schema: ExtractSkillsOutputSchema },
   prompt: `You are an expert HR assistant specializing in skill extraction from resumes.
 
 You will use this information to extract the skills from the resume.
@@ -46,8 +50,8 @@ const extractSkillsFlow = ai.defineFlow(
     inputSchema: ExtractSkillsInputSchema,
     outputSchema: ExtractSkillsOutputSchema,
   },
-  async input => {
-    const {output} = await prompt(input);
+  async (input) => {
+    const { output } = await prompt(input);
     return output!;
   }
 );

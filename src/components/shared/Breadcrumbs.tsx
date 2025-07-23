@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -24,49 +23,56 @@ export function Breadcrumbs() {
 
   // If we are on the root dashboard, don't show any breadcrumbs.
   if (segments.length === 0 || segments[0] === 'dashboard') {
-     return (
-       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-         <span className="font-semibold text-foreground">{homeText}</span>
-       </div>
-     );
+    return (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <span className="font-semibold text-foreground">{homeText}</span>
+      </div>
+    );
   }
-  
-  const breadcrumbs = segments.map((segment, index) => {
-    const href = '/' + segments.slice(0, index + 1).join('/');
-    const isLast = index === segments.length - 1;
-    let name = formatSegment(segment);
-    if (name === 'Dashboard') return null; // Don't show 'Dashboard' again in path
 
-    return { name, href, isLast };
-  }).filter(Boolean);
+  const breadcrumbs = segments
+    .map((segment, index) => {
+      const href = '/' + segments.slice(0, index + 1).join('/');
+      const isLast = index === segments.length - 1;
+      let name = formatSegment(segment);
+      if (name === 'Dashboard') return null; // Don't show 'Dashboard' again in path
 
+      return { name, href, isLast };
+    })
+    .filter(Boolean);
 
   return (
     <nav aria-label="Breadcrumb" className="hidden md:flex">
       <ol className="flex items-center gap-2 text-sm">
         <li>
-          <Link href={homeLink} className="text-muted-foreground hover:text-foreground">
+          <Link
+            href={homeLink}
+            className="text-muted-foreground hover:text-foreground"
+          >
             {homeText}
           </Link>
         </li>
-        {breadcrumbs.map((breadcrumb) => (
-          breadcrumb && <li key={breadcrumb.href}>
-            <div className="flex items-center gap-2">
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              <Link
-                href={breadcrumb.href}
-                className={
-                  breadcrumb.isLast
-                    ? 'font-semibold text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }
-                aria-current={breadcrumb.isLast ? 'page' : undefined}
-              >
-                {breadcrumb.name}
-              </Link>
-            </div>
-          </li>
-        ))}
+        {breadcrumbs.map(
+          (breadcrumb) =>
+            breadcrumb && (
+              <li key={breadcrumb.href}>
+                <div className="flex items-center gap-2">
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  <Link
+                    href={breadcrumb.href}
+                    className={
+                      breadcrumb.isLast
+                        ? 'font-semibold text-foreground'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }
+                    aria-current={breadcrumb.isLast ? 'page' : undefined}
+                  >
+                    {breadcrumb.name}
+                  </Link>
+                </div>
+              </li>
+            )
+        )}
       </ol>
     </nav>
   );

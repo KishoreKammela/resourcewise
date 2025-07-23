@@ -19,10 +19,9 @@ import {
 import { PlusCircle } from 'lucide-react';
 import { teamMembers } from '@/lib/placeholder-data';
 
-
 function TeamContent() {
   return (
-     <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <PageHeader title="Team Members">
         <Button>
           <PlusCircle className="mr-2" />
@@ -51,20 +50,20 @@ function TeamContent() {
             </TableHeader>
             <TableBody>
               {teamMembers.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
-                      No team members found. Start by adding a new member.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  <></>
+                <TableRow>
+                  <TableCell colSpan={5} className="h-24 text-center">
+                    No team members found. Start by adding a new member.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                <></>
               )}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 export default function TeamPage() {
   return (

@@ -20,7 +20,7 @@ import {
 
 function SettingsContent() {
   return (
-     <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <PageHeader title="Settings" />
       <div className="grid gap-6">
         <Card>
@@ -77,9 +77,15 @@ function SettingsContent() {
                     <SelectValue placeholder="Select timezone" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pst">Pacific Standard Time (PST)</SelectItem>
-                    <SelectItem value="est">Eastern Standard Time (EST)</SelectItem>
-                    <SelectItem value="gmt">Greenwich Mean Time (GMT)</SelectItem>
+                    <SelectItem value="pst">
+                      Pacific Standard Time (PST)
+                    </SelectItem>
+                    <SelectItem value="est">
+                      Eastern Standard Time (EST)
+                    </SelectItem>
+                    <SelectItem value="gmt">
+                      Greenwich Mean Time (GMT)
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -112,7 +118,7 @@ function SettingsContent() {
         <Button>Save Changes</Button>
       </div>
     </div>
-  )
+  );
 }
 export default function SettingsPage() {
   return (

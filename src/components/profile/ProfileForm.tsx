@@ -66,10 +66,14 @@ type UserProfileProps = (PlatformUser | TeamMember) & {
 };
 
 const toDate = (timestamp?: Timestamp): Date | undefined => {
-    return timestamp ? timestamp.toDate() : undefined;
-}
+  return timestamp ? timestamp.toDate() : undefined;
+};
 
-export function ProfileForm({ currentUser }: { currentUser: UserProfileProps }) {
+export function ProfileForm({
+  currentUser,
+}: {
+  currentUser: UserProfileProps;
+}) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
@@ -85,7 +89,7 @@ export function ProfileForm({ currentUser }: { currentUser: UserProfileProps }) 
         city: currentUser.address?.city || '',
         country: currentUser.address?.country || '',
         designation: currentUser.professionalInfo.designation || '',
-      };  
+      };
     }
     if (currentUser.userRole === 'platform' && 'personalInfo' in currentUser) {
       return {
@@ -95,7 +99,7 @@ export function ProfileForm({ currentUser }: { currentUser: UserProfileProps }) 
         phone: currentUser.personalInfo.phone || '',
         dateOfBirth: toDate(currentUser.personalInfo.dateOfBirth),
         gender: currentUser.personalInfo.gender || '',
-        city: currentUser.address.city|| '',
+        city: currentUser.address.city || '',
         country: currentUser.address.country || '',
         designation: currentUser.professionalInfo.designation || '',
       };
@@ -193,35 +197,35 @@ export function ProfileForm({ currentUser }: { currentUser: UserProfileProps }) 
           )}
         />
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
-                    <FormControl>
-                    <Input placeholder="+1 234 567 890" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            <FormField
-                control={form.control}
-                name="designation"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Designation</FormLabel>
-                    <FormControl>
-                    <Input placeholder="e.g. Senior Developer" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone Number</FormLabel>
+                <FormControl>
+                  <Input placeholder="+1 234 567 890" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="designation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Designation</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g. Senior Developer" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-           <FormField
+          <FormField
             control={form.control}
             name="dateOfBirth"
             render={({ field }) => (
@@ -262,57 +266,62 @@ export function ProfileForm({ currentUser }: { currentUser: UserProfileProps }) 
               </FormItem>
             )}
           />
-           <FormField
+          <FormField
             control={form.control}
             name="gender"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Gender</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select your gender" />
-                        </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="female">Female</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                        <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
-                    </SelectContent>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your gender" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                    <SelectItem value="prefer_not_to_say">
+                      Prefer not to say
+                    </SelectItem>
+                  </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>City</FormLabel>
-                    <FormControl>
-                    <Input placeholder="e.g. San Francisco" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            <FormField
-                control={form.control}
-                name="country"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Country</FormLabel>
-                    <FormControl>
-                    <Input placeholder="e.g. United States" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="city"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>City</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g. San Francisco" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Country</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g. United States" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <div className="flex justify-end">

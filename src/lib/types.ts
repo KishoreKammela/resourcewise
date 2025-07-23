@@ -10,7 +10,7 @@ export type UserProfileUpdate = {
   city?: string;
   country?: string;
   designation?: string;
-}
+};
 
 export type UserProfile = {
   uid: string;
@@ -34,25 +34,25 @@ export interface PlatformUser {
 
   // Personal Information
   personalInfo: {
-      firstName: string;
-      lastName: string;
-      email:string;
-      phone?: string;
-      dateOfBirth?: Timestamp;
-      gender?: string;
-      city?: string;
-      country?: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone?: string;
+    dateOfBirth?: Timestamp;
+    gender?: string;
+    city?: string;
+    country?: string;
   };
 
- // Address Information
- address: {
-  line1?: string;
-  line2?: string;
-  city?: string;
-  state?: string;
-  country?: string;
-  postalCode?: string;
-};
+  // Address Information
+  address: {
+    line1?: string;
+    line2?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+  };
 
   // Professional Information
   professionalInfo: {
@@ -62,7 +62,6 @@ export interface PlatformUser {
     joiningDate?: Timestamp;
     probationEndDate?: Timestamp;
   };
-
 
   // Access & Security
   permissions: {
@@ -204,7 +203,7 @@ export interface TeamMember {
     dateOfBirth?: Timestamp;
     gender?: string;
   };
-  
+
   // Address Information
   address: {
     line1?: string;
@@ -214,7 +213,6 @@ export interface TeamMember {
     country?: string;
     postalCode?: string;
   };
-
 
   // Professional Information
   professionalInfo: {
