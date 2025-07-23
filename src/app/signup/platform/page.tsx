@@ -4,8 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-// This will be replaced with company creation logic later
-// import { createPlatformUserDocument } from '@/services/user.services';
+import { createPlatformUserDocument } from '@/services/user.services';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -21,10 +20,9 @@ import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 
-export default function SignupPage() {
+export default function PlatformSignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [companyName, setCompanyName] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -34,20 +32,13 @@ export default function SignupPage() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // TODO: Replace with company and team member creation logic
-    // For now, it will just create an auth user.
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      // const { user } = await createUserWithEmailAndPassword(
-      //   auth,
-      //   email,
-      //   password
-      // );
-      // await createCompanyAndFirstUser(user, { companyName, firstName, lastName });
-      toast({
-        title: 'Account Created (Auth Only)',
-        description: "Next step is to create company and user documents.",
-      });
+      const { user } = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      await createPlatformUserDocument(user, { firstName, lastName });
       router.push('/');
     } catch (error: any) {
       toast({
@@ -61,28 +52,18 @@ export default function SignupPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Register Your Company</CardTitle>
+          <CardTitle className="text-2xl">Create Platform Account</CardTitle>
           <CardDescription>
-            Enter your information to create a new company account.
+            Enter your information to create a new platform account.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSignUp}>
           <CardContent className="grid gap-4">
-             <div className="grid gap-2">
-                <Label htmlFor="company-name">Company Name</Label>
-                <Input
-                  id="company-name"
-                  placeholder="Your Company Inc."
-                  required
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                />
-              </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="first-name">Your First Name</Label>
+                <Label htmlFor="first-name">First Name</Label>
                 <Input
                   id="first-name"
                   placeholder="John"
@@ -92,7 +73,7 @@ export default function SignupPage() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="last-name">Your Last Name</Label>
+                <Label htmlFor="last-name">Last Name</Label>
                 <Input
                   id="last-name"
                   placeholder="Doe"
@@ -103,7 +84,7 @@ export default function SignupPage() {
               </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="email">Your Email</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -128,7 +109,7 @@ export default function SignupPage() {
           <CardFooter className="flex flex-col gap-4">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create Company Account
+              Create Account
             </Button>
             <div className="text-center text-sm">
               Already have an account?{' '}
