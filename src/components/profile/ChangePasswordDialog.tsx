@@ -24,7 +24,20 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { changePasswordAction } from '@/app/actions/userActions';
+import { auth } from '@/lib/firebase';
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '../ui/alert-dialog';
+
 
 const changePasswordFormSchema = z
   .object({
@@ -53,21 +66,48 @@ export function ChangePasswordDialog({ setOpen }: { setOpen: (open: boolean) => 
 
   async function onSubmit(data: ChangePasswordFormValues) {
     setLoading(true);
-    const result = await changePasswordAction(data);
-    setLoading(false);
+    const user = auth.currentUser;
 
-    if (result.success) {
-      toast({
-        title: 'Password Changed',
-        description: 'Your password has been updated successfully.',
-      });
-      setOpen(false);
-    } else {
+    if (!user || !user.email) {
       toast({
         variant: 'destructive',
-        title: 'Change Password Failed',
-        description: result.error,
+        title: 'Authentication Error',
+        description: 'No user is currently logged in.',
       });
+      setLoading(false);
+      return;
+    }
+
+    try {
+        const credential = EmailAuthProvider.credential(user.email, data.currentPassword);
+        
+        // Re-authenticate the user to ensure they are the rightful owner of the account
+        await reauthenticateWithCredential(user, credential);
+        
+        // If re-authentication is successful, update the password
+        await updatePassword(user, data.newPassword);
+        
+        toast({
+            title: 'Password Changed',
+            description: 'Your password has been updated successfully.',
+        });
+        setOpen(false);
+
+    } catch (error: any) {
+        console.error('Password change failed:', error);
+        let errorMessage = 'An unexpected error occurred. Please try again.';
+        if (error.code === 'auth/wrong-password') {
+            errorMessage = 'The current password you entered is incorrect.';
+        } else if (error.code === 'auth/weak-password') {
+            errorMessage = 'The new password is too weak. Please choose a stronger password.';
+        }
+        toast({
+            variant: 'destructive',
+            title: 'Change Password Failed',
+            description: errorMessage,
+        });
+    } finally {
+        setLoading(false);
     }
   }
 
@@ -80,7 +120,7 @@ export function ChangePasswordDialog({ setOpen }: { setOpen: (open: boolean) => 
         </DialogDescription>
       </DialogHeader>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
           <FormField
             control={form.control}
             name="currentPassword"
@@ -126,10 +166,28 @@ export function ChangePasswordDialog({ setOpen }: { setOpen: (open: boolean) => 
                     Cancel
                 </Button>
             </DialogClose>
-            <Button type="submit" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Change Password
-            </Button>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button type="button" disabled={loading}>
+                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Change Password
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Confirm Password Change</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to change your password? This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={form.handleSubmit(onSubmit)}>
+                            Confirm
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
           </DialogFooter>
         </form>
       </Form>

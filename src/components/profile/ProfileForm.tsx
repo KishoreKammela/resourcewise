@@ -18,6 +18,17 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import type { PlatformUser, TeamMember } from '@/lib/types';
 import { updateUserProfileAction } from '@/app/actions/userActions';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 const profileFormSchema = z.object({
   firstName: z.string().min(2, {
@@ -32,14 +43,14 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 type UserProfileProps = (PlatformUser | TeamMember) & {
-    userRole: 'platform' | 'company',
-    id: string
+  userRole: 'platform' | 'company';
+  id: string;
 };
 
 export function ProfileForm({ currentUser }: { currentUser: UserProfileProps }) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  
+
   const defaultValues: Partial<ProfileFormValues> = {
     firstName: currentUser.personalInfo?.firstName || currentUser.firstName,
     lastName: currentUser.personalInfo?.lastName || currentUser.lastName,
@@ -54,10 +65,14 @@ export function ProfileForm({ currentUser }: { currentUser: UserProfileProps }) 
 
   async function onSubmit(data: ProfileFormValues) {
     setLoading(true);
-    const result = await updateUserProfileAction(currentUser.id, currentUser.userRole, {
-      firstName: data.firstName,
-      lastName: data.lastName,
-    });
+    const result = await updateUserProfileAction(
+      currentUser.id,
+      currentUser.userRole,
+      {
+        firstName: data.firstName,
+        lastName: data.lastName,
+      }
+    );
     setLoading(false);
 
     if (result.success) {
@@ -65,6 +80,7 @@ export function ProfileForm({ currentUser }: { currentUser: UserProfileProps }) 
         title: 'Profile Updated',
         description: 'Your information has been successfully updated.',
       });
+      form.reset(data); // Resets the dirty state
     } else {
       toast({
         variant: 'destructive',
@@ -76,7 +92,12 @@ export function ProfileForm({ currentUser }: { currentUser: UserProfileProps }) 
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+        }}
+        className="space-y-6"
+      >
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <FormField
             control={form.control}
@@ -119,10 +140,31 @@ export function ProfileForm({ currentUser }: { currentUser: UserProfileProps }) 
           )}
         />
         <div className="flex justify-end">
-          <Button type="submit" disabled={loading || !form.formState.isDirty}>
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save Changes
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                disabled={loading || !form.formState.isDirty}
+              >
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Changes
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirm Profile Update</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to save these changes to your profile?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={form.handleSubmit(onSubmit)}>
+                  Save
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </form>
     </Form>
