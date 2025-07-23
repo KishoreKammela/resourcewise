@@ -39,7 +39,7 @@ export default function PlatformSignupPage() {
         password
       );
       await createPlatformUserDocument(user, { firstName, lastName });
-      router.push('/');
+      router.push('/profile');
     } catch (error: any) {
       toast({
         variant: 'destructive',

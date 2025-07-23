@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -30,7 +31,7 @@ import { cn } from '@/lib/utils';
 import { ChangePasswordDialog } from '../profile/ChangePasswordDialog';
 
 export function UserProfile() {
-  const { userProfile, userRole, logout } = useAuth();
+  const { user, userProfile, userRole, logout } = useAuth();
   const { state } = useSidebar();
   const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
@@ -44,23 +45,28 @@ export function UserProfile() {
     );
   }
   
-  // This logic robustly extracts user info, handling both PlatformUser and TeamMember structures.
   const getUserInfo = () => {
-    if (userRole === 'company' && 'personalInfo' in userProfile) {
-      return {
-        firstName: userProfile.personalInfo.firstName || '',
-        lastName: userProfile.personalInfo.lastName || '',
-        email: userProfile.personalInfo.email || '',
-      };
+    let firstName = '';
+    let lastName = '';
+    let email = user?.email || 'No email found';
+
+    if (userProfile) {
+        if (userRole === 'company' && 'personalInfo' in userProfile) {
+            firstName = userProfile.personalInfo.firstName || '';
+            lastName = userProfile.personalInfo.lastName || '';
+            email = userProfile.personalInfo.email || user?.email || '';
+        } else if (userRole === 'platform' && 'personalInfo' in userProfile) {
+            firstName = userProfile.personalInfo.firstName || '';
+            lastName = userProfile.personalInfo.lastName || '';
+            email = userProfile.email || user?.email || '';
+        }
     }
-    if (userRole === 'platform' && 'firstName' in userProfile) {
-       return {
-        firstName: userProfile.firstName || '',
-        lastName: userProfile.lastName || '',
-        email: userProfile.email || '',
-       };
-    }
-    return { firstName: 'User', lastName: '', email: 'No email found' };
+    
+    return { 
+        firstName: firstName || 'User', 
+        lastName: lastName || '', 
+        email 
+    };
   };
 
   const { firstName, lastName, email } = getUserInfo();
