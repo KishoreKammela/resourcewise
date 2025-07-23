@@ -57,22 +57,20 @@ export const updateUserProfile = async (
   if (userRole === 'company') {
     updateData['personalInfo.firstName'] = data.firstName;
     updateData['personalInfo.lastName'] = data.lastName;
-    updateData['personalInfo.phone'] = data.phone;
+    updateData['personalInfo.phone'] = data.phone || '';
     updateData['personalInfo.dateOfBirth'] = aDate;
-    updateData['personalInfo.gender'] = data.gender;
-    updateData['address.city'] = data.city;
-    updateData['address.country'] = data.country;
-    updateData['professionalInfo.designation'] = data.designation;
+    updateData['personalInfo.gender'] = data.gender || '';
+    updateData['address.city'] = data.city || '';
+    updateData['address.country'] = data.country || '';
+    updateData['professionalInfo.designation'] = data.designation || '';
   } else {
     // For 'platform' users
     updateData['personalInfo.firstName'] = data.firstName;
     updateData['personalInfo.lastName'] = data.lastName;
-    updateData['personalInfo.phone'] = data.phone;
+    updateData['personalInfo.phone'] = data.phone || '';
     updateData['personalInfo.dateOfBirth'] = aDate;
-    updateData['personalInfo.gender'] = data.gender;
-    updateData['personalInfo.city'] = data.city;
-    updateData['personalInfo.country'] = data.country;
-    updateData['designation'] = data.designation;
+    updateData['personalInfo.gender'] = data.gender || '';
+    updateData['designation'] = data.designation || '';
   }
 
   try {
