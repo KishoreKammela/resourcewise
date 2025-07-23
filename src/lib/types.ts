@@ -1,6 +1,11 @@
 import type { LucideIcon } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
 
+export type UserProfileUpdate = {
+  firstName: string;
+  lastName: string;
+}
+
 export type UserProfile = {
   uid: string;
   email: string;

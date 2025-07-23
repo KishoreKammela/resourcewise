@@ -1,6 +1,7 @@
 import { db } from '@/lib/firebase';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import type { User } from 'firebase/auth';
+import type { UserProfileUpdate } from '@/lib/types';
 
 export const createPlatformUserDocument = async (
   user: User,
@@ -27,5 +28,35 @@ export const createPlatformUserDocument = async (
     });
   } catch (error) {
     console.error('Error creating platform user document', error);
+    throw error;
+  }
+};
+
+export const updateUserProfile = async (
+  userId: string,
+  userRole: 'platform' | 'company',
+  data: UserProfileUpdate
+) => {
+  const collectionName = userRole === 'platform' ? 'platformUsers' : 'teamMembers';
+  const userRef = doc(db, collectionName, userId);
+  const now = serverTimestamp();
+
+  const updateData: any = {
+      updatedAt: now,
+  };
+  
+  if(userRole === 'company') {
+      updateData['personalInfo.firstName'] = data.firstName;
+      updateData['personalInfo.lastName'] = data.lastName;
+  } else {
+      updateData.firstName = data.firstName;
+      updateData.lastName = data.lastName;
+  }
+
+  try {
+    await updateDoc(userRef, updateData);
+  } catch (error) {
+    console.error('Error updating user profile', error);
+    throw error;
   }
 };
