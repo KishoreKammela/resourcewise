@@ -39,10 +39,26 @@ import {
 } from '@/lib/placeholder-data';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))'];
 
 export default function Dashboard() {
+  const { userRole } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (userRole === 'platform') {
+      router.replace('/platform-admin/dashboard');
+    }
+  }, [userRole, router]);
+
+  if (userRole !== 'company') {
+    return null; // Or a loading spinner
+  }
+  
   return (
     <div className="flex flex-col gap-6">
       <PageHeader title="Executive Dashboard" />

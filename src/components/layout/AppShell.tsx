@@ -42,14 +42,14 @@ import {
 } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 
-type NavItem = {
+export type NavItem = {
   href: string;
   label: string;
   icon: LucideIcon;
   children?: NavItem[];
 };
 
-const navItems: NavItem[] = [
+export const companyNavItems: NavItem[] = [
   {
     href: '/dashboard',
     label: 'Dashboard',
@@ -134,7 +134,7 @@ const navItems: NavItem[] = [
   },
 ];
 
-const settingsNav: NavItem = {
+export const companySettingsNav: NavItem = {
   href: '/settings',
   label: 'Settings',
   icon: Settings,
@@ -198,7 +198,7 @@ function UserProfile() {
   );
 }
 
-const NavMenuItem = ({ item }: { item: NavItem }) => {
+export const NavMenuItem = ({ item }: { item: NavItem }) => {
   const pathname = usePathname();
   const { state } = useSidebar();
   const [isOpen, setIsOpen] = useState(pathname.startsWith(item.href));
@@ -274,9 +274,9 @@ const NavMenuItem = ({ item }: { item: NavItem }) => {
   );
 };
 
-const unauthenticatedRoutes = ['/login', '/signup'];
+const unauthenticatedRoutes = ['/login', '/signup', '/signup/platform'];
 
-function AuthenticatedAppShell({ children }: { children: ReactNode }) {
+function AuthenticatedAppShell({ children, navItems, settingsNav }: { children: ReactNode, navItems: NavItem[], settingsNav: NavItem }) {
     const { state } = useSidebar();
   return (
     <>
@@ -318,21 +318,28 @@ function AuthenticatedAppShell({ children }: { children: ReactNode }) {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loading } = useAuth();
-
+  const { user, loading, userRole } = useAuth();
+  
   useEffect(() => {
     if (loading) return;
 
-    const isUnauthenticatedRoute = unauthenticatedRoutes.includes(pathname);
+    const isUnauthenticatedRoute = unauthenticatedRoutes.some(route => pathname.startsWith(route));
+    const isPlatformArea = pathname.startsWith('/platform-admin');
 
     if (!user && !isUnauthenticatedRoute) {
       router.push('/login');
+    } else if (user) {
+      if (isUnauthenticatedRoute) {
+         if (userRole === 'platform') router.push('/platform-admin/dashboard');
+         else router.push('/');
+      } else if (userRole === 'platform' && !isPlatformArea) {
+         router.push('/platform-admin/dashboard');
+      } else if (userRole === 'company' && isPlatformArea) {
+        router.push('/');
+      }
     }
+  }, [user, userRole, loading, pathname, router]);
 
-    if (user && isUnauthenticatedRoute) {
-      router.push('/');
-    }
-  }, [user, loading, pathname, router]);
 
   if (loading) {
     return (
@@ -349,18 +356,20 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   }
 
-  const isUnauthenticatedRoute = unauthenticatedRoutes.includes(pathname);
+  const isUnauthenticatedRoute = unauthenticatedRoutes.some(route => pathname.startsWith(route));
   if ((!user && !isUnauthenticatedRoute) || (user && isUnauthenticatedRoute)) {
-    return null;
+      return null;
   }
 
-  if (isUnauthenticatedRoute) {
+  if (!user && isUnauthenticatedRoute) {
     return <>{children}</>;
   }
 
   return (
     <SidebarProvider>
-      <AuthenticatedAppShell>{children}</AuthenticatedAppShell>
+      <AuthenticatedAppShell navItems={companyNavItems} settingsNav={companySettingsNav}>
+        {children}
+      </AuthenticatedAppShell>
     </SidebarProvider>
   );
 }

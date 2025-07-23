@@ -15,6 +15,7 @@ import type { PlatformUser } from '@/lib/types';
 interface AuthContextType {
   user: User | null;
   userProfile: PlatformUser | null;
+  userRole: 'platform' | 'company' | null;
   loading: boolean;
   logout: () => Promise<void>;
 }
@@ -24,20 +25,30 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<PlatformUser | null>(null);
+  const [userRole, setUserRole] = useState<'platform' | 'company' | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setUser(user);
-        const userDocRef = doc(db, 'platformUsers', user.uid);
-        const userDoc = await getDoc(userDocRef);
-        if (userDoc.exists()) {
-          setUserProfile(userDoc.data() as PlatformUser);
+        // Check if the user is a platform user first
+        const platformUserDocRef = doc(db, 'platformUsers', user.uid);
+        const platformUserDoc = await getDoc(platformUserDocRef);
+        if (platformUserDoc.exists()) {
+          setUserProfile(platformUserDoc.data() as PlatformUser);
+          setUserRole('platform');
+        } else {
+          // If not a platform user, they must be a company user (team member)
+          // For now, we'll set the role and handle profile loading later
+          setUserRole('company');
+          // TODO: Fetch TeamMember profile from /teamMembers/{user.uid}
+          setUserProfile(null); 
         }
       } else {
         setUser(null);
         setUserProfile(null);
+        setUserRole(null);
       }
       setLoading(false);
     });
@@ -47,13 +58,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     await signOut(auth);
+    // On logout, clear all state
+    setUser(null);
+    setUserProfile(null);
+    setUserRole(null);
   };
 
-  const value = { user, userProfile, loading, logout };
+  const value = { user, userProfile, userRole, loading, logout };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+       {children}
     </AuthContext.Provider>
   );
 }

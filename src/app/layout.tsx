@@ -37,7 +37,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <AppShell>{children}</AppShell>
+              <AppShell>{children}</AppShell>
             <Toaster />
           </AuthProvider>
         </ThemeProvider>
