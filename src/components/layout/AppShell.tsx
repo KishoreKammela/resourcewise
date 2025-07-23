@@ -36,6 +36,7 @@ import { Separator } from '@/components/ui/separator';
 import { ThemeSwitcher } from '../shared/ThemeSwitcher';
 import { Breadcrumbs } from '../shared/Breadcrumbs';
 import { Skeleton } from '../ui/skeleton';
+import { useEffect } from 'react';
 
 type NavItem = {
   href: string;
@@ -185,6 +186,20 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (loading) return;
+
+    const isUnauthenticatedRoute = unauthenticatedRoutes.includes(pathname);
+
+    if (!user && !isUnauthenticatedRoute) {
+      router.push('/login');
+    }
+    
+    if (user && isUnauthenticatedRoute) {
+      router.push('/');
+    }
+  }, [user, loading, pathname, router]);
   
   if (loading) {
      return (
@@ -201,17 +216,12 @@ export function AppShell({ children }: { children: ReactNode }) {
      );
   }
 
-  if (!user && !unauthenticatedRoutes.includes(pathname)) {
-    router.push('/login');
-    return null;
+  const isUnauthenticatedRoute = unauthenticatedRoutes.includes(pathname);
+  if ((!user && !isUnauthenticatedRoute) || (user && isUnauthenticatedRoute)) {
+    return null; // or a loading spinner
   }
   
-  if (user && unauthenticatedRoutes.includes(pathname)) {
-    router.push('/');
-    return null;
-  }
-  
-  if (unauthenticatedRoutes.includes(pathname)) {
+  if (isUnauthenticatedRoute) {
     return <>{children}</>;
   }
 
