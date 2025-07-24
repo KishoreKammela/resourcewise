@@ -1,6 +1,9 @@
 'use client';
 import { useActionState, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useForm, FormProvider } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -19,6 +22,40 @@ import { createPlatformUserAction } from '@/app/actions/authActions';
 import { useFormStatus } from 'react-dom';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { app } from '@/lib/firebase';
+import { PasswordPolicy } from '@/components/auth/PasswordPolicy';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form';
+
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters.')
+  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter.')
+  .regex(/[a-z]/, 'Password must contain at least one lowercase letter.')
+  .regex(/[0-9]/, 'Password must contain at least one number.')
+  .regex(
+    /[^A-Za-z0-9]/,
+    'Password must contain at least one special character.'
+  );
+
+const platformSignupSchema = z
+  .object({
+    firstName: z.string().min(2, { message: 'First name is required.' }),
+    lastName: z.string().min(2, { message: 'Last name is required.' }),
+    email: z.string().email({ message: 'Please enter a valid email.' }),
+    password: passwordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match.",
+    path: ['confirmPassword'],
+  });
+
+type PlatformSignupFormValues = z.infer<typeof platformSignupSchema>;
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -37,8 +74,22 @@ export default function PlatformSignupPage() {
   const [state, formAction] = useActionState(createPlatformUserAction, {
     success: false,
   });
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+
+  const form = useForm<PlatformSignupFormValues>({
+    resolver: zodResolver(platformSignupSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+    mode: 'onChange',
+  });
+
+  const { watch } = form;
+  const password = watch('password');
+  const email = watch('email');
 
   useEffect(() => {
     async function handleLogin() {
@@ -77,70 +128,134 @@ export default function PlatformSignupPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
-      <Card className="w-full max-w-sm">
+      <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl">Create Platform Account</CardTitle>
           <CardDescription>
             Enter your information to create a new platform account.
           </CardDescription>
         </CardHeader>
-        <form action={formAction}>
-          <CardContent className="grid gap-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="first-name">First Name</Label>
-                <Input
-                  id="first-name"
+        <FormProvider {...form}>
+          <form
+            action={formAction}
+            className="space-y-6"
+            onSubmit={form.handleSubmit(() => {
+              const formData = new FormData();
+              const values = form.getValues();
+              formData.append('firstName', values.firstName);
+              formData.append('lastName', values.lastName);
+              formData.append('email', values.email);
+              formData.append('password', values.password);
+              formAction(formData);
+            })}
+          >
+            <CardContent className="grid gap-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
                   name="firstName"
-                  placeholder="John"
-                  required
+                  render={({ field }) => (
+                    <FormItem>
+                      <Label htmlFor="firstName">First Name</Label>
+                      <FormControl>
+                        <Input
+                          id="firstName"
+                          placeholder="John"
+                          required
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="last-name">Last Name</Label>
-                <Input
-                  id="last-name"
+                <FormField
+                  control={form.control}
                   name="lastName"
-                  placeholder="Doe"
-                  required
+                  render={({ field }) => (
+                    <FormItem>
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <FormControl>
+                        <Input
+                          id="lastName"
+                          placeholder="Doe"
+                          required
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
+              <FormField
+                control={form.control}
                 name="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                render={({ field }) => (
+                  <FormItem>
+                    <Label htmlFor="email">Email</Label>
+                    <FormControl>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="m@example.com"
+                        required
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
+              <FormField
+                control={form.control}
                 name="password"
-                type="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                render={({ field }) => (
+                  <FormItem>
+                    <Label htmlFor="password">Password</Label>
+                    <FormControl>
+                      <Input
+                        id="password"
+                        type="password"
+                        required
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <SubmitButton />
-            <div className="text-center text-sm">
-              Already have an account?{' '}
-              <Link href="/login" className="underline">
-                Login
-              </Link>
-            </div>
-          </CardFooter>
-        </form>
+              <PasswordPolicy password={password} />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <FormControl>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        required
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+            <CardFooter className="flex flex-col gap-4">
+              <SubmitButton />
+              <div className="text-center text-sm">
+                Already have an account?{' '}
+                <Link href="/login" className="underline">
+                  Login
+                </Link>
+              </div>
+            </CardFooter>
+          </form>
+        </FormProvider>
       </Card>
     </div>
   );

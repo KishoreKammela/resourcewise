@@ -23,14 +23,24 @@ import { Loader2, ArrowRight, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useFormStatus } from 'react-dom';
 import { createCompanyAndUserAction } from '@/app/actions/authActions';
+import { PasswordPolicy } from './PasswordPolicy';
+
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters.')
+  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter.')
+  .regex(/[a-z]/, 'Password must contain at least one lowercase letter.')
+  .regex(/[0-9]/, 'Password must contain at least one number.')
+  .regex(
+    /[^A-Za-z0-9]/,
+    'Password must contain at least one special character.'
+  );
 
 const step1Schema = z.object({
   firstName: z.string().min(2, { message: 'First name is required.' }),
   lastName: z.string().min(2, { message: 'Last name is required.' }),
   email: z.string().email({ message: 'Please enter a valid email.' }),
-  password: z
-    .string()
-    .min(6, { message: 'Password must be at least 6 characters.' }),
+  password: passwordSchema,
   confirmPassword: z.string(),
 });
 
@@ -99,7 +109,8 @@ export function MultiStepSignupForm() {
     mode: 'onChange',
   });
 
-  const { handleSubmit, trigger, getValues } = methods;
+  const { getValues, trigger, watch } = methods;
+  const password = watch('password');
 
   useEffect(() => {
     if (state.success) {
@@ -238,34 +249,33 @@ export function MultiStepSignupForm() {
                       </FormItem>
                     )}
                   />
-                  <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
-                    <FormField
-                      control={methods.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem className="pb-2">
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <Input type="password" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={methods.control}
-                      name="confirmPassword"
-                      render={({ field }) => (
-                        <FormItem className="pb-2">
-                          <FormLabel>Confirm Password</FormLabel>
-                          <FormControl>
-                            <Input type="password" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  <FormField
+                    control={methods.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem className="pb-2">
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <PasswordPolicy password={password} />
+                  <FormField
+                    control={methods.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem className="pb-2">
+                        <FormLabel>Confirm Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               )}
               {currentStep === 1 && (

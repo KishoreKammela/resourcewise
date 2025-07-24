@@ -112,3 +112,22 @@ export async function createCompanyAndAdmin(
   await batch.commit();
   return { companyId };
 }
+
+/**
+ * Updates an existing company document in Firestore.
+ * @param companyId - The company's unique ID.
+ * @param data - The profile data to update.
+ */
+export async function updateCompanyDocument(
+  companyId: string,
+  data: { [key: string]: any }
+): Promise<void> {
+  const companyRef = db.collection('companies').doc(companyId);
+
+  const updateData = {
+    ...data,
+    updatedAt: FieldValue.serverTimestamp(),
+  };
+
+  await companyRef.update(updateData);
+}
