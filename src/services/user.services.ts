@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/firebase-admin';
 import type { PlatformUser, UserProfileUpdate } from '@/lib/types';
-import { FieldValue } from 'firebase-admin/firestore';
+import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 
 /**
  * Creates a new platform user document in Firestore.
@@ -55,12 +55,16 @@ export async function updatePlatformUserDocument(
 ): Promise<void> {
   const userRef = db.collection('platformUsers').doc(uid);
 
-  const rawUpdateData = {
+  const dateOfBirthTimestamp = data.personalInfo.dateOfBirth
+    ? Timestamp.fromDate(data.personalInfo.dateOfBirth)
+    : undefined;
+
+  const updateData: { [key: string]: any } = {
     'personalInfo.firstName': data.personalInfo.firstName,
     'personalInfo.lastName': data.personalInfo.lastName,
     'personalInfo.phone': data.personalInfo.phone,
     'personalInfo.gender': data.personalInfo.gender,
-    'personalInfo.dateOfBirth': data.personalInfo.dateOfBirth,
+    'personalInfo.dateOfBirth': dateOfBirthTimestamp,
     'address.line1': data.address.line1,
     'address.line2': data.address.line2,
     'address.city': data.address.city,
@@ -72,13 +76,13 @@ export async function updatePlatformUserDocument(
     updatedAt: FieldValue.serverTimestamp(),
   };
 
-  // Filter out undefined values to prevent Firestore errors
+  // Remove undefined values to avoid errors
   const finalUpdateData = Object.fromEntries(
-    Object.entries(rawUpdateData).filter(([_, v]) => v !== undefined)
+    Object.entries(updateData).filter(([_, v]) => v !== undefined)
   );
 
-  if (Object.keys(finalUpdateData).length === 0) {
-    // No actual data to update, maybe just return
+  if (Object.keys(finalUpdateData).length <= 1) {
+    // Only updatedAt is present, no actual data changed
     return;
   }
 

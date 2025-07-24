@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useActionState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -39,6 +39,10 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/card';
+import { updateUserProfile } from '@/app/actions/userActions';
+import { useFormStatus } from 'react-dom';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 const profileFormSchema = z.object({
   email: z.string().email(),
@@ -70,16 +74,60 @@ type UserProfileProps = (PlatformUser | TeamMember) & {
   id: string;
 };
 
-const toDate = (timestamp?: Timestamp): Date | undefined => {
-  return timestamp ? timestamp.toDate() : undefined;
+const toDate = (timestamp?: Timestamp | Date): Date | undefined => {
+  if (!timestamp) {
+    return undefined;
+  }
+  // Firestore Timestamps have a toDate() method, plain Dates do not.
+  if (timestamp && typeof (timestamp as Timestamp).toDate === 'function') {
+    return (timestamp as Timestamp).toDate();
+  }
+  // If it's already a Date object, return it.
+  if (timestamp instanceof Date) {
+    return timestamp;
+  }
+  return undefined;
 };
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button type="submit" disabled={pending}>
+      {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      Save Changes
+    </Button>
+  );
+}
 
 export function ProfileForm({
   currentUser,
 }: {
   currentUser: UserProfileProps;
 }) {
-  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const { refreshUserProfile } = useAuth();
+  const [state, formAction] = useActionState(
+    updateUserProfile.bind(null, currentUser.id),
+    { success: false }
+  );
+
+  useEffect(() => {
+    if (state.success) {
+      toast({
+        title: 'Profile Updated',
+        description: 'Your profile has been successfully updated.',
+      });
+      refreshUserProfile();
+    } else if (state.error) {
+      toast({
+        variant: 'destructive',
+        title: 'Update Failed',
+        description: state.error,
+      });
+    }
+  }, [state, toast, refreshUserProfile]);
+
   const [isDatePickerOpen, setDatePickerOpen] = useState(false);
 
   const getInitialValues = useMemo((): ProfileFormValues => {
@@ -90,33 +138,48 @@ export function ProfileForm({
       return {
         email,
         personalInfo: {
-          firstName: platformUser.personalInfo?.firstName || '',
-          lastName: platformUser.personalInfo?.lastName || '',
-          phone: platformUser.personalInfo?.phone || '',
+          firstName: platformUser.personalInfo?.firstName ?? '',
+          lastName: platformUser.personalInfo?.lastName ?? '',
+          phone: platformUser.personalInfo?.phone ?? '',
           dateOfBirth: toDate(platformUser.personalInfo?.dateOfBirth),
-          gender: platformUser.personalInfo?.gender || '',
+          gender: platformUser.personalInfo?.gender ?? '',
         },
         address: {
-          line1: platformUser.address?.line1 || '',
-          line2: platformUser.address?.line2 || '',
-          city: platformUser.address?.city || '',
-          state: platformUser.address?.state || '',
-          country: platformUser.address?.country || '',
-          postalCode: platformUser.address?.postalCode || '',
+          line1: platformUser.address?.line1 ?? '',
+          line2: platformUser.address?.line2 ?? '',
+          city: platformUser.address?.city ?? '',
+          state: platformUser.address?.state ?? '',
+          country: platformUser.address?.country ?? '',
+          postalCode: platformUser.address?.postalCode ?? '',
         },
         professionalInfo: {
-          designation: platformUser.professionalInfo?.designation || '',
-          department: platformUser.professionalInfo?.department || '',
+          designation: platformUser.professionalInfo?.designation ?? '',
+          department: platformUser.professionalInfo?.department ?? '',
         },
       };
     }
-    // Handle TeamMember if needed, for now returning empty state
-    // This will be expanded when we handle company user profiles
+    // Fallback for company users or other roles
     return {
       email,
-      personalInfo: { firstName: '', lastName: '' },
-      address: {},
-      professionalInfo: {},
+      personalInfo: {
+        firstName: (currentUser as any).personalInfo?.firstName ?? '',
+        lastName: (currentUser as any).personalInfo?.lastName ?? '',
+        phone: (currentUser as any).personalInfo?.phone ?? '',
+        dateOfBirth: toDate((currentUser as any).personalInfo?.dateOfBirth),
+        gender: (currentUser as any).personalInfo?.gender ?? '',
+      },
+      address: {
+        line1: (currentUser as any).address?.line1 ?? '',
+        line2: (currentUser as any).address?.line2 ?? '',
+        city: (currentUser as any).address?.city ?? '',
+        state: (currentUser as any).address?.state ?? '',
+        country: (currentUser as any).address?.country ?? '',
+        postalCode: (currentUser as any).address?.postalCode ?? '',
+      },
+      professionalInfo: {
+        designation: (currentUser as any).professionalInfo?.designation ?? '',
+        department: (currentUser as any).professionalInfo?.department ?? '',
+      },
     };
   }, [currentUser]);
 
@@ -126,16 +189,13 @@ export function ProfileForm({
     mode: 'onChange',
   });
 
-  async function onSubmit(data: ProfileFormValues) {
-    setLoading(true);
-    // Backend logic to be added in the next step
-    console.log('Profile update logic to be implemented.', data);
-    setLoading(false);
-  }
+  useEffect(() => {
+    form.reset(getInitialValues);
+  }, [currentUser, form, getInitialValues]);
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form action={formAction} className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Personal Information</CardTitle>
@@ -413,10 +473,7 @@ export function ProfileForm({
         </Card>
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={loading}>
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save Changes
-          </Button>
+          <SubmitButton />
         </div>
       </form>
     </Form>
