@@ -53,7 +53,6 @@ export default function PlatformSignupPage() {
           });
           router.push('/profile');
         } catch (error) {
-          console.error('Login after signup failed', error);
           toast({
             variant: 'destructive',
             title: 'Login Failed',

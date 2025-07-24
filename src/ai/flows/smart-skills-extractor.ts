@@ -30,6 +30,6 @@ export type ExtractSkillsOutput = z.infer<typeof ExtractSkillsOutputSchema>;
 export async function extractSkills(
   input: ExtractSkillsInput
 ): Promise<ExtractSkillsOutput> {
-  console.log('extractSkills AI flow to be re-implemented');
+  // AI flow to be re-implemented
   return { skills: [] };
 }

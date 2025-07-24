@@ -70,7 +70,6 @@ export function ChangePasswordDialog({
   async function onSubmit(data: ChangePasswordFormValues) {
     setLoading(true);
     // Backend logic removed
-    console.log('Change password logic to be re-implemented.');
     toast({
       title: 'In Progress',
       description: 'Change password functionality is being rebuilt.',

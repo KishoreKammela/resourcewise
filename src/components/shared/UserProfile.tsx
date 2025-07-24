@@ -28,10 +28,12 @@ import { Button } from '@/components/ui/button';
 import { UserCircle, LogOut, KeyRound, User, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ChangePasswordDialog } from '../profile/ChangePasswordDialog';
+import { useToast } from '@/hooks/use-toast';
 
 export function UserProfile() {
   const { user, userProfile, userRole, logout } = useAuth();
   const { state } = useSidebar();
+  const { toast } = useToast();
   const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
 
@@ -43,6 +45,14 @@ export function UserProfile() {
       </div>
     );
   }
+
+  const handleLogout = async () => {
+    await logout();
+    toast({
+      title: 'Logged Out',
+      description: 'You have been successfully logged out.',
+    });
+  };
 
   const getUserInfo = () => {
     let firstName = '';
@@ -155,7 +165,7 @@ export function UserProfile() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => logout()}>
+            <AlertDialogAction onClick={handleLogout}>
               Log Out
             </AlertDialogAction>
           </AlertDialogFooter>

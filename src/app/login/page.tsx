@@ -32,11 +32,14 @@ export default function LoginPage() {
     try {
       const auth = getAuth(app);
       await signInWithEmailAndPassword(auth, email, password);
+      toast({
+        title: 'Login Successful',
+        description: 'Welcome back!',
+      });
       // The onAuthStateChanged listener in AuthContext will handle the redirect,
       // but we push here for a faster perceived response.
       router.push('/');
     } catch (error: any) {
-      console.error('Login Error:', error);
       let errorMessage = 'An unexpected error occurred. Please try again.';
       if (
         error.code === 'auth/user-not-found' ||
@@ -50,11 +53,9 @@ export default function LoginPage() {
         title: 'Login Failed',
         description: errorMessage,
       });
+    } finally {
       setLoading(false);
     }
-    // We might not reach here if the router pushes successfully, but it's good practice.
-    // However, in this case, we don't want to set loading to false on success,
-    // as the component will be unmounted. So we will only set it in the catch block.
   };
 
   return (
@@ -77,6 +78,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
               />
             </div>
             <div className="grid gap-2">
@@ -87,6 +89,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
               />
             </div>
           </CardContent>

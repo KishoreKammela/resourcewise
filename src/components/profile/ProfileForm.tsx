@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useActionState, useEffect } from 'react';
+import { useMemo, useState, useActionState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, CalendarIcon } from 'lucide-react';
+import { Loader2, CalendarIcon, KeyRound } from 'lucide-react';
 import type { PlatformUser, TeamMember } from '@/lib/types';
 import {
   Select,
@@ -43,6 +43,19 @@ import { updateUserProfile } from '@/app/actions/userActions';
 import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Dialog, DialogTrigger } from '../ui/dialog';
+import { ChangePasswordDialog } from './ChangePasswordDialog';
 
 const profileFormSchema = z.object({
   email: z.string().email(),
@@ -52,6 +65,7 @@ const profileFormSchema = z.object({
     phone: z.string().optional(),
     dateOfBirth: z.date().optional(),
     gender: z.string().optional(),
+    profilePictureUrl: z.string().url().optional().or(z.literal('')),
   }),
   address: z.object({
     line1: z.string().optional(),
@@ -64,6 +78,9 @@ const profileFormSchema = z.object({
   professionalInfo: z.object({
     designation: z.string().optional(),
     department: z.string().optional(),
+    employeeId: z.string().optional(),
+    workLocation: z.string().optional(),
+    workMode: z.string().optional(),
   }),
 });
 
@@ -89,14 +106,14 @@ const toDate = (timestamp?: Timestamp | Date): Date | undefined => {
   return undefined;
 };
 
-function SubmitButton() {
+function SubmitButton({ onClick }: { onClick: () => void }) {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" disabled={pending}>
+    <AlertDialogAction onClick={onClick} disabled={pending}>
       {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      Save Changes
-    </Button>
+      Confirm
+    </AlertDialogAction>
   );
 }
 
@@ -108,9 +125,10 @@ export function ProfileForm({
   const { toast } = useToast();
   const { refreshUserProfile } = useAuth();
   const [state, formAction] = useActionState(
-    updateUserProfile.bind(null, currentUser.id),
+    updateUserProfile.bind(null, currentUser.id, currentUser.userRole),
     { success: false }
   );
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (state.success) {
@@ -129,56 +147,43 @@ export function ProfileForm({
   }, [state, toast, refreshUserProfile]);
 
   const [isDatePickerOpen, setDatePickerOpen] = useState(false);
+  const [isPasswordDialogOpen, setPasswordDialogOpen] = useState(false);
 
   const getInitialValues = useMemo((): ProfileFormValues => {
-    const email = currentUser.email || '';
-
-    if (currentUser.userRole === 'platform') {
-      const platformUser = currentUser as PlatformUser;
-      return {
-        email,
-        personalInfo: {
-          firstName: platformUser.personalInfo?.firstName ?? '',
-          lastName: platformUser.personalInfo?.lastName ?? '',
-          phone: platformUser.personalInfo?.phone ?? '',
-          dateOfBirth: toDate(platformUser.personalInfo?.dateOfBirth),
-          gender: platformUser.personalInfo?.gender ?? '',
-        },
-        address: {
-          line1: platformUser.address?.line1 ?? '',
-          line2: platformUser.address?.line2 ?? '',
-          city: platformUser.address?.city ?? '',
-          state: platformUser.address?.state ?? '',
-          country: platformUser.address?.country ?? '',
-          postalCode: platformUser.address?.postalCode ?? '',
-        },
-        professionalInfo: {
-          designation: platformUser.professionalInfo?.designation ?? '',
-          department: platformUser.professionalInfo?.department ?? '',
-        },
-      };
-    }
-    // Fallback for company users or other roles
     return {
-      email,
+      email: currentUser.email || '',
       personalInfo: {
-        firstName: (currentUser as any).personalInfo?.firstName ?? '',
-        lastName: (currentUser as any).personalInfo?.lastName ?? '',
-        phone: (currentUser as any).personalInfo?.phone ?? '',
-        dateOfBirth: toDate((currentUser as any).personalInfo?.dateOfBirth),
-        gender: (currentUser as any).personalInfo?.gender ?? '',
+        firstName: currentUser.personalInfo?.firstName ?? '',
+        lastName: currentUser.personalInfo?.lastName ?? '',
+        phone: currentUser.personalInfo?.phone ?? '',
+        dateOfBirth: toDate(currentUser.personalInfo?.dateOfBirth),
+        gender: currentUser.personalInfo?.gender ?? '',
+        profilePictureUrl:
+          'personalInfo' in currentUser
+            ? (currentUser.personalInfo?.profilePictureUrl ?? '')
+            : '',
       },
       address: {
-        line1: (currentUser as any).address?.line1 ?? '',
-        line2: (currentUser as any).address?.line2 ?? '',
-        city: (currentUser as any).address?.city ?? '',
-        state: (currentUser as any).address?.state ?? '',
-        country: (currentUser as any).address?.country ?? '',
-        postalCode: (currentUser as any).address?.postalCode ?? '',
+        line1: currentUser.address?.line1 ?? '',
+        line2: currentUser.address?.line2 ?? '',
+        city: currentUser.address?.city ?? '',
+        state: currentUser.address?.state ?? '',
+        country: currentUser.address?.country ?? '',
+        postalCode: currentUser.address?.postalCode ?? '',
       },
       professionalInfo: {
-        designation: (currentUser as any).professionalInfo?.designation ?? '',
-        department: (currentUser as any).professionalInfo?.department ?? '',
+        designation: currentUser.professionalInfo?.designation ?? '',
+        department: currentUser.professionalInfo?.department ?? '',
+        employeeId:
+          'employeeId' in currentUser ? currentUser.employeeId : undefined,
+        workLocation:
+          'employmentDetails' in currentUser
+            ? (currentUser.employmentDetails?.workLocation ?? '')
+            : '',
+        workMode:
+          'employmentDetails' in currentUser
+            ? (currentUser.employmentDetails?.workMode ?? '')
+            : '',
       },
     };
   }, [currentUser]);
@@ -193,13 +198,19 @@ export function ProfileForm({
     form.reset(getInitialValues);
   }, [currentUser, form, getInitialValues]);
 
+  const {
+    formState: { isDirty },
+  } = form;
+
   return (
     <Form {...form}>
-      <form action={formAction} className="space-y-6">
+      <form ref={formRef} action={formAction} className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Personal Information</CardTitle>
-            <CardDescription>Basic details about the user.</CardDescription>
+            <CardDescription>
+              Update your personal details here.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -243,6 +254,24 @@ export function ProfileForm({
                 </FormItem>
               )}
             />
+            {currentUser.userRole === 'company' && (
+              <FormField
+                control={form.control}
+                name="personalInfo.profilePictureUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Profile Picture URL</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://example.com/me.png"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <FormField
                 control={form.control}
@@ -332,6 +361,11 @@ export function ProfileForm({
                       </SelectItem>
                     </SelectContent>
                   </Select>
+                  <input
+                    type="hidden"
+                    name="personalInfo.gender"
+                    value={field.value ?? ''}
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -342,7 +376,7 @@ export function ProfileForm({
         <Card>
           <CardHeader>
             <CardTitle>Address</CardTitle>
-            <CardDescription>User&apso;s residential address.</CardDescription>
+            <CardDescription>Your residential address.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <FormField
@@ -363,7 +397,7 @@ export function ProfileForm({
               name="address.line2"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Address Line 2</FormLabel>
+                  <FormLabel>Address Line 2 (Optional)</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. Apt 4B" {...field} />
                   </FormControl>
@@ -434,11 +468,26 @@ export function ProfileForm({
           <CardHeader>
             <CardTitle>Professional Information</CardTitle>
             <CardDescription>
-              User&apos;s role and department within the company.
+              Your role and details within the company.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {currentUser.userRole === 'company' && (
+                <FormField
+                  control={form.control}
+                  name="professionalInfo.employeeId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Employee ID</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. EMP12345" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name="professionalInfo.designation"
@@ -447,7 +496,11 @@ export function ProfileForm({
                     <FormLabel>Designation</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="e.g. Platform Administrator"
+                        placeholder={
+                          currentUser.userRole === 'platform'
+                            ? 'e.g. Platform Administrator'
+                            : 'e.g. Software Engineer'
+                        }
                         {...field}
                       />
                     </FormControl>
@@ -468,12 +521,97 @@ export function ProfileForm({
                   </FormItem>
                 )}
               />
+              {currentUser.userRole === 'company' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="professionalInfo.workLocation"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Work Location</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g. New York Office"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="professionalInfo.workMode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Work Mode</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select work mode" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="remote">Remote</SelectItem>
+                            <SelectItem value="hybrid">Hybrid</SelectItem>
+                            <SelectItem value="office">In-Office</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
 
+        <Dialog
+          open={isPasswordDialogOpen}
+          onOpenChange={setPasswordDialogOpen}
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle>Security</CardTitle>
+              <CardDescription>Manage your security settings.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <KeyRound className="mr-2" /> Change Password
+                </Button>
+              </DialogTrigger>
+            </CardContent>
+          </Card>
+          <ChangePasswordDialog setOpen={setPasswordDialogOpen} />
+        </Dialog>
+
         <div className="flex justify-end">
-          <SubmitButton />
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button type="button" disabled={!isDirty}>
+                Save Changes
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirm Profile Update</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to save these changes to your profile?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <SubmitButton
+                  onClick={() => formRef.current?.requestSubmit()}
+                />
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </form>
     </Form>

@@ -9,12 +9,13 @@ import { FieldValue } from 'firebase-admin/firestore';
  * @param adminUid - The Firebase Auth UID of the admin user.
  * @param companyData - Data for the new company.
  * @param adminData - Data for the admin user.
+ * @returns The ID of the newly created company.
  */
 export async function createCompanyAndAdmin(
   adminUid: string,
   companyData: { companyName: string; companyWebsite?: string },
   adminData: { firstName: string; lastName: string; email: string }
-): Promise<void> {
+): Promise<{ companyId: string }> {
   const companyRef = db.collection('companies').doc(); // Auto-generate ID
   const teamMemberRef = db.collection('teamMembers').doc(adminUid);
   const companyId = companyRef.id;
@@ -109,4 +110,5 @@ export async function createCompanyAndAdmin(
   batch.set(teamMemberRef, newTeamMember);
 
   await batch.commit();
+  return { companyId };
 }

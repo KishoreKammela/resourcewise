@@ -1,8 +1,13 @@
 'use server';
 
 import type { UserProfileUpdate } from '@/lib/types';
-import { updatePlatformUserDocument } from '@/services/user.services';
+import {
+  updatePlatformUserDocument,
+  updateTeamMemberDocument,
+} from '@/services/user.services';
 import { revalidatePath } from 'next/cache';
+import { createAuditLog } from '@/services/audit.services';
+import { auth } from '@/lib/firebase-admin';
 
 interface UpdateProfileResult {
   success: boolean;
@@ -11,13 +16,18 @@ interface UpdateProfileResult {
 
 export async function updateUserProfile(
   userId: string,
+  userRole: 'platform' | 'company',
   prevState: any,
   formData: FormData
 ): Promise<UpdateProfileResult> {
+  const actor = await auth.getUser(userId);
+  const actorDisplayName = actor.displayName || actor.email || userId;
+
   try {
     const dateOfBirthString = formData.get(
       'personalInfo.dateOfBirth'
     ) as string;
+
     const dateOfBirth = dateOfBirthString
       ? new Date(dateOfBirthString)
       : undefined;
@@ -29,6 +39,9 @@ export async function updateUserProfile(
         phone: (formData.get('personalInfo.phone') as string) || undefined,
         gender: (formData.get('personalInfo.gender') as string) || undefined,
         dateOfBirth,
+        profilePictureUrl:
+          (formData.get('personalInfo.profilePictureUrl') as string) ||
+          undefined,
       },
       address: {
         line1: (formData.get('address.line1') as string) || undefined,
@@ -43,18 +56,65 @@ export async function updateUserProfile(
           (formData.get('professionalInfo.designation') as string) || undefined,
         department:
           (formData.get('professionalInfo.department') as string) || undefined,
+        employeeId:
+          (formData.get('professionalInfo.employeeId') as string) || undefined,
+        workLocation:
+          (formData.get('professionalInfo.workLocation') as string) ||
+          undefined,
+        workMode:
+          (formData.get('professionalInfo.workMode') as string) || undefined,
       },
     };
 
-    await updatePlatformUserDocument(userId, updateData);
+    if (userRole === 'platform') {
+      await updatePlatformUserDocument(userId, updateData);
+    } else if (userRole === 'company') {
+      await updateTeamMemberDocument(userId, updateData);
+    } else {
+      throw new Error('Invalid user role specified for profile update.');
+    }
 
     revalidatePath('/profile');
+
+    await createAuditLog({
+      actor: {
+        id: userId,
+        displayName: actorDisplayName,
+        role: userRole,
+      },
+      action: 'user_profile.update',
+      target: {
+        id: userId,
+        type: 'user',
+        displayName: actorDisplayName,
+      },
+      status: 'success',
+    });
+
     return { success: true };
   } catch (error: any) {
-    console.error('User Profile Update Error:', error);
+    const errorMessage =
+      'An unexpected error occurred while updating the profile.';
+
+    await createAuditLog({
+      actor: {
+        id: userId,
+        displayName: actorDisplayName,
+        role: userRole,
+      },
+      action: 'user_profile.update',
+      target: {
+        id: userId,
+        type: 'user',
+        displayName: actorDisplayName,
+      },
+      status: 'failure',
+      details: { error: error.message, code: error.code },
+    });
+
     return {
       success: false,
-      error: 'An unexpected error occurred while updating the profile.',
+      error: errorMessage,
     };
   }
 }

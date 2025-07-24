@@ -8,6 +8,7 @@ export type UserProfileUpdate = {
     phone?: string;
     dateOfBirth?: Date;
     gender?: string;
+    profilePictureUrl?: string;
   };
   address: {
     line1?: string;
@@ -20,6 +21,9 @@ export type UserProfileUpdate = {
   professionalInfo: {
     designation?: string;
     department?: string;
+    employeeId?: string;
+    workLocation?: string;
+    workMode?: string;
   };
 };
 
@@ -51,6 +55,7 @@ export interface PlatformUser {
     phone?: string;
     dateOfBirth?: Timestamp;
     gender?: string;
+    profilePictureUrl?: string;
   };
 
   // Address Information
@@ -920,6 +925,28 @@ export interface Allocation {
   updatedAt: Timestamp;
   createdBy?: string;
   updatedBy?: string;
+}
+
+export interface AuditLog {
+  id: string; // Document ID (auto-generated)
+  timestamp: Timestamp;
+  actor: {
+    id: string; // User UID
+    displayName: string;
+    role: 'platform' | 'company' | 'system';
+  };
+  action: string; // e.g., 'user.login', 'profile.update', 'company.create'
+  target: {
+    id: string;
+    type: string; // e.g., 'user', 'company', 'project'
+    displayName?: string;
+  };
+  status: 'success' | 'failure';
+  companyId?: string;
+  details?: {
+    [key: string]: any;
+    error?: string;
+  };
 }
 
 // UI-specific types (can be kept or adapted)

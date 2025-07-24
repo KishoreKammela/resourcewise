@@ -54,37 +54,83 @@ export async function updatePlatformUserDocument(
   data: UserProfileUpdate
 ): Promise<void> {
   const userRef = db.collection('platformUsers').doc(uid);
+  await updateUserDocument(userRef, data);
+}
 
-  const dateOfBirthTimestamp = data.personalInfo.dateOfBirth
-    ? Timestamp.fromDate(data.personalInfo.dateOfBirth)
-    : undefined;
+/**
+ * Updates an existing team member document in Firestore.
+ * @param uid - The user's unique ID.
+ * @param data - The profile data to update.
+ */
+export async function updateTeamMemberDocument(
+  uid: string,
+  data: UserProfileUpdate
+): Promise<void> {
+  const userRef = db.collection('teamMembers').doc(uid);
+  await updateUserDocument(userRef, data);
+}
 
-  const updateData: { [key: string]: any } = {
-    'personalInfo.firstName': data.personalInfo.firstName,
-    'personalInfo.lastName': data.personalInfo.lastName,
-    'personalInfo.phone': data.personalInfo.phone,
-    'personalInfo.gender': data.personalInfo.gender,
-    'personalInfo.dateOfBirth': dateOfBirthTimestamp,
-    'address.line1': data.address.line1,
-    'address.line2': data.address.line2,
-    'address.city': data.address.city,
-    'address.state': data.address.state,
-    'address.country': data.address.country,
-    'address.postalCode': data.address.postalCode,
-    'professionalInfo.designation': data.professionalInfo.designation,
-    'professionalInfo.department': data.professionalInfo.department,
-    updatedAt: FieldValue.serverTimestamp(),
+/**
+ * Generic function to update a user document in either platformUsers or teamMembers.
+ * @param userRef - The DocumentReference to the user document.
+ * @param data - The profile data to update.
+ */
+async function updateUserDocument(
+  userRef: FirebaseFirestore.DocumentReference,
+  data: UserProfileUpdate
+): Promise<void> {
+  const updateData: { [key: string]: any } = {};
+
+  // A helper to add a field to the updateData object if it has a value
+  const addField = (path: string, value: any) => {
+    // We check for undefined because an empty string '' is a valid value to clear a field.
+    if (value !== undefined) {
+      updateData[path] = value;
+    }
   };
 
-  // Remove undefined values to avoid errors
-  const finalUpdateData = Object.fromEntries(
-    Object.entries(updateData).filter(([_, v]) => v !== undefined)
+  // Personal Info
+  addField('personalInfo.firstName', data.personalInfo.firstName);
+  addField('personalInfo.lastName', data.personalInfo.lastName);
+  addField('personalInfo.phone', data.personalInfo.phone);
+  addField('personalInfo.gender', data.personalInfo.gender);
+  if (data.personalInfo.dateOfBirth) {
+    updateData['personalInfo.dateOfBirth'] = Timestamp.fromDate(
+      data.personalInfo.dateOfBirth
+    );
+  }
+  addField(
+    'personalInfo.profilePictureUrl',
+    data.personalInfo.profilePictureUrl
   );
 
-  if (Object.keys(finalUpdateData).length <= 1) {
+  // Address
+  addField('address.line1', data.address.line1);
+  addField('address.line2', data.address.line2);
+  addField('address.city', data.address.city);
+  addField('address.state', data.address.state);
+  addField('address.country', data.address.country);
+  addField('address.postalCode', data.address.postalCode);
+
+  // Professional Info
+  addField('professionalInfo.designation', data.professionalInfo.designation);
+  addField('professionalInfo.department', data.professionalInfo.department);
+
+  // Team Member specific fields
+  addField('employeeId', data.professionalInfo.employeeId);
+  addField(
+    'employmentDetails.workLocation',
+    data.professionalInfo.workLocation
+  );
+  addField('employmentDetails.workMode', data.professionalInfo.workMode);
+
+  // Always update the timestamp
+  updateData['updatedAt'] = FieldValue.serverTimestamp();
+
+  if (Object.keys(updateData).length <= 1) {
     // Only updatedAt is present, no actual data changed
     return;
   }
 
-  await userRef.update(finalUpdateData);
+  await userRef.update(updateData);
 }
