@@ -101,7 +101,9 @@ export function MultiStepSignupForm() {
     const fields = steps[currentStep].fields as FieldName[];
     const output = await trigger(fields, { shouldFocus: true });
 
-    if (!output) {return;}
+    if (!output) {
+      return;
+    }
 
     if (currentStep < steps.length - 1) {
       setCurrentStep((step) => step + 1);
@@ -167,13 +169,13 @@ export function MultiStepSignupForm() {
               transition={{ duration: 0.3 }}
             >
               {currentStep === 0 && (
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <FormField
                       control={methods.control}
                       name="firstName"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="pb-2">
                           <FormLabel>First Name</FormLabel>
                           <FormControl>
                             <Input placeholder="John" {...field} />
@@ -186,7 +188,7 @@ export function MultiStepSignupForm() {
                       control={methods.control}
                       name="lastName"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="pb-2">
                           <FormLabel>Last Name</FormLabel>
                           <FormControl>
                             <Input placeholder="Doe" {...field} />
@@ -200,7 +202,7 @@ export function MultiStepSignupForm() {
                     control={methods.control}
                     name="email"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="pb-2">
                         <FormLabel>Email Address</FormLabel>
                         <FormControl>
                           <Input placeholder="m@example.com" {...field} />
@@ -214,7 +216,7 @@ export function MultiStepSignupForm() {
                       control={methods.control}
                       name="password"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="pb-2">
                           <FormLabel>Password</FormLabel>
                           <FormControl>
                             <Input type="password" {...field} />
@@ -227,7 +229,7 @@ export function MultiStepSignupForm() {
                       control={methods.control}
                       name="confirmPassword"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="pb-2">
                           <FormLabel>Confirm Password</FormLabel>
                           <FormControl>
                             <Input type="password" {...field} />
@@ -240,12 +242,12 @@ export function MultiStepSignupForm() {
                 </div>
               )}
               {currentStep === 1 && (
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <FormField
                     control={methods.control}
                     name="companyName"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="pb-2">
                         <FormLabel>Company Name</FormLabel>
                         <FormControl>
                           <Input placeholder="Your Company Inc." {...field} />
@@ -258,7 +260,7 @@ export function MultiStepSignupForm() {
                     control={methods.control}
                     name="companyWebsite"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="pb-2">
                         <FormLabel>Company Website (Optional)</FormLabel>
                         <FormControl>
                           <Input placeholder="https://example.com" {...field} />
