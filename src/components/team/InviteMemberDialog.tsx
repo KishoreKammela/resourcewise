@@ -100,7 +100,7 @@ export function InviteMemberDialog({
         description: state.error,
       });
     }
-  }, [state, toast, setOpen]);
+  }, [state, toast]);
 
   const handleCopy = () => {
     if (inviteLink) {

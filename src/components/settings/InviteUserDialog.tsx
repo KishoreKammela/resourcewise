@@ -35,7 +35,6 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Separator } from '../ui/separator';
-import { revalidatePath } from 'next/cache';
 
 const inviteUserSchema = z.object({
   firstName: z.string().min(2, { message: 'First name is required.' }),
@@ -97,7 +96,7 @@ export function InviteUserDialog({
         description: state.error,
       });
     }
-  }, [state, toast, setOpen]);
+  }, [state, toast]);
 
   const handleCopy = () => {
     if (inviteLink) {
