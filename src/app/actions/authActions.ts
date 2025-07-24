@@ -49,3 +49,12 @@ export async function createPlatformUserAction(
     return { success: false, error: errorMessage };
   }
 }
+
+export async function createCompanyAndUserAction(
+  prevState: any,
+  formData: FormData
+): Promise<SignUpResult> {
+  console.log('Company signup logic to be re-implemented.');
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  return { success: false, error: 'Functionality is being rebuilt.' };
+}
