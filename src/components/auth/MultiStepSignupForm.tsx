@@ -170,7 +170,7 @@ export function MultiStepSignupForm() {
             >
               {currentStep === 0 && (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
                     <FormField
                       control={methods.control}
                       name="firstName"
@@ -211,7 +211,7 @@ export function MultiStepSignupForm() {
                       </FormItem>
                     )}
                   />
-                  <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-4 md:grid-cols-2">
                     <FormField
                       control={methods.control}
                       name="password"
