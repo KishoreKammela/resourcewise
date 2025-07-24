@@ -32,8 +32,9 @@ export default function LoginPage() {
     try {
       const auth = getAuth(app);
       await signInWithEmailAndPassword(auth, email, password);
-      // The onAuthStateChanged listener in AuthContext will handle the redirect.
-      // router.push('/'); // This is handled by the AppShell's effect
+      // The onAuthStateChanged listener in AuthContext will handle the redirect,
+      // but we push here for a faster perceived response.
+      router.push('/');
     } catch (error: any) {
       console.error('Login Error:', error);
       let errorMessage = 'An unexpected error occurred. Please try again.';
@@ -51,6 +52,9 @@ export default function LoginPage() {
       });
       setLoading(false);
     }
+    // We might not reach here if the router pushes successfully, but it's good practice.
+    // However, in this case, we don't want to set loading to false on success,
+    // as the component will be unmounted. So we will only set it in the catch block.
   };
 
   return (
