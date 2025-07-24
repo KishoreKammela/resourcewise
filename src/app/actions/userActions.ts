@@ -15,14 +15,20 @@ export async function updateUserProfile(
   formData: FormData
 ): Promise<UpdateProfileResult> {
   try {
-    const dateOfBirth = formData.get('personalInfo.dateOfBirth') as string;
+    const dateOfBirthString = formData.get(
+      'personalInfo.dateOfBirth'
+    ) as string;
+    const dateOfBirth = dateOfBirthString
+      ? new Date(dateOfBirthString)
+      : undefined;
+
     const updateData: UserProfileUpdate = {
       personalInfo: {
         firstName: formData.get('personalInfo.firstName') as string,
         lastName: formData.get('personalInfo.lastName') as string,
         phone: formData.get('personalInfo.phone') as string,
         gender: formData.get('personalInfo.gender') as string,
-        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+        dateOfBirth,
       },
       address: {
         line1: formData.get('address.line1') as string,

@@ -55,17 +55,7 @@ export async function updatePlatformUserDocument(
 ): Promise<void> {
   const userRef = db.collection('platformUsers').doc(uid);
 
-  const updateData = {
-    ...data,
-    'personalInfo.dateOfBirth': data.personalInfo.dateOfBirth
-      ? new Date(data.personalInfo.dateOfBirth)
-      : undefined,
-    updatedAt: FieldValue.serverTimestamp(),
-  };
-
-  // Firestore admin SDK can handle nested objects update.
-  // We just need to make sure the structure matches.
-  const finalUpdateData = {
+  const rawUpdateData = {
     'personalInfo.firstName': data.personalInfo.firstName,
     'personalInfo.lastName': data.personalInfo.lastName,
     'personalInfo.phone': data.personalInfo.phone,
@@ -81,6 +71,16 @@ export async function updatePlatformUserDocument(
     'professionalInfo.department': data.professionalInfo.department,
     updatedAt: FieldValue.serverTimestamp(),
   };
+
+  // Filter out undefined values to prevent Firestore errors
+  const finalUpdateData = Object.fromEntries(
+    Object.entries(rawUpdateData).filter(([_, v]) => v !== undefined)
+  );
+
+  if (Object.keys(finalUpdateData).length === 0) {
+    // No actual data to update, maybe just return
+    return;
+  }
 
   await userRef.update(finalUpdateData);
 }
