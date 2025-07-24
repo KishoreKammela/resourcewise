@@ -10,12 +10,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Poppins', 'sans-serif'],
-        serif: ['Libre Baskerville', 'serif'],
-        mono: ['IBM Plex Mono', 'monospace'],
-        body: ['Poppins', 'sans-serif'],
-        headline: ['Libre Baskerville', 'serif'],
-        code: ['IBM Plex Mono', 'monospace'],
+        sans: ['var(--font-sans)', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',

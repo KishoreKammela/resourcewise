@@ -55,7 +55,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUserProfile(teamMemberDoc.data() as TeamMember);
         setUserRole('company');
       } else {
-        console.warn('User authenticated but no profile document found.');
         setUserProfile(null);
         setUserRole(null);
       }
