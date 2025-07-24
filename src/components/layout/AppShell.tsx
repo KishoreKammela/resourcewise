@@ -46,6 +46,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useInactivityTimeout } from '@/hooks/useInactivityTimeout';
+import { InactivityWarningDialog } from '../shared/InactivityWarningDialog';
 
 export type NavItem = {
   href: string;
@@ -422,6 +424,7 @@ const unauthenticatedRoutes = ['/login', '/signup', '/signup/platform'];
 function AuthenticatedShell({ children }: { children: ReactNode }) {
   const { state } = useSidebar();
   const { userRole } = useAuth();
+  const { isIdle, countdown, reset, logout } = useInactivityTimeout();
 
   const navItems = userRole === 'platform' ? platformNavItems : companyNavItems;
   const settingsNav =
@@ -465,6 +468,12 @@ function AuthenticatedShell({ children }: { children: ReactNode }) {
         </header>
         <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
       </SidebarInset>
+      <InactivityWarningDialog
+        isOpen={isIdle}
+        countdown={countdown}
+        onStayLoggedIn={reset}
+        onLogout={logout}
+      />
     </>
   );
 }
