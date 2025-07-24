@@ -240,11 +240,6 @@ export const companySettingsNav: NavItem = {
   children: [
     { href: '/settings', label: 'Company Profile', icon: Users },
     {
-      href: '/settings/platform-configuration',
-      label: 'Platform Configuration',
-      icon: Users,
-    },
-    {
       href: '/settings/integration-management',
       label: 'Integration Management',
       icon: Users,
@@ -293,6 +288,11 @@ const platformSettingsNav: NavItem = {
     {
       href: '/settings/users',
       label: 'Platform Users',
+      icon: Users,
+    },
+    {
+      href: '/settings/platform-configuration',
+      label: 'Platform Configuration',
       icon: Users,
     },
     {
