@@ -18,6 +18,7 @@ import type { TeamMember, Invitation } from '@/lib/types';
 import { cookies } from 'next/headers';
 import { InviteMemberDialogWrapper } from '@/components/team/InviteMemberDialogWrapper';
 import { getPendingCompanyInvitations } from '@/services/invitation.services';
+import { revalidatePath } from 'next/cache';
 
 async function getCompanyIdForCurrentUser() {
   const sessionCookie = (await cookies()).get('__session')?.value;
@@ -58,6 +59,8 @@ export default async function TeamPage() {
     const teamMembers: TeamMember[] = await getTeamMembersByCompany(companyId);
     const pendingInvitations: Invitation[] =
       await getPendingCompanyInvitations(companyId);
+
+    revalidatePath('/team');
 
     displayMembers = [
       ...teamMembers.map((member) => ({
