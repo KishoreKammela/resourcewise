@@ -1,12 +1,19 @@
-import { PageHeader } from '@/components/shared/PageHeader';
+'use server';
 
-export default function PlatformConfigurationPage() {
+import { PageHeader } from '@/components/shared/PageHeader';
+import { AppShell } from '@/components/layout/AppShell';
+import { getPlatformConfig } from '@/services/platform.services';
+import { PlatformConfigForm } from '@/components/settings/PlatformConfigForm';
+
+export default async function PlatformConfigurationPage() {
+  const sessionConfig = await getPlatformConfig('sessionManagement');
+
   return (
-    <div>
+    <AppShell>
       <PageHeader title="Platform Configuration" />
-      <div className="p-4">
-        <p>Content for Platform Configuration goes here.</p>
+      <div className="mt-6">
+        <PlatformConfigForm sessionConfig={sessionConfig} />
       </div>
-    </div>
+    </AppShell>
   );
 }

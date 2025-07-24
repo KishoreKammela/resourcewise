@@ -35,6 +35,11 @@ export type UserProfile = {
 };
 
 // Firestore Schema Types
+export interface PlatformConfiguration {
+  id: string; // e.g., 'sessionManagement'
+  inactivityTimeoutMinutes: number;
+  warningCountdownSeconds: number;
+}
 
 export interface PlatformUser {
   // Core Fields

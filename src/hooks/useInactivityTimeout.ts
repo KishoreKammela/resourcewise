@@ -1,44 +1,55 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 
-const INACTIVITY_TIMEOUT = 15 * 60 * 1000; // 15 minutes
-const COUNTDOWN_DURATION = 60 * 1000; // 60 seconds
+const DEFAULT_INACTIVITY_TIMEOUT_MINUTES = 15;
+const DEFAULT_WARNING_COUNTDOWN_SECONDS = 60;
 
 export function useInactivityTimeout() {
-  const { logout } = useAuth();
+  const { logout, platformConfig } = useAuth();
   const [isIdle, setIsIdle] = useState(false);
-  const [countdown, setCountdown] = useState(COUNTDOWN_DURATION / 1000);
+  const [countdown, setCountdown] = useState(DEFAULT_WARNING_COUNTDOWN_SECONDS);
+
+  const inactivityTimeoutMs = useMemo(() => {
+    const minutes =
+      platformConfig?.inactivityTimeoutMinutes ||
+      DEFAULT_INACTIVITY_TIMEOUT_MINUTES;
+    return minutes * 60 * 1000;
+  }, [platformConfig]);
+
+  const warningCountdownMs = useMemo(() => {
+    const seconds =
+      platformConfig?.warningCountdownSeconds ||
+      DEFAULT_WARNING_COUNTDOWN_SECONDS;
+    return seconds * 1000;
+  }, [platformConfig]);
 
   const resetTimers = useCallback(() => {
     setIsIdle(false);
-    setCountdown(COUNTDOWN_DURATION / 1000);
-    // Clear existing timers
+    setCountdown(warningCountdownMs / 1000);
+
     if (window.logoutTimer) {clearTimeout(window.logoutTimer);}
     if (window.warningTimer) {clearTimeout(window.warningTimer);}
     if (window.countdownInterval) {clearInterval(window.countdownInterval);}
 
-    // Set new timers
     window.warningTimer = setTimeout(() => {
       setIsIdle(true);
-    }, INACTIVITY_TIMEOUT);
-  }, []);
+    }, inactivityTimeoutMs);
+  }, [inactivityTimeoutMs, warningCountdownMs]);
 
   const handleLogout = useCallback(() => {
     logout();
-    clearTimeout(window.logoutTimer);
-    clearTimeout(window.warningTimer);
-    clearInterval(window.countdownInterval);
+    if (window.logoutTimer) {clearTimeout(window.logoutTimer);}
+    if (window.warningTimer) {clearTimeout(window.warningTimer);}
+    if (window.countdownInterval) {clearInterval(window.countdownInterval);}
   }, [logout]);
 
   useEffect(() => {
     if (isIdle) {
-      // Start the final countdown to logout
-      window.logoutTimer = setTimeout(handleLogout, COUNTDOWN_DURATION);
+      window.logoutTimer = setTimeout(handleLogout, warningCountdownMs);
+      setCountdown(warningCountdownMs / 1000);
 
-      // Start the visual countdown timer
-      setCountdown(COUNTDOWN_DURATION / 1000);
       window.countdownInterval = setInterval(() => {
         setCountdown((prev) => {
           if (prev <= 1) {
@@ -49,37 +60,33 @@ export function useInactivityTimeout() {
         });
       }, 1000);
     } else {
-      // If user becomes active, clear the timers
-      clearTimeout(window.logoutTimer);
-      clearInterval(window.countdownInterval);
+      if (window.logoutTimer) {clearTimeout(window.logoutTimer);}
+      if (window.countdownInterval) {clearInterval(window.countdownInterval);}
     }
 
     return () => {
-      clearTimeout(window.logoutTimer);
-      clearInterval(window.countdownInterval);
+      if (window.logoutTimer) {clearTimeout(window.logoutTimer);}
+      if (window.countdownInterval) {clearInterval(window.countdownInterval);}
     };
-  }, [isIdle, handleLogout]);
+  }, [isIdle, handleLogout, warningCountdownMs]);
 
   useEffect(() => {
     const events = ['mousemove', 'keydown', 'click', 'scroll'];
     const eventListener = () => resetTimers();
 
-    // Attach event listeners
     events.forEach((event) => {
       window.addEventListener(event, eventListener);
     });
 
-    // Initial setup
     resetTimers();
 
-    // Cleanup
     return () => {
       events.forEach((event) => {
         window.removeEventListener(event, eventListener);
       });
-      clearTimeout(window.warningTimer);
-      clearTimeout(window.logoutTimer);
-      clearInterval(window.countdownInterval);
+      if (window.warningTimer) {clearTimeout(window.warningTimer);}
+      if (window.logoutTimer) {clearTimeout(window.logoutTimer);}
+      if (window.countdownInterval) {clearInterval(window.countdownInterval);}
     };
   }, [resetTimers]);
 
@@ -91,7 +98,6 @@ export function useInactivityTimeout() {
   };
 }
 
-// Augment the Window interface to avoid TypeScript errors
 declare global {
   interface Window {
     warningTimer: NodeJS.Timeout;

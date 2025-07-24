@@ -11,13 +11,20 @@ import React, {
 import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import type { PlatformUser, TeamMember, Company } from '@/lib/types';
+import type {
+  PlatformUser,
+  TeamMember,
+  Company,
+  PlatformConfiguration,
+} from '@/lib/types';
+import { getPlatformConfig } from '@/services/platform.services';
 
 interface AuthContextType {
   user: User | null;
   userProfile: (PlatformUser | TeamMember) | null;
   userRole: 'platform' | 'company' | null;
   companyProfile: Company | null;
+  platformConfig: PlatformConfiguration | null;
   loading: boolean;
   logout: () => Promise<void>;
   refreshUserProfile: () => Promise<void>;
@@ -32,6 +39,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   >(null);
   const [userRole, setUserRole] = useState<'platform' | 'company' | null>(null);
   const [companyProfile, setCompanyProfile] = useState<Company | null>(null);
+  const [platformConfig, setPlatformConfig] =
+    useState<PlatformConfiguration | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchUserProfile = useCallback(async (userToFetch: User | null) => {
@@ -40,11 +49,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUserProfile(null);
       setUserRole(null);
       setCompanyProfile(null);
+      setPlatformConfig(null);
       setLoading(false);
       return;
     }
 
     setUser(userToFetch);
+    // Fetch platform-wide config first
+    const config = await getPlatformConfig('sessionManagement');
+    setPlatformConfig(config);
+
     const platformUserDocRef = doc(db, 'platformUsers', userToFetch.uid);
     const platformUserDoc = await getDoc(platformUserDocRef);
 
@@ -95,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUserProfile(null);
     setUserRole(null);
     setCompanyProfile(null);
+    setPlatformConfig(null);
   };
 
   const refreshUserProfile = useCallback(async () => {
@@ -107,6 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     userProfile,
     userRole,
     companyProfile,
+    platformConfig,
     loading,
     logout,
     refreshUserProfile,
