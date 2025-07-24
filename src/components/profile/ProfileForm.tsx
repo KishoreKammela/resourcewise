@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -39,10 +39,6 @@ import {
   CardHeader,
   CardTitle,
 } from '../ui/card';
-import { updateUserProfile } from '@/app/actions/userActions';
-import { useToast } from '@/hooks/use-toast';
-import { useFormStatus } from 'react-dom';
-import { useAuth } from '@/contexts/AuthContext';
 
 const profileFormSchema = z.object({
   email: z.string().email(),
@@ -78,24 +74,12 @@ const toDate = (timestamp?: Timestamp): Date | undefined => {
   return timestamp ? timestamp.toDate() : undefined;
 };
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      Save Changes
-    </Button>
-  );
-}
-
 export function ProfileForm({
   currentUser,
 }: {
   currentUser: UserProfileProps;
 }) {
-  const { toast } = useToast();
-  const { refreshUserProfile } = useAuth();
+  const [loading, setLoading] = useState(false);
   const [isDatePickerOpen, setDatePickerOpen] = useState(false);
 
   const getInitialValues = useMemo((): ProfileFormValues => {
@@ -126,7 +110,8 @@ export function ProfileForm({
         },
       };
     }
-
+    // Handle TeamMember if needed, for now returning empty state
+    // This will be expanded when we handle company user profiles
     return {
       email,
       personalInfo: { firstName: '', lastName: '' },
@@ -141,34 +126,16 @@ export function ProfileForm({
     mode: 'onChange',
   });
 
-  const [state, formAction] = useActionState(
-    updateUserProfile.bind(null, currentUser.id),
-    { success: false }
-  );
-
-  useEffect(() => {
-    if (state.success) {
-      toast({
-        title: 'Profile Updated',
-        description: 'Your profile has been successfully updated.',
-      });
-      refreshUserProfile();
-    } else if (state.error) {
-      toast({
-        variant: 'destructive',
-        title: 'Update Failed',
-        description: state.error,
-      });
-    }
-  }, [state, toast, refreshUserProfile]);
-
-  useEffect(() => {
-    form.reset(getInitialValues);
-  }, [getInitialValues, form]);
+  async function onSubmit(data: ProfileFormValues) {
+    setLoading(true);
+    // Backend logic to be added in the next step
+    console.log('Profile update logic to be implemented.', data);
+    setLoading(false);
+  }
 
   return (
     <Form {...form}>
-      <form action={formAction} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Personal Information</CardTitle>
@@ -183,11 +150,7 @@ export function ProfileForm({
                   <FormItem>
                     <FormLabel>First Name</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="John"
-                        {...field}
-                        name="personalInfo.firstName"
-                      />
+                      <Input placeholder="John" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -200,11 +163,7 @@ export function ProfileForm({
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Doe"
-                        {...field}
-                        name="personalInfo.lastName"
-                      />
+                      <Input placeholder="Doe" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -218,12 +177,7 @@ export function ProfileForm({
                 <FormItem>
                   <FormLabel>Email Address</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="m@example.com"
-                      {...field}
-                      disabled
-                      name="email"
-                    />
+                    <Input placeholder="m@example.com" {...field} disabled />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -237,11 +191,7 @@ export function ProfileForm({
                   <FormItem>
                     <FormLabel>Phone Number</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="+1 234 567 890"
-                        {...field}
-                        name="personalInfo.phone"
-                      />
+                      <Input placeholder="+1 234 567 890" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -253,11 +203,6 @@ export function ProfileForm({
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Date of birth</FormLabel>
-                    <Input
-                      type="hidden"
-                      name="personalInfo.dateOfBirth"
-                      value={field.value?.toISOString() || ''}
-                    />
                     <Popover
                       open={isDatePickerOpen}
                       onOpenChange={setDatePickerOpen}
@@ -312,7 +257,6 @@ export function ProfileForm({
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
-                    name="personalInfo.gender"
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -348,11 +292,7 @@ export function ProfileForm({
                 <FormItem>
                   <FormLabel>Address Line 1</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="e.g. 123 Main St"
-                      {...field}
-                      name="address.line1"
-                    />
+                    <Input placeholder="e.g. 123 Main St" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -365,11 +305,7 @@ export function ProfileForm({
                 <FormItem>
                   <FormLabel>Address Line 2</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="e.g. Apt 4B"
-                      {...field}
-                      name="address.line2"
-                    />
+                    <Input placeholder="e.g. Apt 4B" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -383,11 +319,7 @@ export function ProfileForm({
                   <FormItem>
                     <FormLabel>City</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="e.g. San Francisco"
-                        {...field}
-                        name="address.city"
-                      />
+                      <Input placeholder="e.g. San Francisco" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -400,11 +332,7 @@ export function ProfileForm({
                   <FormItem>
                     <FormLabel>State / Province</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="e.g. California"
-                        {...field}
-                        name="address.state"
-                      />
+                      <Input placeholder="e.g. California" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -419,11 +347,7 @@ export function ProfileForm({
                   <FormItem>
                     <FormLabel>Country</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="e.g. United States"
-                        {...field}
-                        name="address.country"
-                      />
+                      <Input placeholder="e.g. United States" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -436,11 +360,7 @@ export function ProfileForm({
                   <FormItem>
                     <FormLabel>Postal Code</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="e.g. 94103"
-                        {...field}
-                        name="address.postalCode"
-                      />
+                      <Input placeholder="e.g. 94103" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -469,7 +389,6 @@ export function ProfileForm({
                       <Input
                         placeholder="e.g. Platform Administrator"
                         {...field}
-                        name="professionalInfo.designation"
                       />
                     </FormControl>
                     <FormMessage />
@@ -483,11 +402,7 @@ export function ProfileForm({
                   <FormItem>
                     <FormLabel>Department</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="e.g. IT, Operations"
-                        {...field}
-                        name="professionalInfo.department"
-                      />
+                      <Input placeholder="e.g. IT, Operations" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -498,7 +413,10 @@ export function ProfileForm({
         </Card>
 
         <div className="flex justify-end">
-          <SubmitButton />
+          <Button type="submit" disabled={loading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Save Changes
+          </Button>
         </div>
       </form>
     </Form>
