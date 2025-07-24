@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { TeamMembersTable } from './TeamMembersTable';
 import { getTeamPageData } from '@/app/actions/teamActions';
-import type { TeamMember, Invitation } from '@/lib/types';
 import {
   Card,
   CardContent,
@@ -49,53 +48,22 @@ function TeamPageSkeleton() {
 export function TeamPageClient() {
   const { companyProfile, loading: authLoading } = useAuth();
   const [displayMembers, setDisplayMembers] = useState<DisplayMember[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
+
+  const loading = authLoading || isPending;
 
   useEffect(() => {
-    async function fetchData() {
-      if (!companyProfile?.id) {
-        if (!authLoading) {
-          setLoading(false);
-        }
-        return;
-      }
-
-      setLoading(true);
-      const { teamMembers, pendingInvitations } = await getTeamPageData(
-        companyProfile.id
-      );
-
-      const members: DisplayMember[] = [
-        ...teamMembers.map((member: TeamMember) => ({
-          id: member.id,
-          firstName: member.personalInfo.firstName,
-          lastName: member.personalInfo.lastName,
-          email: member.email,
-          role: member.permissions.accessLevel,
-          status: (member.isActive ? 'Active' : 'Suspended') as
-            | 'Active'
-            | 'Suspended',
-          isRegistered: true,
-          isActive: member.isActive,
-        })),
-        ...pendingInvitations.map((invite: Invitation) => ({
-          id: invite.id,
-          firstName: invite.firstName,
-          lastName: invite.lastName,
-          email: invite.email,
-          role: invite.role,
-          status: 'Invited' as const,
-          isRegistered: false,
-        })),
-      ];
-      setDisplayMembers(members);
-      setLoading(false);
+    if (companyProfile?.id) {
+      startTransition(async () => {
+        const { displayMembers: data } = await getTeamPageData(
+          companyProfile.id
+        );
+        setDisplayMembers(data);
+      });
     }
+  }, [companyProfile]);
 
-    fetchData();
-  }, [companyProfile, authLoading]);
-
-  if (loading || authLoading) {
+  if (loading) {
     return <TeamPageSkeleton />;
   }
 

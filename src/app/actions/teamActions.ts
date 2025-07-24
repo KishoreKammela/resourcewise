@@ -3,14 +3,13 @@
 import { getPendingCompanyInvitations } from '@/services/invitation.services';
 import { getTeamMembersByCompany } from '@/services/user.services';
 import type { Invitation, TeamMember } from '@/lib/types';
-import { revalidatePath } from 'next/cache';
+import type { DisplayMember } from '@/components/team/TeamPageClient';
 
 export async function getTeamPageData(companyId: string): Promise<{
-  teamMembers: TeamMember[];
-  pendingInvitations: Invitation[];
+  displayMembers: DisplayMember[];
 }> {
   if (!companyId) {
-    return { teamMembers: [], pendingInvitations: [] };
+    return { displayMembers: [] };
   }
 
   const [teamMembers, pendingInvitations] = await Promise.all([
@@ -18,7 +17,29 @@ export async function getTeamPageData(companyId: string): Promise<{
     getPendingCompanyInvitations(companyId),
   ]);
 
-  revalidatePath('/team');
+  const displayMembers: DisplayMember[] = [
+    ...teamMembers.map((member: TeamMember) => ({
+      id: member.id,
+      firstName: member.personalInfo.firstName,
+      lastName: member.personalInfo.lastName,
+      email: member.email,
+      role: member.permissions.accessLevel,
+      status: (member.isActive ? 'Active' : 'Suspended') as
+        | 'Active'
+        | 'Suspended',
+      isRegistered: true,
+      isActive: member.isActive,
+    })),
+    ...pendingInvitations.map((invite: Invitation) => ({
+      id: invite.id,
+      firstName: invite.firstName,
+      lastName: invite.lastName,
+      email: invite.email,
+      role: invite.role,
+      status: 'Invited' as const,
+      isRegistered: false,
+    })),
+  ];
 
-  return { teamMembers, pendingInvitations };
+  return { displayMembers };
 }
