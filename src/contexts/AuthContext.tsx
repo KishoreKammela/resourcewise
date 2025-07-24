@@ -7,6 +7,7 @@ import React, {
   useState,
   type ReactNode,
   useCallback,
+  useMemo,
 } from 'react';
 import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
@@ -103,30 +104,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, [fetchUserProfile]);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await signOut(auth);
     setUser(null);
     setUserProfile(null);
     setUserRole(null);
     setCompanyProfile(null);
     setPlatformConfig(null);
-  };
+  }, []);
 
   const refreshUserProfile = useCallback(async () => {
     setLoading(true);
     await fetchUserProfile(user);
   }, [user, fetchUserProfile]);
 
-  const value = {
-    user,
-    userProfile,
-    userRole,
-    companyProfile,
-    platformConfig,
-    loading,
-    logout,
-    refreshUserProfile,
-  };
+  const value = useMemo(
+    () => ({
+      user,
+      userProfile,
+      userRole,
+      companyProfile,
+      platformConfig,
+      loading,
+      logout,
+      refreshUserProfile,
+    }),
+    [
+      user,
+      userProfile,
+      userRole,
+      companyProfile,
+      platformConfig,
+      loading,
+      logout,
+      refreshUserProfile,
+    ]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

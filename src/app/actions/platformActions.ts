@@ -40,8 +40,10 @@ export async function updateSessionConfigAction(
     }
 
     const configData = {
-      inactivityTimeoutMinutes,
-      warningCountdownSeconds,
+      sessionTimeout: {
+        timeoutDurationMinutes: inactivityTimeoutMinutes,
+        warningCountdownSeconds,
+      },
     };
 
     await updatePlatformConfig('sessionManagement', configData);

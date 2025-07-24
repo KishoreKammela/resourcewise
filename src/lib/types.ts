@@ -37,8 +37,10 @@ export type UserProfile = {
 // Firestore Schema Types
 export interface PlatformConfiguration {
   id: string; // e.g., 'sessionManagement'
-  inactivityTimeoutMinutes: number;
-  warningCountdownSeconds: number;
+  sessionTimeout?: {
+    timeoutDurationMinutes: number;
+    warningCountdownSeconds: number;
+  };
 }
 
 export interface PlatformUser {

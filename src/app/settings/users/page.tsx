@@ -1,5 +1,3 @@
-'use server';
-
 import { PageHeader } from '@/components/shared/PageHeader';
 import { AppShell } from '@/components/layout/AppShell';
 import {
@@ -14,7 +12,6 @@ import { UsersTable } from '@/components/settings/UsersTable';
 import { InviteUserDialogWrapper } from '@/components/settings/InviteUserDialogWrapper';
 import { getPendingPlatformInvitations } from '@/services/invitation.services';
 import type { PlatformUser, Invitation } from '@/lib/types';
-import { revalidatePath } from 'next/cache';
 
 export type DisplayUser = {
   id: string;
@@ -27,11 +24,12 @@ export type DisplayUser = {
   isActive?: boolean;
 };
 
-export default async function PlatformUsersPage() {
+export const dynamic = 'force-dynamic';
+
+async function PlatformUsersPage() {
   const users: PlatformUser[] = await getPlatformUsers();
   const pendingInvitations: Invitation[] =
     await getPendingPlatformInvitations();
-  revalidatePath('/settings/users');
 
   const displayUsers: DisplayUser[] = [
     ...users.map((user) => ({
@@ -78,3 +76,5 @@ export default async function PlatformUsersPage() {
     </AppShell>
   );
 }
+
+export default PlatformUsersPage;

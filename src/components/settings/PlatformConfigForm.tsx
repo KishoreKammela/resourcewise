@@ -70,8 +70,10 @@ export function PlatformConfigForm({
   const form = useForm<ConfigFormValues>({
     resolver: zodResolver(configFormSchema),
     defaultValues: {
-      inactivityTimeoutMinutes: sessionConfig?.inactivityTimeoutMinutes ?? 15,
-      warningCountdownSeconds: sessionConfig?.warningCountdownSeconds ?? 60,
+      inactivityTimeoutMinutes:
+        sessionConfig?.sessionTimeout?.timeoutDurationMinutes ?? 15,
+      warningCountdownSeconds:
+        sessionConfig?.sessionTimeout?.warningCountdownSeconds ?? 60,
     },
     mode: 'onChange',
   });
@@ -84,8 +86,10 @@ export function PlatformConfigForm({
   useEffect(() => {
     if (sessionConfig) {
       reset({
-        inactivityTimeoutMinutes: sessionConfig.inactivityTimeoutMinutes,
-        warningCountdownSeconds: sessionConfig.warningCountdownSeconds,
+        inactivityTimeoutMinutes:
+          sessionConfig.sessionTimeout?.timeoutDurationMinutes ?? 15,
+        warningCountdownSeconds:
+          sessionConfig.sessionTimeout?.warningCountdownSeconds ?? 60,
       });
     }
   }, [sessionConfig, reset]);

@@ -9,29 +9,34 @@ const DEFAULT_WARNING_COUNTDOWN_SECONDS = 60;
 export function useInactivityTimeout() {
   const { logout, platformConfig } = useAuth();
   const [isIdle, setIsIdle] = useState(false);
-  const [countdown, setCountdown] = useState(DEFAULT_WARNING_COUNTDOWN_SECONDS);
+  const [countdown, setCountdown] = useState(0);
 
-  const inactivityTimeoutMs = useMemo(() => {
+  const { inactivityTimeoutMs, warningCountdownMs } = useMemo(() => {
     const minutes =
-      platformConfig?.inactivityTimeoutMinutes ||
+      platformConfig?.sessionTimeout?.timeoutDurationMinutes ??
       DEFAULT_INACTIVITY_TIMEOUT_MINUTES;
-    return minutes * 60 * 1000;
-  }, [platformConfig]);
-
-  const warningCountdownMs = useMemo(() => {
     const seconds =
-      platformConfig?.warningCountdownSeconds ||
+      platformConfig?.sessionTimeout?.warningCountdownSeconds ??
       DEFAULT_WARNING_COUNTDOWN_SECONDS;
-    return seconds * 1000;
+    return {
+      inactivityTimeoutMs: minutes * 60 * 1000,
+      warningCountdownMs: seconds * 1000,
+    };
   }, [platformConfig]);
 
   const resetTimers = useCallback(() => {
     setIsIdle(false);
     setCountdown(warningCountdownMs / 1000);
 
-    if (window.logoutTimer) {clearTimeout(window.logoutTimer);}
-    if (window.warningTimer) {clearTimeout(window.warningTimer);}
-    if (window.countdownInterval) {clearInterval(window.countdownInterval);}
+    if (window.logoutTimer) {
+      clearTimeout(window.logoutTimer);
+    }
+    if (window.warningTimer) {
+      clearTimeout(window.warningTimer);
+    }
+    if (window.countdownInterval) {
+      clearInterval(window.countdownInterval);
+    }
 
     window.warningTimer = setTimeout(() => {
       setIsIdle(true);
@@ -40,42 +45,64 @@ export function useInactivityTimeout() {
 
   const handleLogout = useCallback(() => {
     logout();
-    if (window.logoutTimer) {clearTimeout(window.logoutTimer);}
-    if (window.warningTimer) {clearTimeout(window.warningTimer);}
-    if (window.countdownInterval) {clearInterval(window.countdownInterval);}
+    if (window.logoutTimer) {
+      clearTimeout(window.logoutTimer);
+    }
+    if (window.warningTimer) {
+      clearTimeout(window.warningTimer);
+    }
+    if (window.countdownInterval) {
+      clearInterval(window.countdownInterval);
+    }
   }, [logout]);
 
   useEffect(() => {
+    let logoutTimer: ReturnType<typeof setTimeout>;
+    let countdownInterval: ReturnType<typeof setInterval>;
+
     if (isIdle) {
-      window.logoutTimer = setTimeout(handleLogout, warningCountdownMs);
+      logoutTimer = setTimeout(handleLogout, warningCountdownMs);
       setCountdown(warningCountdownMs / 1000);
 
-      window.countdownInterval = setInterval(() => {
-        setCountdown((prev) => {
+      countdownInterval = setInterval(() => {
+        setCountdown((prev: number) => {
           if (prev <= 1) {
-            clearInterval(window.countdownInterval);
+            clearInterval(countdownInterval);
             return 0;
           }
           return prev - 1;
         });
       }, 1000);
-    } else {
-      if (window.logoutTimer) {clearTimeout(window.logoutTimer);}
-      if (window.countdownInterval) {clearInterval(window.countdownInterval);}
+
+      // Store in window for access from other effects
+      window.logoutTimer = logoutTimer;
+      window.countdownInterval = countdownInterval;
     }
 
     return () => {
-      if (window.logoutTimer) {clearTimeout(window.logoutTimer);}
-      if (window.countdownInterval) {clearInterval(window.countdownInterval);}
+      if (logoutTimer) {
+        clearTimeout(logoutTimer);
+      }
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
     };
   }, [isIdle, handleLogout, warningCountdownMs]);
 
   useEffect(() => {
     const events = ['mousemove', 'keydown', 'click', 'scroll'];
-    const eventListener = () => resetTimers();
+    let timeoutId: number;
+
+    const eventListener = () => {
+      // Debounce high-frequency events
+      if (timeoutId) {
+        window.cancelAnimationFrame(timeoutId);
+      }
+      timeoutId = window.requestAnimationFrame(() => resetTimers());
+    };
 
     events.forEach((event) => {
-      window.addEventListener(event, eventListener);
+      window.addEventListener(event, eventListener, { passive: true });
     });
 
     resetTimers();
@@ -84,9 +111,18 @@ export function useInactivityTimeout() {
       events.forEach((event) => {
         window.removeEventListener(event, eventListener);
       });
-      if (window.warningTimer) {clearTimeout(window.warningTimer);}
-      if (window.logoutTimer) {clearTimeout(window.logoutTimer);}
-      if (window.countdownInterval) {clearInterval(window.countdownInterval);}
+      if (timeoutId) {
+        window.cancelAnimationFrame(timeoutId);
+      }
+      if (window.warningTimer) {
+        clearTimeout(window.warningTimer);
+      }
+      if (window.logoutTimer) {
+        clearTimeout(window.logoutTimer);
+      }
+      if (window.countdownInterval) {
+        clearInterval(window.countdownInterval);
+      }
     };
   }, [resetTimers]);
 

@@ -24,8 +24,10 @@ export async function getPlatformConfig(
     if (configId === 'sessionManagement') {
       return {
         id: 'sessionManagement',
-        inactivityTimeoutMinutes: 15,
-        warningCountdownSeconds: 60,
+        sessionTimeout: {
+          timeoutDurationMinutes: 15,
+          warningCountdownSeconds: 60,
+        },
       };
     }
     return null;

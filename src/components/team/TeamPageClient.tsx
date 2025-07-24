@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useCallback, useEffect, useState, useTransition } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { TeamMembersTable } from './TeamMembersTable';
 import { getTeamPageData } from '@/app/actions/teamActions';
@@ -52,16 +52,18 @@ export function TeamPageClient() {
 
   const loading = authLoading || isPending;
 
+  const fetchTeamData = useCallback(async (companyId: string) => {
+    const { displayMembers: data } = await getTeamPageData(companyId);
+    setDisplayMembers(data);
+  }, []);
+
   useEffect(() => {
     if (companyProfile?.id) {
-      startTransition(async () => {
-        const { displayMembers: data } = await getTeamPageData(
-          companyProfile.id
-        );
-        setDisplayMembers(data);
+      startTransition(() => {
+        fetchTeamData(companyProfile.id);
       });
     }
-  }, [companyProfile]);
+  }, [companyProfile, fetchTeamData]);
 
   if (loading) {
     return <TeamPageSkeleton />;
