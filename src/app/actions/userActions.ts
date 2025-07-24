@@ -7,7 +7,7 @@ import {
 } from '@/services/user.services';
 import { revalidatePath } from 'next/cache';
 import { createAuditLog } from '@/services/audit.services';
-import { auth } from '@/lib/firebase-admin';
+import { auth, db } from '@/lib/firebase-admin';
 
 interface UpdateProfileResult {
   success: boolean;
@@ -75,6 +75,7 @@ export async function updateUserProfile(
     }
 
     revalidatePath('/profile');
+    revalidatePath('/settings/users');
 
     await createAuditLog({
       actor: {
@@ -115,6 +116,129 @@ export async function updateUserProfile(
     return {
       success: false,
       error: errorMessage,
+    };
+  }
+}
+
+interface UpdateStatusResult {
+  success: boolean;
+  error?: string;
+}
+
+export async function updatePlatformUserStatusAction(
+  actorId: string,
+  targetUserId: string,
+  isActive: boolean
+): Promise<UpdateStatusResult> {
+  try {
+    const actor = await auth.getUser(actorId);
+    const targetUser = await auth.getUser(targetUserId);
+
+    await db.collection('platformUsers').doc(targetUserId).update({ isActive });
+
+    await createAuditLog({
+      actor: {
+        id: actorId,
+        displayName: actor.displayName || actorId,
+        role: 'platform',
+      },
+      action: `platform_user.${isActive ? 'activate' : 'suspend'}`,
+      target: {
+        id: targetUserId,
+        type: 'user',
+        displayName: targetUser.displayName || targetUserId,
+      },
+      status: 'success',
+    });
+
+    revalidatePath('/settings/users');
+    return { success: true };
+  } catch (error: any) {
+    const actor = await auth.getUser(actorId);
+    const targetUser = await auth.getUser(targetUserId).catch(() => null);
+
+    await createAuditLog({
+      actor: {
+        id: actorId,
+        displayName: actor.displayName || actorId,
+        role: 'platform',
+      },
+      action: `platform_user.${isActive ? 'activate' : 'suspend'}`,
+      target: {
+        id: targetUserId,
+        type: 'user',
+        displayName: targetUser?.displayName || targetUserId,
+      },
+      status: 'failure',
+      details: { error: error.message, code: error.code },
+    });
+
+    return {
+      success: false,
+      error: `Failed to ${isActive ? 'activate' : 'suspend'} user.`,
+    };
+  }
+}
+
+export async function updateTeamMemberStatusAction({
+  actorId,
+  companyId,
+  targetUserId,
+  isActive,
+}: {
+  actorId: string;
+  companyId: string;
+  targetUserId: string;
+  isActive: boolean;
+}): Promise<UpdateStatusResult> {
+  try {
+    const actor = await auth.getUser(actorId);
+    const targetUser = await auth.getUser(targetUserId);
+
+    await db.collection('teamMembers').doc(targetUserId).update({ isActive });
+
+    await createAuditLog({
+      actor: {
+        id: actorId,
+        displayName: actor.displayName || actorId,
+        role: 'company',
+      },
+      action: `team_member.${isActive ? 'activate' : 'suspend'}`,
+      target: {
+        id: targetUserId,
+        type: 'user',
+        displayName: targetUser.displayName || targetUserId,
+      },
+      status: 'success',
+      companyId,
+    });
+
+    revalidatePath('/team');
+    return { success: true };
+  } catch (error: any) {
+    const actor = await auth.getUser(actorId);
+    const targetUser = await auth.getUser(targetUserId).catch(() => null);
+
+    await createAuditLog({
+      actor: {
+        id: actorId,
+        displayName: actor.displayName || actorId,
+        role: 'company',
+      },
+      action: `team_member.${isActive ? 'activate' : 'suspend'}`,
+      target: {
+        id: targetUserId,
+        type: 'user',
+        displayName: targetUser?.displayName || targetUserId,
+      },
+      status: 'failure',
+      companyId,
+      details: { error: error.message, code: error.code },
+    });
+
+    return {
+      success: false,
+      error: `Failed to ${isActive ? 'activate' : 'suspend'} user.`,
     };
   }
 }

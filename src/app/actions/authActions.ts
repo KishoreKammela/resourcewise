@@ -2,8 +2,16 @@
 
 import { createPlatformUserDocument } from '@/services/user.services';
 import { auth } from '@/lib/firebase-admin';
-import { createCompanyAndAdmin } from '@/services/company.services';
+import {
+  createCompanyAndAdmin,
+  createTeamMemberFromInvitation,
+} from '@/services/company.services';
 import { createAuditLog } from '@/services/audit.services';
+import {
+  getInvitationByToken,
+  updateInvitationStatus,
+} from '@/services/invitation.services';
+import type { Invitation } from '@/lib/types';
 
 interface SignUpResult {
   success: boolean;
@@ -36,6 +44,7 @@ export async function createPlatformUserAction(
         firstName,
         lastName,
         email,
+        role: 'admin', // Default role for self-signup
       });
 
       await createAuditLog({
@@ -161,6 +170,90 @@ export async function createCompanyAndUserAction(
       details: { error: errorMessage, errorCode: error.code },
     });
 
+    return { success: false, error: errorMessage };
+  }
+}
+
+export async function acceptInvitationAction(
+  invitation: Invitation,
+  prevState: any,
+  formData: FormData
+): Promise<SignUpResult> {
+  const password = formData.get('password') as string;
+  const displayName = `${invitation.firstName} ${invitation.lastName}`;
+
+  if (!password) {
+    return { success: false, error: 'Password is required.' };
+  }
+  if (!invitation || !invitation.id) {
+    return { success: false, error: 'Invalid invitation.' };
+  }
+
+  try {
+    const userRecord = await auth.createUser({
+      email: invitation.email,
+      password,
+      displayName,
+    });
+
+    if (userRecord) {
+      if (invitation.type === 'platform') {
+        await createPlatformUserDocument(userRecord.uid, {
+          firstName: invitation.firstName,
+          lastName: invitation.lastName,
+          email: invitation.email,
+          role: invitation.role,
+        });
+      } else if (invitation.type === 'company' && invitation.companyId) {
+        await createTeamMemberFromInvitation(userRecord.uid, invitation);
+      } else {
+        throw new Error('Invalid invitation type or missing companyId.');
+      }
+
+      await updateInvitationStatus(invitation.id, 'accepted');
+
+      await createAuditLog({
+        actor: {
+          id: userRecord.uid,
+          displayName,
+          role: invitation.type,
+        },
+        action: 'user.accept_invitation',
+        target: {
+          id: userRecord.uid,
+          type: 'user',
+          displayName,
+        },
+        companyId: invitation.companyId,
+        status: 'success',
+        details: { role: invitation.role },
+      });
+
+      return { success: true };
+    }
+
+    return { success: false, error: 'Could not create user account.' };
+  } catch (error: any) {
+    let errorMessage = 'An unexpected error occurred. Please try again.';
+    if (error.code === 'auth/email-already-exists') {
+      errorMessage = 'This email address is already in use by another account.';
+    } else if (error.code === 'auth/invalid-password') {
+      errorMessage =
+        'The password is not strong enough. It must meet the policy requirements.';
+    }
+
+    await createAuditLog({
+      actor: { id: 'system', displayName: 'System', role: 'system' },
+      action: 'user.accept_invitation',
+      target: {
+        id: invitation.email,
+        type: 'user',
+        displayName: invitation.email,
+      },
+      status: 'failure',
+      companyId: invitation.companyId,
+      details: { error: errorMessage, errorCode: error.code },
+    });
     return { success: false, error: errorMessage };
   }
 }

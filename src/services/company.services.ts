@@ -1,7 +1,7 @@
 'use server';
 
 import { db } from '@/lib/firebase-admin';
-import type { Company, TeamMember } from '@/lib/types';
+import type { Company, TeamMember, Invitation } from '@/lib/types';
 import { FieldValue } from 'firebase-admin/firestore';
 
 /**
@@ -111,6 +111,63 @@ export async function createCompanyAndAdmin(
 
   await batch.commit();
   return { companyId };
+}
+
+/**
+ * Creates a new team member document in Firestore from an invitation.
+ * @param uid - The new user's unique ID from Firebase Auth.
+ * @param invitation - The invitation object.
+ */
+export async function createTeamMemberFromInvitation(
+  uid: string,
+  invitation: Invitation
+): Promise<void> {
+  if (!invitation.companyId) {
+    throw new Error('Company ID is missing from the invitation.');
+  }
+
+  const teamMemberRef = db.collection('teamMembers').doc(uid);
+  const newTeamMember: Omit<TeamMember, 'id'> = {
+    companyId: invitation.companyId,
+    email: invitation.email,
+    personalInfo: {
+      firstName: invitation.firstName,
+      lastName: invitation.lastName,
+      email: invitation.email,
+    },
+    address: {},
+    professionalInfo: {
+      designation: invitation.role,
+    },
+    authInfo: {
+      userType: invitation.role,
+      isEmailVerified: true,
+      loginAttempts: 0,
+    },
+    permissions: {
+      accessLevel: invitation.role,
+      specificPermissions: {},
+    },
+    contactInfo: {
+      workEmail: invitation.email,
+      communicationPreferences: {
+        email: true,
+        sms: false,
+        pushNotifications: true,
+      },
+      notificationSettings: {},
+    },
+    employmentDetails: {
+      status: 'active',
+      type: 'full-time',
+    },
+    isActive: true,
+    createdAt: FieldValue.serverTimestamp() as any,
+    updatedAt: FieldValue.serverTimestamp() as any,
+    createdBy: invitation.createdBy,
+  };
+
+  await teamMemberRef.set(newTeamMember);
 }
 
 /**

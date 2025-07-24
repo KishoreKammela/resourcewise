@@ -1,17 +1,27 @@
 'use server';
 
 import { db } from '@/lib/firebase-admin';
-import type { PlatformUser, UserProfileUpdate } from '@/lib/types';
+import type {
+  PlatformUser,
+  TeamMember,
+  UserProfileUpdate,
+  Invitation,
+} from '@/lib/types';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 
 /**
  * Creates a new platform user document in Firestore.
  * @param uid - The user's unique ID from Firebase Auth.
- * @param userData - The basic user data (firstName, lastName, email).
+ * @param userData - The basic user data (firstName, lastName, email, role).
  */
 export async function createPlatformUserDocument(
   uid: string,
-  userData: { firstName: string; lastName: string; email: string }
+  userData: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: string;
+  }
 ): Promise<void> {
   const userRef = db.collection('platformUsers').doc(uid);
 
@@ -23,16 +33,18 @@ export async function createPlatformUserDocument(
     updatedAt: FieldValue;
   } = {
     email: userData.email,
-    userType: 'admin', // Default user type
+    userType: userData.role as any, // Cast for now, consider validation
     personalInfo: {
       firstName: userData.firstName,
       lastName: userData.lastName,
       email: userData.email,
     },
     address: {},
-    professionalInfo: {},
+    professionalInfo: {
+      designation: userData.role,
+    },
     permissions: {
-      canManageUsers: true,
+      canManageUsers: true, // Example permission
     },
     isActive: true,
     loginAttempts: 0,
@@ -42,6 +54,63 @@ export async function createPlatformUserDocument(
   };
 
   await userRef.set(newUserProfile, { merge: true });
+}
+
+/**
+ * Creates a new team member document in Firestore from an invitation.
+ * @param uid - The new user's unique ID from Firebase Auth.
+ * @param invitation - The invitation object.
+ */
+export async function createTeamMemberFromInvitation(
+  uid: string,
+  invitation: Invitation
+): Promise<void> {
+  if (!invitation.companyId) {
+    throw new Error('Company ID is missing from the invitation.');
+  }
+
+  const teamMemberRef = db.collection('teamMembers').doc(uid);
+  const newTeamMember: Omit<TeamMember, 'id'> = {
+    companyId: invitation.companyId,
+    email: invitation.email,
+    personalInfo: {
+      firstName: invitation.firstName,
+      lastName: invitation.lastName,
+      email: invitation.email,
+    },
+    address: {},
+    professionalInfo: {
+      designation: invitation.role,
+    },
+    authInfo: {
+      userType: invitation.role,
+      isEmailVerified: true, // Should be updated by a verification flow
+      loginAttempts: 0,
+    },
+    permissions: {
+      accessLevel: invitation.role,
+      specificPermissions: {}, // Define default permissions based on role
+    },
+    contactInfo: {
+      workEmail: invitation.email,
+      communicationPreferences: {
+        email: true,
+        sms: false,
+        pushNotifications: true,
+      },
+      notificationSettings: {},
+    },
+    employmentDetails: {
+      status: 'active',
+      type: 'full-time',
+    },
+    isActive: true,
+    createdAt: FieldValue.serverTimestamp() as any,
+    updatedAt: FieldValue.serverTimestamp() as any,
+    createdBy: invitation.createdBy,
+  };
+
+  await teamMemberRef.set(newTeamMember);
 }
 
 /**
@@ -133,4 +202,46 @@ async function updateUserDocument(
   }
 
   await userRef.update(updateData);
+}
+
+/**
+ * Retrieves all platform users from Firestore.
+ * @returns A promise that resolves to an array of PlatformUser objects.
+ */
+export async function getPlatformUsers(): Promise<PlatformUser[]> {
+  const usersSnapshot = await db.collection('platformUsers').get();
+  if (usersSnapshot.empty) {
+    return [];
+  }
+
+  const users: PlatformUser[] = [];
+  usersSnapshot.forEach((doc) => {
+    // Note: We're casting here. For production, you'd want robust validation (e.g., with Zod).
+    users.push({ id: doc.id, ...doc.data() } as PlatformUser);
+  });
+
+  return users;
+}
+
+/**
+ * Retrieves all team members for a specific company from Firestore.
+ * @returns A promise that resolves to an array of TeamMember objects.
+ */
+export async function getTeamMembersByCompany(
+  companyId: string
+): Promise<TeamMember[]> {
+  const membersSnapshot = await db
+    .collection('teamMembers')
+    .where('companyId', '==', companyId)
+    .get();
+  if (membersSnapshot.empty) {
+    return [];
+  }
+
+  const members: TeamMember[] = [];
+  membersSnapshot.forEach((doc) => {
+    members.push({ id: doc.id, ...doc.data() } as TeamMember);
+  });
+
+  return members;
 }

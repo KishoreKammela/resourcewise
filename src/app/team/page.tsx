@@ -1,6 +1,7 @@
+'use server';
+
 import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -8,27 +9,48 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { PlusCircle } from 'lucide-react';
-import { teamMembers } from '@/lib/placeholder-data';
+import { getTeamMembersByCompany } from '@/services/user.services';
+import { TeamMembersTable } from '@/components/team/TeamMembersTable';
+import { auth } from '@/lib/firebase-admin';
+import { getDoc, doc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import type { TeamMember } from '@/lib/types';
+import { cookies } from 'next/headers';
+import { InviteMemberDialogWrapper } from '@/components/team/InviteMemberDialogWrapper';
 
-function TeamContent() {
+async function getCompanyIdForCurrentUser() {
+  const sessionCookie = (await cookies()).get('__session')?.value;
+  if (!sessionCookie) {
+    return null;
+  }
+
+  try {
+    const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
+    const teamMemberDoc = await getDoc(
+      doc(db, 'teamMembers', decodedToken.uid)
+    );
+    if (teamMemberDoc.exists()) {
+      return (teamMemberDoc.data() as TeamMember).companyId;
+    }
+    return null;
+  } catch (error) {
+    return null;
+  }
+}
+
+export default async function TeamPage() {
+  const companyId = await getCompanyIdForCurrentUser();
+  let teamMembers: TeamMember[] = [];
+  if (companyId) {
+    teamMembers = await getTeamMembersByCompany(companyId);
+  }
+
   return (
-    <div className="flex flex-col gap-4">
+    <AppShell>
       <PageHeader title="Team Members">
-        <Button>
-          <PlusCircle className="mr-2" />
-          Add Member
-        </Button>
+        <InviteMemberDialogWrapper />
       </PageHeader>
-      <Card>
+      <Card className="mt-6">
         <CardHeader>
           <CardTitle>Manage Team</CardTitle>
           <CardDescription>
@@ -36,39 +58,9 @@ function TeamContent() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {teamMembers.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
-                    No team members found. Start by adding a new member.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                <></>
-              )}
-            </TableBody>
-          </Table>
+          <TeamMembersTable members={teamMembers} companyId={companyId ?? ''} />
         </CardContent>
       </Card>
-    </div>
-  );
-}
-export default function TeamPage() {
-  return (
-    <AppShell>
-      <TeamContent />
     </AppShell>
   );
 }
