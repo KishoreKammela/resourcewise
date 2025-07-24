@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -20,6 +21,8 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowRight, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useFormStatus } from 'react-dom';
+import { createCompanyAndUserAction } from '@/app/actions/authActions';
 
 const step1Schema = z.object({
   firstName: z.string().min(2, { message: 'First name is required.' }),
@@ -54,21 +57,33 @@ const steps = [
     id: '01',
     name: 'Your Details',
     fields: ['firstName', 'lastName', 'email', 'password', 'confirmPassword'],
-    schema: step1Schema,
   },
   {
     id: '02',
     name: 'Company Information',
     fields: ['companyName', 'companyWebsite'],
-    schema: step2Schema,
   },
-  { id: '03', name: 'Review & Submit', schema: z.object({}) },
+  { id: '03', name: 'Review & Submit' },
 ];
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" disabled={pending}>
+      {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      Create Company Account
+    </Button>
+  );
+}
 
 export function MultiStepSignupForm() {
   const { toast } = useToast();
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
-  const [loading] = useState(false);
+
+  const [state, formAction] = useActionState(createCompanyAndUserAction, {
+    success: false,
+  });
 
   const methods = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -86,19 +101,31 @@ export function MultiStepSignupForm() {
 
   const { handleSubmit, trigger, getValues } = methods;
 
-  const processForm = (data: SignupFormValues) => {
-    console.log('Form Submitted', data);
-    // Here we would call the server action
-    toast({
-      title: 'In Progress',
-      description: 'Company registration is being rebuilt.',
-    });
-  };
+  useEffect(() => {
+    if (state.success) {
+      toast({
+        title: 'Registration Successful',
+        description: 'Your company and admin account have been created.',
+      });
+      router.push('/login');
+    } else if (state.error) {
+      toast({
+        variant: 'destructive',
+        title: 'Registration Failed',
+        description: state.error,
+      });
+    }
+  }, [state, router, toast]);
 
   type FieldName = keyof SignupFormValues;
 
   const next = async () => {
-    const fields = steps[currentStep].fields as FieldName[];
+    const fields = steps[currentStep].fields as FieldName[] | undefined;
+    if (!fields) {
+      // For the review step, which has no fields to validate
+      setCurrentStep((step) => step + 1);
+      return;
+    }
     const output = await trigger(fields, { shouldFocus: true });
 
     if (!output) {
@@ -118,7 +145,7 @@ export function MultiStepSignupForm() {
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(processForm)} className="space-y-8">
+      <form action={formAction} className="space-y-8">
         <div className="flex items-center justify-center gap-4">
           {steps.map((step, index) => (
             <React.Fragment key={step.id}>
@@ -319,12 +346,7 @@ export function MultiStepSignupForm() {
                 <ArrowRight className="ml-2" />
               </Button>
             )}
-            {currentStep === steps.length - 1 && (
-              <Button type="submit" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create Company Account
-              </Button>
-            )}
+            {currentStep === steps.length - 1 && <SubmitButton />}
           </div>
         </div>
         <div className="text-center text-sm">
@@ -333,6 +355,37 @@ export function MultiStepSignupForm() {
             Login
           </Link>
         </div>
+        {/* Hidden inputs to pass all form data to the server action */}
+        {currentStep === steps.length - 1 && (
+          <>
+            <input
+              type="hidden"
+              name="firstName"
+              value={getValues('firstName')}
+            />
+            <input
+              type="hidden"
+              name="lastName"
+              value={getValues('lastName')}
+            />
+            <input type="hidden" name="email" value={getValues('email')} />
+            <input
+              type="hidden"
+              name="password"
+              value={getValues('password')}
+            />
+            <input
+              type="hidden"
+              name="companyName"
+              value={getValues('companyName')}
+            />
+            <input
+              type="hidden"
+              name="companyWebsite"
+              value={getValues('companyWebsite')}
+            />
+          </>
+        )}
       </form>
     </FormProvider>
   );
