@@ -21,7 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { updateTeamMemberStatusAction } from '@/app/actions/userActions';
-import type { DisplayMember } from '@/app/team/page';
+import type { DisplayMember } from '@/components/team/TeamPageClient';
 
 export function TeamMembersTable({
   members,
