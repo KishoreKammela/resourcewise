@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useState,
   type ReactNode,
+  useCallback,
 } from 'react';
 import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase';
@@ -18,6 +19,7 @@ interface AuthContextType {
   userRole: 'platform' | 'company' | null;
   loading: boolean;
   logout: () => Promise<void>;
+  refreshUserProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,53 +32,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userRole, setUserRole] = useState<'platform' | 'company' | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setLoading(true);
-      if (user) {
-        setUser(user);
-        // Check for PlatformUser first
-        const platformUserDocRef = doc(db, 'platformUsers', user.uid);
-        const platformUserDoc = await getDoc(platformUserDocRef);
+  const fetchUserProfile = useCallback(async (userToFetch: User | null) => {
+    if (!userToFetch) {
+      setUser(null);
+      setUserProfile(null);
+      setUserRole(null);
+      setLoading(false);
+      return;
+    }
 
-        if (platformUserDoc.exists()) {
-          setUserProfile(platformUserDoc.data() as PlatformUser);
-          setUserRole('platform');
-        } else {
-          // Fallback to check for TeamMember
-          const teamMemberDocRef = doc(db, 'teamMembers', user.uid);
-          const teamMemberDoc = await getDoc(teamMemberDocRef);
-          if (teamMemberDoc.exists()) {
-            setUserProfile(teamMemberDoc.data() as TeamMember);
-            setUserRole('company');
-          } else {
-            // This case handles a user that is authenticated with Firebase Auth
-            // but does not have a corresponding document in either collection.
-            console.warn('User authenticated but no profile document found.');
-            setUserProfile(null);
-            setUserRole(null);
-          }
-        }
+    setUser(userToFetch);
+    const platformUserDocRef = doc(db, 'platformUsers', userToFetch.uid);
+    const platformUserDoc = await getDoc(platformUserDocRef);
+
+    if (platformUserDoc.exists()) {
+      setUserProfile(platformUserDoc.data() as PlatformUser);
+      setUserRole('platform');
+    } else {
+      const teamMemberDocRef = doc(db, 'teamMembers', userToFetch.uid);
+      const teamMemberDoc = await getDoc(teamMemberDocRef);
+      if (teamMemberDoc.exists()) {
+        setUserProfile(teamMemberDoc.data() as TeamMember);
+        setUserRole('company');
       } else {
-        setUser(null);
+        console.warn('User authenticated but no profile document found.');
         setUserProfile(null);
         setUserRole(null);
       }
-      setLoading(false);
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setLoading(true);
+      await fetchUserProfile(user);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [fetchUserProfile]);
 
   const logout = async () => {
     await signOut(auth);
-    // Reset all state upon logout
     setUser(null);
     setUserProfile(null);
     setUserRole(null);
   };
 
-  const value = { user, userProfile, userRole, loading, logout };
+  const refreshUserProfile = useCallback(async () => {
+    setLoading(true);
+    await fetchUserProfile(user);
+  }, [user, fetchUserProfile]);
+
+  const value = {
+    user,
+    userProfile,
+    userRole,
+    loading,
+    logout,
+    refreshUserProfile,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

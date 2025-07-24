@@ -42,6 +42,7 @@ import {
 import { updateUserProfile } from '@/app/actions/userActions';
 import { useToast } from '@/hooks/use-toast';
 import { useFormStatus } from 'react-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const profileFormSchema = z.object({
   email: z.string().email(),
@@ -94,6 +95,7 @@ export function ProfileForm({
   currentUser: UserProfileProps;
 }) {
   const { toast } = useToast();
+  const { refreshUserProfile } = useAuth();
   const [isDatePickerOpen, setDatePickerOpen] = useState(false);
 
   const getInitialValues = useMemo((): ProfileFormValues => {
@@ -125,7 +127,6 @@ export function ProfileForm({
       };
     }
 
-    // This part will be updated in a future task for company users
     return {
       email,
       personalInfo: { firstName: '', lastName: '' },
@@ -151,6 +152,7 @@ export function ProfileForm({
         title: 'Profile Updated',
         description: 'Your profile has been successfully updated.',
       });
+      refreshUserProfile();
     } else if (state.error) {
       toast({
         variant: 'destructive',
@@ -158,7 +160,7 @@ export function ProfileForm({
         description: state.error,
       });
     }
-  }, [state, toast]);
+  }, [state, toast, refreshUserProfile]);
 
   useEffect(() => {
     form.reset(getInitialValues);
