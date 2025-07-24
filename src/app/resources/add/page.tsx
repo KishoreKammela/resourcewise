@@ -1,5 +1,7 @@
+'use client';
+
 import { PageHeader } from '@/components/shared/PageHeader';
-// import { AddResourceForm } from '@/components/resources/AddResourceForm';
+import { AddResourceForm } from '@/components/resources/AddResourceForm';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
@@ -10,8 +12,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { AppShell } from '@/components/layout/AppShell';
 
-export default function AddResourcePage() {
+function AddResourcePageContent() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
@@ -28,11 +31,21 @@ export default function AddResourcePage() {
           <CardTitle>Resource Details</CardTitle>
           <CardDescription>
             Fill in the information for the new resource. You can upload a
-            resume to automatically extract skills.
+            resume to automatically extract skills later.
           </CardDescription>
         </CardHeader>
-        <CardContent>{/* <AddResourceForm /> */}</CardContent>
+        <CardContent>
+          <AddResourceForm />
+        </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function AddResourcePage() {
+  return (
+    <AppShell>
+      <AddResourcePageContent />
+    </AppShell>
   );
 }
