@@ -160,17 +160,7 @@ export function InviteUserDialog({
         </DialogDescription>
       </DialogHeader>
       <FormProvider {...form}>
-        <form
-          ref={formRef}
-          action={formAction}
-          className="space-y-4"
-          onSubmit={form.handleSubmit(() => {
-            if (formRef.current) {
-              const formData = new FormData(formRef.current);
-              formAction(formData);
-            }
-          })}
-        >
+        <form ref={formRef} action={formAction} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -221,6 +211,7 @@ export function InviteUserDialog({
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  name={field.name}
                 >
                   <FormControl>
                     <SelectTrigger>
