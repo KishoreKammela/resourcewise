@@ -53,11 +53,11 @@ export function UserProfile() {
       if (userRole === 'company' && 'personalInfo' in userProfile) {
         firstName = userProfile.personalInfo.firstName || '';
         lastName = userProfile.personalInfo.lastName || '';
-        email = userProfile.personalInfo.email || user?.email || '';
+        email = userProfile.email || user?.email || '';
       } else if (userRole === 'platform' && 'personalInfo' in userProfile) {
         firstName = userProfile.personalInfo.firstName || '';
         lastName = userProfile.personalInfo.lastName || '';
-        email = userProfile.personalInfo.email || user?.email || '';
+        email = userProfile.email || user?.email || '';
       }
     }
 
