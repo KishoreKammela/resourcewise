@@ -40,6 +40,12 @@ import {
 } from '@/components/ui/collapsible';
 import { cn } from '@/lib/utils';
 import { UserProfile } from '../shared/UserProfile';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export type NavItem = {
   href: string;
@@ -336,21 +342,35 @@ export const NavMenuItem = ({ item }: { item: NavItem }) => {
     ? pathname.startsWith(item.href)
     : pathname === item.href;
 
+  const linkContent = (
+    <div
+      className={cn(
+        'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+        isActive
+          ? 'bg-primary text-primary-foreground'
+          : 'text-foreground hover:bg-muted',
+        state === 'collapsed' && 'justify-center'
+      )}
+    >
+      <item.icon className="h-6 w-6" />
+      {state === 'expanded' && <span>{item.label}</span>}
+    </div>
+  );
+
   if (!item.children || state === 'collapsed') {
     return (
-      <Link
-        href={item.href}
-        className={cn(
-          'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-          isActive
-            ? 'bg-primary text-primary-foreground'
-            : 'text-foreground hover:bg-muted',
-          state === 'collapsed' && 'justify-center'
-        )}
-      >
-        <item.icon className="h-5 w-5" />
-        {state === 'expanded' && <span>{item.label}</span>}
-      </Link>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link href={item.href}>{linkContent}</Link>
+          </TooltipTrigger>
+          {state === 'collapsed' && (
+            <TooltipContent side="right">
+              <p>{item.label}</p>
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
     );
   }
 
@@ -365,7 +385,7 @@ export const NavMenuItem = ({ item }: { item: NavItem }) => {
         )}
       >
         <div className="flex items-center gap-3">
-          <item.icon className="h-5 w-5" />
+          <item.icon className="h-6 w-6" />
           <span>{item.label}</span>
         </div>
         <ChevronDown
