@@ -949,6 +949,20 @@ export interface AuditLog {
   };
 }
 
+export interface Invitation {
+  id: string; // Document ID, which will be the unique token
+  type: 'platform' | 'company';
+  companyId?: string; // Required if type is 'company'
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  status: 'pending' | 'accepted' | 'expired';
+  expiresAt: Timestamp;
+  createdAt: Timestamp;
+  createdBy: string; // UID of the user who created the invitation
+}
+
 // UI-specific types (can be kept or adapted)
 
 export type Kpi = {
