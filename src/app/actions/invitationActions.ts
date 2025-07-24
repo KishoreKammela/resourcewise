@@ -3,7 +3,7 @@
 import { createInvitation } from '@/services/invitation.services';
 import { auth } from '@/lib/firebase-admin';
 import { createAuditLog } from '@/services/audit.services';
-import type { Company } from '@/lib/types';
+import { revalidatePath } from 'next/cache';
 
 interface InviteResult {
   success: boolean;
@@ -56,6 +56,8 @@ export async function invitePlatformUserAction(
       status: 'success',
       details: { role, inviteLink },
     });
+
+    revalidatePath('/settings/users');
 
     return { success: true, inviteLink };
   } catch (error: any) {
@@ -136,6 +138,8 @@ export async function inviteTeamMemberAction(
       status: 'success',
       details: { role, inviteLink },
     });
+
+    revalidatePath('/team');
 
     return { success: true, inviteLink };
   } catch (error: any) {

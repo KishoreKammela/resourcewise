@@ -2,8 +2,6 @@
 
 import { PageHeader } from '@/components/shared/PageHeader';
 import { AppShell } from '@/components/layout/AppShell';
-import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -11,25 +9,55 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
-import { InviteUserDialog } from '@/components/settings/InviteUserDialog';
-import { useState } from 'react';
 import { getPlatformUsers } from '@/services/user.services';
 import { UsersTable } from '@/components/settings/UsersTable';
+import { InviteUserDialogWrapper } from '@/components/settings/InviteUserDialogWrapper';
+import { getPendingPlatformInvitations } from '@/services/invitation.services';
+import type { PlatformUser, Invitation } from '@/lib/types';
 
-// Note: This is a server component that fetches data and passes it to a client component.
-// We are using a temporary state solution for the dialog which is not ideal in a server component
-// but works for this prototype. In a real app, you might lift state management higher
-// or use query params to control the dialog visibility from the server.
+export type DisplayUser = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  status: 'Active' | 'Suspended' | 'Invited';
+  isRegistered: boolean;
+  isActive?: boolean;
+};
 
 export default async function PlatformUsersPage() {
-  const users = await getPlatformUsers();
+  const users: PlatformUser[] = await getPlatformUsers();
+  const pendingInvitations: Invitation[] =
+    await getPendingPlatformInvitations();
+
+  const displayUsers: DisplayUser[] = [
+    ...users.map((user) => ({
+      id: user.id,
+      firstName: user.personalInfo.firstName,
+      lastName: user.personalInfo.lastName,
+      email: user.email,
+      role: user.userType,
+      status: (user.isActive ? 'Active' : 'Suspended') as
+        | 'Active'
+        | 'Suspended',
+      isRegistered: true,
+      isActive: user.isActive,
+    })),
+    ...pendingInvitations.map((invite) => ({
+      id: invite.id,
+      firstName: invite.firstName,
+      lastName: invite.lastName,
+      email: invite.email,
+      role: invite.role,
+      status: 'Invited' as const,
+      isRegistered: false,
+    })),
+  ];
 
   return (
     <AppShell>
       <PageHeader title="Platform Users">
-        {/* The Dialog state management is simplified here for prototyping */}
-        {/* In a production app, consider a more robust state management solution */}
         <InviteUserDialogWrapper />
       </PageHeader>
       <div className="mt-6">
@@ -41,27 +69,10 @@ export default async function PlatformUsersPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <UsersTable users={users} />
+            <UsersTable users={displayUsers} />
           </CardContent>
         </Card>
       </div>
     </AppShell>
-  );
-}
-
-// Helper client component to manage dialog state
-function InviteUserDialogWrapper() {
-  const [isInviteDialogOpen, setInviteDialogOpen] = useState(false);
-
-  return (
-    <Dialog open={isInviteDialogOpen} onOpenChange={setInviteDialogOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusCircle className="mr-2" />
-          Invite User
-        </Button>
-      </DialogTrigger>
-      <InviteUserDialog setOpen={setInviteDialogOpen} />
-    </Dialog>
   );
 }

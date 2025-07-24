@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import type { TeamMember } from '@/lib/types';
 import {
   Table,
   TableBody,
@@ -22,12 +21,13 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { updateTeamMemberStatusAction } from '@/app/actions/userActions';
+import type { DisplayMember } from '@/app/team/page';
 
 export function TeamMembersTable({
   members,
   companyId,
 }: {
-  members: TeamMember[];
+  members: DisplayMember[];
   companyId: string;
 }) {
   const { user } = useAuth();
@@ -83,6 +83,19 @@ export function TeamMembersTable({
     );
   }
 
+  const getBadgeVariant = (
+    status: 'Active' | 'Suspended' | 'Invited'
+  ): 'secondary' | 'destructive' | 'outline' => {
+    switch (status) {
+      case 'Active':
+        return 'secondary';
+      case 'Suspended':
+        return 'destructive';
+      case 'Invited':
+        return 'outline';
+    }
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -100,50 +113,50 @@ export function TeamMembersTable({
         {members.map((member) => (
           <TableRow key={member.id}>
             <TableCell>
-              {member.personalInfo.firstName} {member.personalInfo.lastName}
+              {member.firstName} {member.lastName}
             </TableCell>
             <TableCell>{member.email}</TableCell>
-            <TableCell className="capitalize">
-              {member.permissions.accessLevel}
-            </TableCell>
+            <TableCell className="capitalize">{member.role}</TableCell>
             <TableCell>
-              <Badge variant={member.isActive ? 'secondary' : 'destructive'}>
-                {member.isActive ? 'Active' : 'Suspended'}
+              <Badge variant={getBadgeVariant(member.status)}>
+                {member.status}
               </Badge>
             </TableCell>
             <TableCell>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    aria-haspopup="true"
-                    size="icon"
-                    variant="ghost"
-                    disabled={
-                      loadingStates[member.id] || member.id === user?.uid
-                    }
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                    <span className="sr-only">Toggle menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {member.isActive ? (
-                    <DropdownMenuItem
-                      onSelect={() => handleStatusChange(member.id, false)}
+              {member.isRegistered && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      aria-haspopup="true"
+                      size="icon"
+                      variant="ghost"
+                      disabled={
+                        loadingStates[member.id] || member.id === user?.uid
+                      }
                     >
-                      <ShieldOff className="mr-2 h-4 w-4" />
-                      Suspend Member
-                    </DropdownMenuItem>
-                  ) : (
-                    <DropdownMenuItem
-                      onSelect={() => handleStatusChange(member.id, true)}
-                    >
-                      <ShieldCheck className="mr-2 h-4 w-4" />
-                      Activate Member
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                      <MoreHorizontal className="h-4 w-4" />
+                      <span className="sr-only">Toggle menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {member.isActive ? (
+                      <DropdownMenuItem
+                        onSelect={() => handleStatusChange(member.id, false)}
+                      >
+                        <ShieldOff className="mr-2 h-4 w-4" />
+                        Suspend Member
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onSelect={() => handleStatusChange(member.id, true)}
+                      >
+                        <ShieldCheck className="mr-2 h-4 w-4" />
+                        Activate Member
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </TableCell>
           </TableRow>
         ))}

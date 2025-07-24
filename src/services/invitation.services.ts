@@ -76,3 +76,53 @@ export async function updateInvitationStatus(
   const invitationRef = db.collection('invitations').doc(token);
   await invitationRef.update({ status });
 }
+
+/**
+ * Retrieves all pending platform invitations.
+ * @returns A promise that resolves to an array of Invitation objects.
+ */
+export async function getPendingPlatformInvitations(): Promise<Invitation[]> {
+  const snapshot = await db
+    .collection('invitations')
+    .where('type', '==', 'platform')
+    .where('status', '==', 'pending')
+    .get();
+
+  if (snapshot.empty) {
+    return [];
+  }
+
+  const invitations: Invitation[] = [];
+  snapshot.forEach((doc) => {
+    invitations.push({ id: doc.id, ...doc.data() } as Invitation);
+  });
+
+  return invitations;
+}
+
+/**
+ * Retrieves all pending company invitations for a specific company.
+ * @param companyId - The ID of the company.
+ * @returns A promise that resolves to an array of Invitation objects.
+ */
+export async function getPendingCompanyInvitations(
+  companyId: string
+): Promise<Invitation[]> {
+  const snapshot = await db
+    .collection('invitations')
+    .where('type', '==', 'company')
+    .where('companyId', '==', companyId)
+    .where('status', '==', 'pending')
+    .get();
+
+  if (snapshot.empty) {
+    return [];
+  }
+
+  const invitations: Invitation[] = [];
+  snapshot.forEach((doc) => {
+    invitations.push({ id: doc.id, ...doc.data() } as Invitation);
+  });
+
+  return invitations;
+}

@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import type { PlatformUser } from '@/lib/types';
 import {
   Table,
   TableBody,
@@ -22,8 +21,9 @@ import { Button } from '@/components/ui/button';
 import { MoreHorizontal, ShieldOff, ShieldCheck } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { updatePlatformUserStatusAction } from '@/app/actions/userActions';
+import type { DisplayUser } from '@/app/settings/users/page';
 
-export function UsersTable({ users }: { users: PlatformUser[] }) {
+export function UsersTable({ users }: { users: DisplayUser[] }) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
@@ -76,6 +76,19 @@ export function UsersTable({ users }: { users: PlatformUser[] }) {
     );
   }
 
+  const getBadgeVariant = (
+    status: 'Active' | 'Suspended' | 'Invited'
+  ): 'secondary' | 'destructive' | 'outline' => {
+    switch (status) {
+      case 'Active':
+        return 'secondary';
+      case 'Suspended':
+        return 'destructive';
+      case 'Invited':
+        return 'outline';
+    }
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -93,56 +106,55 @@ export function UsersTable({ users }: { users: PlatformUser[] }) {
         {users.map((platformUser) => (
           <TableRow key={platformUser.id}>
             <TableCell>
-              {platformUser.personalInfo.firstName}{' '}
-              {platformUser.personalInfo.lastName}
+              {platformUser.firstName} {platformUser.lastName}
             </TableCell>
             <TableCell>{platformUser.email}</TableCell>
-            <TableCell className="capitalize">
-              {platformUser.userType}
-            </TableCell>
+            <TableCell className="capitalize">{platformUser.role}</TableCell>
             <TableCell>
-              <Badge
-                variant={platformUser.isActive ? 'secondary' : 'destructive'}
-              >
-                {platformUser.isActive ? 'Active' : 'Suspended'}
+              <Badge variant={getBadgeVariant(platformUser.status)}>
+                {platformUser.status}
               </Badge>
             </TableCell>
             <TableCell>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    aria-haspopup="true"
-                    size="icon"
-                    variant="ghost"
-                    disabled={
-                      loadingStates[platformUser.id] ||
-                      platformUser.id === user?.uid
-                    }
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                    <span className="sr-only">Toggle menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {platformUser.isActive ? (
-                    <DropdownMenuItem
-                      onSelect={() =>
-                        handleStatusChange(platformUser.id, false)
+              {platformUser.isRegistered && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      aria-haspopup="true"
+                      size="icon"
+                      variant="ghost"
+                      disabled={
+                        loadingStates[platformUser.id] ||
+                        platformUser.id === user?.uid
                       }
                     >
-                      <ShieldOff className="mr-2 h-4 w-4" />
-                      Suspend User
-                    </DropdownMenuItem>
-                  ) : (
-                    <DropdownMenuItem
-                      onSelect={() => handleStatusChange(platformUser.id, true)}
-                    >
-                      <ShieldCheck className="mr-2 h-4 w-4" />
-                      Activate User
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                      <MoreHorizontal className="h-4 w-4" />
+                      <span className="sr-only">Toggle menu</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {platformUser.isActive ? (
+                      <DropdownMenuItem
+                        onSelect={() =>
+                          handleStatusChange(platformUser.id, false)
+                        }
+                      >
+                        <ShieldOff className="mr-2 h-4 w-4" />
+                        Suspend User
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem
+                        onSelect={() =>
+                          handleStatusChange(platformUser.id, true)
+                        }
+                      >
+                        <ShieldCheck className="mr-2 h-4 w-4" />
+                        Activate User
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </TableCell>
           </TableRow>
         ))}
