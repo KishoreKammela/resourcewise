@@ -71,7 +71,7 @@ export function UserProfile() {
   const { firstName, lastName, email } = getUserInfo();
 
   const triggerContent = (
-    <div className="flex w-full items-center justify-between">
+    <div className="flex w-full items-center justify-ceter">
       <div className="flex items-center gap-3 overflow-hidden">
         <UserCircle className="h-8 w-8 shrink-0 text-muted-foreground" />
         {state === 'expanded' && (
