@@ -19,7 +19,9 @@ function DetailItem({
   label: string;
   value: string | number | undefined | null;
 }) {
-  if (!value) return null;
+  if (!value) {
+    return null;
+  }
   return (
     <div>
       <p className="text-sm font-medium text-muted-foreground">{label}</p>
@@ -29,7 +31,9 @@ function DetailItem({
 }
 
 function formatDate(date: Timestamp | Date | undefined): string | null {
-  if (!date) return null;
+  if (!date) {
+    return null;
+  }
   const jsDate = date instanceof Date ? date : date.toDate();
   return format(jsDate, 'PPP');
 }

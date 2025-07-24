@@ -1,4 +1,3 @@
-
 import Link from 'next/link';
 import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
@@ -23,12 +22,16 @@ import { getResourcesByCompany } from '@/services/resource.services';
 import { cookies } from 'next/headers';
 import { auth, db } from '@/lib/firebase-admin';
 import { Badge } from '@/components/ui/badge';
+import { createAuditLog } from '@/services/audit.services';
 
 export const dynamic = 'force-dynamic';
 
 async function getCompanyIdForCurrentUser(): Promise<string | null> {
-  const sessionCookie = cookies().get('__session')?.value;
-  if (!sessionCookie) return null;
+  const cookiesStore = await cookies();
+  const sessionCookie = cookiesStore.get('__session')?.value;
+  if (!sessionCookie) {
+    return null;
+  }
 
   try {
     const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
@@ -40,8 +43,22 @@ async function getCompanyIdForCurrentUser(): Promise<string | null> {
       return teamMemberDoc.data()?.companyId || null;
     }
     return null;
-  } catch (error) {
-    console.error('Error verifying session cookie:', error);
+  } catch (error: any) {
+    await createAuditLog({
+      actor: {
+        id: 'system',
+        displayName: 'System',
+        role: 'system',
+      },
+      action: 'auth.session_verify',
+      target: {
+        id: 'session',
+        type: 'session',
+        displayName: 'Session Verification',
+      },
+      status: 'failure',
+      details: { error: error.message },
+    });
     return null;
   }
 }

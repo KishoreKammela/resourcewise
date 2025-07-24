@@ -6,7 +6,7 @@ import { createResource } from '@/services/resource.services';
 import type { Resource } from '@/lib/types';
 import { auth } from '@/lib/firebase-admin';
 import { revalidatePath } from 'next/cache';
-import { Timestamp } from 'firebase-admin/firestore';
+import { Timestamp } from '@firebase/firestore';
 
 export async function extractSkillsAction(resumeDataUri: string) {
   // Backend logic removed
@@ -22,14 +22,23 @@ interface CreateResourceResult {
 function safeToDate(
   dateString: string | FormDataEntryValue | null
 ): Timestamp | undefined {
-  if (!dateString || typeof dateString !== 'string') return undefined;
+  if (!dateString || typeof dateString !== 'string') {
+    return undefined;
+  }
+  if (dateString === 'undefined' || dateString === 'null') {
+    return undefined;
+  }
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) return undefined;
+  if (isNaN(date.getTime())) {
+    return undefined;
+  }
   return Timestamp.fromDate(date);
 }
 
 function safeToNumber(value: FormDataEntryValue | null): number | undefined {
-  if (value === null || value === undefined || value === '') return undefined;
+  if (value === null || value === undefined || value === '') {
+    return undefined;
+  }
   const num = Number(value);
   return isNaN(num) ? undefined : num;
 }
@@ -48,7 +57,9 @@ function getArrayFromFormData(formData: FormData, fieldName: string): any[] {
     }
   });
   return Object.values(arrayData).map((item: any) => {
-    if (item.year) item.year = Number(item.year);
+    if (item.year) {
+      item.year = Number(item.year);
+    }
     return item;
   });
 }
@@ -124,7 +135,9 @@ export async function createResourceAction(
           (formData.get('professionalInfo.practiceArea') as string) || '',
         seniorityLevel:
           (formData.get('professionalInfo.seniorityLevel') as string) || '',
-        employmentType: formData.get('professionalInfo.employmentType') as string,
+        employmentType: formData.get(
+          'professionalInfo.employmentType'
+        ) as string,
       },
       employmentDetails: {
         joiningDate: safeToDate(formData.get('employmentDetails.joiningDate')),
@@ -132,7 +145,8 @@ export async function createResourceAction(
           formData.get('employmentDetails.probationEndDate')
         ),
         reportingManagerId:
-          (formData.get('employmentDetails.reportingManagerId') as string) || '',
+          (formData.get('employmentDetails.reportingManagerId') as string) ||
+          '',
         workLocation:
           (formData.get('employmentDetails.workLocation') as string) || '',
         workMode: (formData.get('employmentDetails.workMode') as string) || '',
@@ -143,9 +157,9 @@ export async function createResourceAction(
         yearsWithCompany: safeToNumber(
           formData.get('experience.yearsWithCompany')
         ),
-        previousCompanies: previousCompanies,
-        education: education,
-        certifications: certifications,
+        previousCompanies,
+        education,
+        certifications,
       },
       skills: {
         technical: technicalSkills.map((skill) => ({
@@ -220,29 +234,65 @@ export async function createResourceAction(
 
     const finalResourceData = cleanObject(rawData);
 
-    const resourceId = await createResource(finalResourceData);
+    try {
+      const resourceId = await createResource(finalResourceData);
 
+      await createAuditLog({
+        actor: {
+          id: actorId,
+          displayName: actor.displayName ?? actor.email ?? actorId,
+          role: 'company',
+        },
+        action: 'resource.create',
+        target: {
+          id: resourceId,
+          type: 'resource',
+          displayName: `${rawData.personalInfo.firstName} ${rawData.personalInfo.lastName}`,
+        },
+        status: 'success',
+        companyId,
+      });
+
+      revalidatePath('/resources');
+
+      return { success: true, resourceId };
+    } catch (error: any) {
+      await createAuditLog({
+        actor: {
+          id: actorId,
+          displayName: actor.displayName ?? actor.email ?? actorId,
+          role: 'company',
+        },
+        action: 'resource.create',
+        target: {
+          id: 'new_resource',
+          type: 'resource',
+          displayName: `${rawData.personalInfo.firstName} ${rawData.personalInfo.lastName}`,
+        },
+        status: 'failure',
+        details: { error: error.message },
+        companyId,
+      });
+      return { success: false, error: error.message };
+    }
+  } catch (error: any) {
+    // Handle any errors that occur before resource creation attempt
     await createAuditLog({
       actor: {
         id: actorId,
-        displayName: actor.displayName ?? actor.email ?? actorId,
+        displayName: 'Unknown',
         role: 'company',
       },
       action: 'resource.create',
       target: {
-        id: resourceId,
+        id: 'new_resource',
         type: 'resource',
-        displayName: `${rawData.personalInfo.firstName} ${rawData.personalInfo.lastName}`,
+        displayName: 'Unknown Resource',
       },
-      status: 'success',
+      status: 'failure',
+      details: { error: error.message },
       companyId,
     });
-
-    revalidatePath('/resources');
-
-    return { success: true, resourceId };
-  } catch (error: any) {
-    console.error('Failed to create resource:', error);
     return { success: false, error: error.message };
   }
 }
