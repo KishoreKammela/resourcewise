@@ -345,7 +345,7 @@ export const NavMenuItem = ({ item }: { item: NavItem }) => {
   const linkContent = (
     <div
       className={cn(
-        'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+        'flex items-center gap-3 rounded-md px-2 py-2 text-sm font-medium transition-colors',
         isActive
           ? 'bg-primary text-primary-foreground'
           : 'text-foreground hover:bg-muted',
@@ -378,7 +378,7 @@ export const NavMenuItem = ({ item }: { item: NavItem }) => {
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger
         className={cn(
-          'flex w-full items-center justify-between gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+          'flex w-full items-center justify-between gap-3 rounded-md px-2 py-2 text-sm font-medium transition-colors',
           isActive
             ? 'bg-primary text-primary-foreground'
             : 'text-foreground hover:bg-muted'
