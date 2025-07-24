@@ -15,6 +15,8 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { app } from '@/lib/firebase';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -26,13 +28,29 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Backend logic removed
-    console.log('Login logic to be re-implemented.');
-    toast({
-      title: 'In Progress',
-      description: 'Login functionality is being rebuilt.',
-    });
-    setLoading(false);
+
+    try {
+      const auth = getAuth(app);
+      await signInWithEmailAndPassword(auth, email, password);
+      // The onAuthStateChanged listener in AuthContext will handle the redirect.
+      // router.push('/'); // This is handled by the AppShell's effect
+    } catch (error: any) {
+      console.error('Login Error:', error);
+      let errorMessage = 'An unexpected error occurred. Please try again.';
+      if (
+        error.code === 'auth/user-not-found' ||
+        error.code === 'auth/wrong-password' ||
+        error.code === 'auth/invalid-credential'
+      ) {
+        errorMessage = 'Invalid email or password. Please try again.';
+      }
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: errorMessage,
+      });
+      setLoading(false);
+    }
   };
 
   return (
