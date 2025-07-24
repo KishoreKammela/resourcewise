@@ -106,11 +106,11 @@ const toDate = (timestamp?: Timestamp | Date): Date | undefined => {
   return undefined;
 };
 
-function SubmitButton({ onClick }: { onClick: () => void }) {
+function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <AlertDialogAction onClick={onClick} disabled={pending}>
+    <AlertDialogAction type="submit" disabled={pending}>
       {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
       Confirm
     </AlertDialogAction>
@@ -204,7 +204,17 @@ export function ProfileForm({
 
   return (
     <Form {...form}>
-      <form ref={formRef} action={formAction} className="space-y-6">
+      <form
+        ref={formRef}
+        action={async (formData: FormData) => {
+          const dateOfBirth = form.getValues('personalInfo.dateOfBirth');
+          if (dateOfBirth instanceof Date) {
+            formData.set('personalInfo.dateOfBirth', dateOfBirth.toISOString());
+          }
+          await formAction(formData);
+        }}
+        className="space-y-6"
+      >
         <Card>
           <CardHeader>
             <CardTitle>Personal Information</CardTitle>
@@ -290,7 +300,7 @@ export function ProfileForm({
                 control={form.control}
                 name="personalInfo.dateOfBirth"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
+                  <FormItem>
                     <FormLabel>Date of birth</FormLabel>
                     <Popover
                       open={isDatePickerOpen}
@@ -316,19 +326,16 @@ export function ProfileForm({
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
-                          captionLayout="dropdown"
-                          fromYear={1900}
-                          toYear={new Date().getFullYear()}
                           mode="single"
                           selected={field.value}
                           onSelect={(date) => {
                             field.onChange(date);
                             setDatePickerOpen(false);
                           }}
+                          initialFocus
                           disabled={(date) =>
                             date > new Date() || date < new Date('1900-01-01')
                           }
-                          initialFocus
                         />
                       </PopoverContent>
                     </Popover>
@@ -606,9 +613,7 @@ export function ProfileForm({
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <SubmitButton
-                  onClick={() => formRef.current?.requestSubmit()}
-                />
+                <SubmitButton />
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

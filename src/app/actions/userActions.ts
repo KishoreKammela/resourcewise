@@ -28,9 +28,12 @@ export async function updateUserProfile(
       'personalInfo.dateOfBirth'
     ) as string;
 
-    const dateOfBirth = dateOfBirthString
-      ? new Date(dateOfBirthString)
-      : undefined;
+    const dateOfBirth =
+      dateOfBirthString &&
+      dateOfBirthString !== 'undefined' &&
+      dateOfBirthString !== 'null'
+        ? new Date(dateOfBirthString)
+        : undefined;
 
     const updateData: UserProfileUpdate = {
       personalInfo: {
