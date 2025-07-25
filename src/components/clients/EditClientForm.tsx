@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useActionState } from 'react';
+import { useEffect, useRef, useActionState, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -31,9 +31,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import type { Client } from '@/lib/types';
+import type { Client, TeamMember } from '@/lib/types';
 import { toDate } from '@/lib/helpers/date-helpers';
 import { Checkbox } from '../ui/checkbox';
+import { getTeamMembersByCompany } from '@/services/user.services';
 
 const clientFormSchema = z.object({
   clientCode: z.string().optional(),
@@ -196,6 +197,13 @@ export function EditClientForm({ client }: { client: Client }) {
   const { toast } = useToast();
   const { companyProfile, user } = useAuth();
   const formRef = useRef<HTMLFormElement>(null);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+
+  useEffect(() => {
+    if (companyProfile?.id) {
+      getTeamMembersByCompany(companyProfile.id).then(setTeamMembers);
+    }
+  }, [companyProfile?.id]);
 
   const boundAction = updateClientAction.bind(null, {
     clientId: client.id,
@@ -512,6 +520,34 @@ export function EditClientForm({ client }: { client: Client }) {
               <CardTitle>Relationship</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="relationship.accountManagerId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Account Manager</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an account manager" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {teamMembers.map((member) => (
+                          <SelectItem key={member.id} value={member.id}>
+                            {member.personalInfo.firstName}{' '}
+                            {member.personalInfo.lastName}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="relationship.status"

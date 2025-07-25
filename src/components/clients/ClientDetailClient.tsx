@@ -1,14 +1,11 @@
 'use client';
 
-import type { Client } from '@/lib/types';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import type { Client, TeamMember } from '@/lib/types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDate } from '@/lib/helpers/date-helpers';
 import { Check, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { getTeamMembersByCompany } from '@/services/user.services';
 
 function DetailItem({
   label,
@@ -64,6 +61,18 @@ function BooleanDetailItem({
 }
 
 export function ClientDetailClient({ client }: { client: Client }) {
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+
+  useEffect(() => {
+    if (client.companyId) {
+      getTeamMembersByCompany(client.companyId).then(setTeamMembers);
+    }
+  }, [client.companyId]);
+
+  const accountManager = teamMembers.find(
+    (member) => member.id === client.relationship.accountManagerId
+  );
+
   return (
     <div className="space-y-6">
       <Card>
@@ -108,6 +117,14 @@ export function ClientDetailClient({ client }: { client: Client }) {
           <CardTitle>Relationship Management</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <DetailItem
+            label="Account Manager"
+            value={
+              accountManager
+                ? `${accountManager.personalInfo.firstName} ${accountManager.personalInfo.lastName}`
+                : 'N/A'
+            }
+          />
           <DetailItem
             label="Health Score"
             value={`${client.relationship.healthScore}/5`}
