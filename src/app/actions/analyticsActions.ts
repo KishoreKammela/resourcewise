@@ -3,6 +3,10 @@
 import { getClientsByCompany } from '@/services/client.services';
 import { getProjectsByCompany } from '@/services/project.services';
 import { getResourcesByCompany } from '@/services/resource.services';
+import {
+  forecastDemand,
+  type ForecastDemandOutput,
+} from '@/ai/flows/demand-forecasting-flow';
 
 export interface DashboardAnalytics {
   kpis: {
@@ -64,4 +68,21 @@ export async function getDashboardAnalytics(
     },
     utilizationChartData,
   };
+}
+
+export async function getDemandForecast(
+  companyId: string
+): Promise<ForecastDemandOutput> {
+  const projects = await getProjectsByCompany(companyId, { serialize: true });
+
+  if (projects.length === 0) {
+    return {
+      summary: 'Not enough project data to generate a forecast.',
+      demandForecast: [],
+      strategicRecommendations: [],
+    };
+  }
+
+  const forecast = await forecastDemand({ projects });
+  return forecast;
 }
