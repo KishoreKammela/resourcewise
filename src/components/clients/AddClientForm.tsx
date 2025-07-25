@@ -27,12 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '../ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
 import { cn } from '@/lib/utils';
@@ -55,6 +50,11 @@ const clientFormSchema = z.object({
       email: z.string().email('Invalid email address.'),
       phone: z.string().optional(),
       designation: z.string().optional(),
+    }),
+    secondary: z.object({
+      name: z.string().optional(),
+      email: z.string().email().optional().or(z.literal('')),
+      phone: z.string().optional(),
     }),
   }),
   address: z.object({
@@ -133,6 +133,7 @@ export function AddClientForm() {
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientFormSchema),
     defaultValues: {
+      clientCode: '',
       basicInfo: {
         clientName: '',
         clientType: '',
@@ -143,22 +144,45 @@ export function AddClientForm() {
       },
       contactInfo: {
         primary: { name: '', email: '', phone: '', designation: '' },
+        secondary: { name: '', email: '', phone: '' },
       },
-      address: {},
-      businessInfo: {},
+      address: {
+        line1: '',
+        line2: '',
+        city: '',
+        state: '',
+        country: '',
+        postalCode: '',
+        timezone: '',
+      },
+      businessInfo: {
+        registrationNumber: '',
+        taxIdentificationNumber: '',
+        annualRevenueRange: '',
+        employeeCountRange: '',
+        businessModel: '',
+      },
       relationship: {
+        accountManagerId: '',
         status: 'Active',
         healthScore: 3,
         satisfactionRating: 3,
       },
       commercial: {
+        contractType: '',
+        paymentTerms: '',
         billingCurrency: companyProfile?.settings?.currency || 'USD',
+        paymentHistoryRating: '',
       },
       contract: {
+        documentUrl: '',
         ndaSigned: false,
         msaSigned: false,
       },
-      communication: {},
+      communication: {
+        preferredMethod: '',
+        frequency: '',
+      },
     },
     mode: 'onBlur',
   });
