@@ -1,160 +1,86 @@
+'use server';
+
 import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
-import { getClientsByCompany } from '@/services/client.services';
 import { cookies } from 'next/headers';
 import { auth, db } from '@/lib/firebase-admin';
-import { Badge } from '@/components/ui/badge';
-import { createAuditLog } from '@/services/audit.services';
+import { z } from 'zod';
+import { getPaginatedClients } from '@/services/client.services';
+import { ClientsClientPage } from '@/components/clients/ClientsClientPage';
 
-async function getCompanyIdForCurrentUser(): Promise<string | null> {
-  const cookiesStore = await cookies();
-  const sessionCookie = cookiesStore.get('__session')?.value;
-  if (!sessionCookie) {
-    return null;
-  }
+const searchParamsSchema = z.object({
+  page: z.coerce.number().default(1),
+  per_page: z.coerce.number().default(10),
+  sort: z.string().optional(),
+  name: z.string().optional(),
+  status: z.string().optional(),
+});
 
+async function getCompanyId() {
+  const sessionCookie = cookies().get('__session')?.value;
+  if (!sessionCookie) return null;
   try {
     const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
     const teamMemberDoc = await db
       .collection('teamMembers')
       .doc(decodedToken.uid)
       .get();
-    if (teamMemberDoc.exists) {
-      return teamMemberDoc.data()?.companyId || null;
-    }
-    return null;
-  } catch (error: any) {
-    await createAuditLog({
-      actor: {
-        id: 'system',
-        displayName: 'System',
-        role: 'system',
-      },
-      action: 'auth.session_verify',
-      target: {
-        id: 'session',
-        type: 'session',
-        displayName: 'Session Verification',
-      },
-      status: 'failure',
-      details: { error: error.message },
-    });
+    return teamMemberDoc.exists ? teamMemberDoc.data()?.companyId : null;
+  } catch (error) {
+    console.error('Error verifying session cookie:', error);
     return null;
   }
 }
-
-function ClientsContent({
-  clients,
+export default async function ClientsPage({
+  searchParams,
 }: {
-  clients: Awaited<ReturnType<typeof getClientsByCompany>>;
+  searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  return (
-    <div className="flex flex-col gap-4">
-      <PageHeader title="Clients">
-        <Button asChild>
-          <Link href="/clients/add">
-            <PlusCircle className="mr-2" />
-            Add Client
-          </Link>
-        </Button>
-      </PageHeader>
-      <Card>
-        <CardHeader>
-          <CardTitle>Client Portfolio</CardTitle>
-          <CardDescription>
-            Manage your clients and their information.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Client Name</TableHead>
-                <TableHead>Contact Person</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Projects</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {clients.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    No clients found. Start by adding a new client.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                clients.map((client) => (
-                  <TableRow key={client.id}>
-                    <TableCell className="font-medium">
-                      <Link
-                        href={`/clients/${client.id}`}
-                        className="hover:underline"
-                      >
-                        {client.basicInfo.clientName}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{client.contactInfo.primary.name}</TableCell>
-                    <TableCell>{client.contactInfo.primary.email}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          client.relationship.status === 'Active'
-                            ? 'secondary'
-                            : 'outline'
-                        }
-                        className="capitalize"
-                      >
-                        {client.relationship.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {client.analytics.activeProjectsCount}
-                    </TableCell>
-                    <TableCell>
-                      <Button asChild variant="ghost" size="sm">
-                        <Link href={`/clients/${client.id}`}>View</Link>
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+  const companyId = await getCompanyId();
 
-export default async function ClientsPage() {
-  const companyId = await getCompanyIdForCurrentUser();
-  const clients = companyId ? await getClientsByCompany(companyId) : [];
+  if (!companyId) {
+    return (
+      <AppShell>
+        <PageHeader title="Client Portfolio" />
+        <div className="p-4">
+          <p>Unable to load clients. Company information not found.</p>
+        </div>
+      </AppShell>
+    );
+  }
+  const { page, per_page, sort, ...filters } =
+    searchParamsSchema.parse(searchParams);
+
+  const { clients, totalCount } = await getPaginatedClients({
+    companyId,
+    page,
+    perPage: per_page,
+    sort,
+    filters,
+  });
+
+  const pageCount = Math.ceil(totalCount / per_page);
 
   return (
     <AppShell>
-      <ClientsContent clients={clients} />
+      <div className="flex flex-col gap-4">
+        <PageHeader title="Clients">
+          <Button asChild>
+            <Link href="/clients/add">
+              <PlusCircle className="mr-2" />
+              Add Client
+            </Link>
+          </Button>
+        </PageHeader>
+        <ClientsClientPage
+          data={clients}
+          pageCount={pageCount}
+          totalCount={totalCount}
+        />
+      </div>
     </AppShell>
   );
 }

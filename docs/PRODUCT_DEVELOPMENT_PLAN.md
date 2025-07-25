@@ -21,6 +21,7 @@ This document outlines the detailed product development plan for the ResourceWis
 - **Step 1.1.3: Core Company Profile**: Created the Firestore schema and UI for capturing basic company information (`/settings`).
 - **Step 1.1.4: User Authentication**: Secured user login (`/login`) and registration using Firebase Authentication.
 - **Step 1.1.5: Invitation-based Onboarding**: Implemented the full flow for inviting and registering new platform and company users via unique tokens (`/signup/invite/[token]`).
+- **Step 1.1.6: Password Policy Enforcement (Completed)**: Implemented a client-side `PasswordPolicy` component to provide real-time feedback and added server-side validation to enforce strong passwords during all registration flows.
 
 ### Milestone 1.2: Team & Access Management (Completed)
 
@@ -126,3 +127,15 @@ This document outlines the detailed product development plan for the ResourceWis
 - **Step 5.1.2: Frontend Table Component (Completed)**: Developed a new client component (`SkillsMatrixClient.tsx`) that fetches the aggregated data and renders it in a responsive table. Resources will be listed as rows and skills as columns.
 - **Step 5.1.3: Interactive UI (Completed)**: Added features to the table, such as search/filter functionality for both skills and resources, and use icons or colors to indicate a resource's proficiency with a skill.
 - **Step 5.1.4: Integration (Completed)**: Created the main page for the Skills Matrix at `/resources/skills-matrix` and integrated the new client component.
+
+---
+
+## Phase 6: UI/UX & Core Component Enhancements (Completed)
+
+**Goal**: Refactor and enhance core components for scalability, performance, and improved user experience.
+
+### Milestone 6.1: Advanced Data Tables (Completed)
+
+- **Step 6.1.1: Component Implementation (Completed)**: Implemented a reusable, server-side `DataTable` component with `tanstack/react-table` to handle pagination, sorting, and filtering.
+- **Step 6.1.2: Backend Integration (Completed)**: Developed paginated backend services for Resources, Clients, and Projects to support lazy loading.
+- **Step 6.1.3: Full Rollout (Completed)**: Integrated the new `DataTable` component across all primary list views: Resource Pool, Client Portfolio, Project Portfolio, and Team Members.

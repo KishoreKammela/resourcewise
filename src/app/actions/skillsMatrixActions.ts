@@ -10,9 +10,12 @@ export interface SkillsMatrixData {
 }
 
 export async function getSkillsMatrixData(
-  companyId: string
+  companyId: string,
+  options: { serialize: boolean } = { serialize: false }
 ): Promise<SkillsMatrixData> {
-  const resources = await getResourcesByCompany(companyId);
+  const resources = await getResourcesByCompany(companyId, {
+    serialize: options.serialize,
+  });
 
   const technicalSkills = new Set<string>();
   const softSkills = new Set<string>();

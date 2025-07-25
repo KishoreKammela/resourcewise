@@ -72,7 +72,8 @@ export async function updateResource(
  * @returns A promise that resolves to an array of Resource objects.
  */
 export async function getResourcesByCompany(
-  companyId: string
+  companyId: string,
+  options: { serialize: boolean } = { serialize: false }
 ): Promise<Resource[]> {
   const snapshot = await db
     .collection('resources')
@@ -86,11 +87,88 @@ export async function getResourcesByCompany(
 
   const resources: Resource[] = [];
   snapshot.forEach((doc) => {
-    resources.push({ ...(doc.data() as Resource), id: doc.id });
+    const resourceData = doc.data() as Omit<Resource, 'id'>;
+    if (options.serialize) {
+      const serializedData = serializeTimestamps(resourceData);
+      resources.push({ id: doc.id, ...serializedData } as Resource);
+    } else {
+      resources.push({ ...(doc.data() as Resource), id: doc.id });
+    }
   });
 
   return resources;
 }
+
+export async function getPaginatedResources({
+  companyId,
+  page,
+  perPage,
+  sort,
+  filters,
+}: {
+  companyId: string;
+  page: number;
+  perPage: number;
+  sort?: string;
+  filters: Record<string, string | undefined>;
+}): Promise<{ resources: Resource[]; totalCount: number }> {
+  let query: FirebaseFirestore.Query = db
+    .collection('resources')
+    .where('companyId', '==', companyId);
+
+  // Filtering
+  if (filters.name) {
+    // This is a simple prefix search. For full-text search, an external service like Algolia or Typesense is recommended.
+    // We will search by first name for this example.
+    query = query
+      .where('personalInfo.firstName', '>=', filters.name)
+      .where(
+        'personalInfo.firstName',
+        '<=',
+        filters.name + '\uf8ff'
+      );
+  }
+  if (filters.designation) {
+    query = query.where('professionalInfo.designation', '==', filters.designation);
+  }
+  if (filters.status) {
+    query = query.where('availability.status', '==', filters.status);
+  }
+
+  // Count total documents for pagination before applying sorting and pagination to the query
+  const countSnapshot = await query.count().get();
+  const totalCount = countSnapshot.data().count;
+
+  // Sorting
+  if (sort) {
+    const [sortField, sortDirection] = sort.split('.');
+    const direction = sortDirection === 'desc' ? 'desc' : 'asc';
+    // Map client-side field names to Firestore field paths
+    const fieldPathMap: { [key: string]: string } = {
+      name: 'personalInfo.firstName',
+      designation: 'professionalInfo.designation',
+      status: 'availability.status',
+      allocation: 'availability.currentAllocationPercentage',
+    };
+    const firestoreField = fieldPathMap[sortField] || 'createdAt';
+    query = query.orderBy(firestoreField, direction);
+  } else {
+    query = query.orderBy('createdAt', 'desc');
+  }
+
+  // Pagination
+  const offset = (page - 1) * perPage;
+  query = query.limit(perPage).offset(offset);
+
+  const snapshot = await query.get();
+
+  const resources = snapshot.docs.map(
+    (doc) => ({ id: doc.id, ...serializeTimestamps(doc.data()) } as Resource)
+  );
+
+  return { resources, totalCount };
+}
+
 
 /**
  * Retrieves a single resource by its ID.
@@ -114,7 +192,7 @@ export async function getResourceById(
 
   if (options.serialize) {
     const serializedData = serializeTimestamps(resourceData);
-    return { id: doc.id, ...serializedData };
+    return { id: doc.id, ...serializedData } as Resource;
   }
 
   return { id: doc.id, ...resourceData };

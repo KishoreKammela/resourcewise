@@ -119,3 +119,52 @@ export async function getClientById(
 
   return { id: doc.id, ...clientData };
 }
+
+export async function getPaginatedClients({
+  companyId,
+  page,
+  perPage,
+  sort,
+  filters,
+}: {
+  companyId: string;
+  page: number;
+  perPage: number;
+  sort?: string;
+  filters: Record<string, string | undefined>;
+}): Promise<{ clients: Client[]; totalCount: number }> {
+  let query: FirebaseFirestore.Query = db
+    .collection('clients')
+    .where('companyId', '==', companyId);
+
+  // Note: Firestore requires creating indexes for compound queries.
+  // If you add filters, you'll need to create corresponding indexes in your Firebase console.
+
+  const countSnapshot = await query.count().get();
+  const totalCount = countSnapshot.data().count;
+
+  if (sort) {
+    const [sortField, sortDirection] = sort.split('.');
+    const direction = sortDirection === 'desc' ? 'desc' : 'asc';
+    const fieldPathMap: { [key: string]: string } = {
+      name: 'basicInfo.clientName',
+      contact: 'contactInfo.primary.name',
+      status: 'relationship.status',
+    };
+    const firestoreField = fieldPathMap[sortField] || 'createdAt';
+    query = query.orderBy(firestoreField, direction);
+  } else {
+    query = query.orderBy('createdAt', 'desc');
+  }
+
+  const offset = (page - 1) * perPage;
+  query = query.limit(perPage).offset(offset);
+
+  const snapshot = await query.get();
+
+  const clients = snapshot.docs.map(
+    (doc) => ({ id: doc.id, ...serializeTimestamps(doc.data()) } as Client)
+  );
+
+  return { clients, totalCount };
+}

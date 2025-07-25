@@ -91,9 +91,9 @@ export async function getProjectsByCompany(
     const projectData = doc.data() as Omit<Project, 'id'>;
     if (options.serialize) {
       const serializedData = serializeTimestamps(projectData);
-      projects.push({ id: doc.id, ...serializedData });
+      projects.push({ id: doc.id, ...serializedData, clientName: '' });
     } else {
-      projects.push({ id: doc.id, ...projectData });
+      projects.push({ id: doc.id, ...projectData, clientName: '' });
     }
   });
 
@@ -126,4 +126,50 @@ export async function getProjectById(
   }
 
   return { id: doc.id, ...projectData };
+}
+
+export async function getPaginatedProjects({
+  companyId,
+  page,
+  perPage,
+  sort,
+  filters,
+}: {
+  companyId: string;
+  page: number;
+  perPage: number;
+  sort?: string;
+  filters: Record<string, string | undefined>;
+}): Promise<{ projects: Project[]; totalCount: number }> {
+  let query: FirebaseFirestore.Query = db
+    .collection('projects')
+    .where('companyId', '==', companyId);
+
+  const countSnapshot = await query.count().get();
+  const totalCount = countSnapshot.data().count;
+
+  if (sort) {
+    const [sortField, sortDirection] = sort.split('.');
+    const direction = sortDirection === 'desc' ? 'desc' : 'asc';
+    const fieldPathMap: { [key: string]: string } = {
+      'basicInfo.projectName': 'basicInfo.projectName',
+      'status.projectStatus': 'status.projectStatus',
+      'timeline.plannedEndDate': 'timeline.plannedEndDate',
+    };
+    const firestoreField = fieldPathMap[sortField] || 'createdAt';
+    query = query.orderBy(firestoreField, direction);
+  } else {
+    query = query.orderBy('createdAt', 'desc');
+  }
+
+  const offset = (page - 1) * perPage;
+  query = query.limit(perPage).offset(offset);
+
+  const snapshot = await query.get();
+
+  const projects = snapshot.docs.map(
+    (doc) => ({ id: doc.id, ...serializeTimestamps(doc.data()) } as Project)
+  );
+
+  return { projects, totalCount };
 }

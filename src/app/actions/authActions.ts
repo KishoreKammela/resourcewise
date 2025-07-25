@@ -9,11 +9,23 @@ import {
 import { createAuditLog } from '@/services/audit.services';
 import { updateInvitationStatus } from '@/services/invitation.services';
 import type { Invitation } from '@/lib/types';
+import { z } from 'zod';
 
 interface SignUpResult {
   success: boolean;
   error?: string;
 }
+
+const passwordSchema = z
+  .string()
+  .min(8, 'Password must be at least 8 characters.')
+  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter.')
+  .regex(/[a-z]/, 'Password must contain at least one lowercase letter.')
+  .regex(/[0-9]/, 'Password must contain at least one number.')
+  .regex(
+    /[^A-Za-z0-9]/,
+    'Password must contain at least one special character.'
+  );
 
 export async function createPlatformUserAction(
   prevState: any,
@@ -27,6 +39,14 @@ export async function createPlatformUserAction(
 
   if (!firstName || !lastName || !email || !password) {
     return { success: false, error: 'All fields are required.' };
+  }
+
+  const passwordValidation = passwordSchema.safeParse(password);
+  if (!passwordValidation.success) {
+    return {
+      success: false,
+      error: passwordValidation.error.errors.map((e) => e.message).join(' '),
+    };
   }
 
   try {
@@ -66,9 +86,6 @@ export async function createPlatformUserAction(
     let errorMessage = 'An unexpected error occurred. Please try again.';
     if (error.code === 'auth/email-already-exists') {
       errorMessage = 'This email address is already in use by another account.';
-    } else if (error.code === 'auth/invalid-password') {
-      errorMessage =
-        'The password is not strong enough. It must be at least 6 characters long.';
     }
 
     await createAuditLog({
@@ -105,6 +122,14 @@ export async function createCompanyAndUserAction(
 
   if (!firstName || !lastName || !email || !password || !companyName) {
     return { success: false, error: 'All fields are required.' };
+  }
+
+  const passwordValidation = passwordSchema.safeParse(password);
+  if (!passwordValidation.success) {
+    return {
+      success: false,
+      error: passwordValidation.error.errors.map((e) => e.message).join(' '),
+    };
   }
 
   let userRecord;
@@ -146,9 +171,6 @@ export async function createCompanyAndUserAction(
     let errorMessage = 'An unexpected error occurred. Please try again.';
     if (error.code === 'auth/email-already-exists') {
       errorMessage = 'This email address is already in use by another account.';
-    } else if (error.code === 'auth/invalid-password') {
-      errorMessage =
-        'The password is not strong enough. It must be at least 6 characters long.';
     }
 
     await createAuditLog({
@@ -184,6 +206,14 @@ export async function acceptInvitationAction(
   }
   if (!invitation || !invitation.id) {
     return { success: false, error: 'Invalid invitation.' };
+  }
+
+  const passwordValidation = passwordSchema.safeParse(password);
+  if (!passwordValidation.success) {
+    return {
+      success: false,
+      error: passwordValidation.error.errors.map((e) => e.message).join(' '),
+    };
   }
 
   try {
@@ -234,9 +264,6 @@ export async function acceptInvitationAction(
     let errorMessage = 'An unexpected error occurred. Please try again.';
     if (error.code === 'auth/email-already-exists') {
       errorMessage = 'This email address is already in use by another account.';
-    } else if (error.code === 'auth/invalid-password') {
-      errorMessage =
-        'The password is not strong enough. It must meet the policy requirements.';
     }
 
     await createAuditLog({

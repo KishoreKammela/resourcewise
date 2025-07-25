@@ -22,7 +22,6 @@ import { createPlatformUserAction } from '@/app/actions/authActions';
 import { useFormStatus } from 'react-dom';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { app } from '@/lib/firebase';
-import { PasswordPolicy } from '@/components/auth/PasswordPolicy';
 import {
   FormControl,
   FormField,
@@ -30,29 +29,15 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 
-const passwordSchema = z
-  .string()
-  .min(8, 'Password must be at least 8 characters.')
-  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter.')
-  .regex(/[a-z]/, 'Password must contain at least one lowercase letter.')
-  .regex(/[0-9]/, 'Password must contain at least one number.')
-  .regex(
-    /[^A-Za-z0-9]/,
-    'Password must contain at least one special character.'
-  );
-
-const platformSignupSchema = z
-  .object({
-    firstName: z.string().min(2, { message: 'First name is required.' }),
-    lastName: z.string().min(2, { message: 'Last name is required.' }),
-    email: z.string().email({ message: 'Please enter a valid email.' }),
-    password: passwordSchema,
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match.",
-    path: ['confirmPassword'],
-  });
+const platformSignupSchema = z.object({
+  firstName: z.string().min(2, { message: 'First name is required.' }),
+  lastName: z.string().min(2, { message: 'Last name is required.' }),
+  email: z.string().email({ message: 'Please enter a valid email.' }),
+  password: z
+    .string()
+    .min(6, 'Password must be at least 6 characters long.'),
+  confirmPassword: z.string(),
+});
 
 type PlatformSignupFormValues = z.infer<typeof platformSignupSchema>;
 
@@ -224,7 +209,7 @@ export default function PlatformSignupPage() {
                   </FormItem>
                 )}
               />
-              <PasswordPolicy password={password} />
+
               <FormField
                 control={form.control}
                 name="confirmPassword"

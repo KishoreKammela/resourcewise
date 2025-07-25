@@ -1,152 +1,99 @@
-'use client';
+'use server';
 
 import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
-import { useEffect, useState, useTransition } from 'react';
-import type { Project, Client } from '@/lib/types';
-import { getProjectsByCompany } from '@/services/project.services';
+import { cookies } from 'next/headers';
+import { z } from 'zod';
+import { auth, db } from '@/lib/firebase-admin';
+import { getPaginatedProjects } from '@/services/project.services';
 import { getClientsByCompany } from '@/services/client.services';
-import { formatDate } from '@/lib/helpers/date-helpers';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ProjectsClientPage } from '@/components/projects/ProjectsClientPage';
 
-function ProjectsContent() {
-  const { companyProfile, loading: authLoading } = useAuth();
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [clients, setClients] = useState<Client[]>([]);
-  const [isPending, startTransition] = useTransition();
+const searchParamsSchema = z.object({
+  page: z.coerce.number().default(1),
+  per_page: z.coerce.number().default(10),
+  sort: z.string().optional(),
+  name: z.string().optional(),
+  status: z.string().optional(),
+});
 
-  const loading = authLoading || isPending;
+async function getCompanyId() {
+  const sessionCookie = cookies().get('__session')?.value;
+  if (!sessionCookie) return null;
+  try {
+    const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
+    const teamMemberDoc = await db
+      .collection('teamMembers')
+      .doc(decodedToken.uid)
+      .get();
+    return teamMemberDoc.exists ? teamMemberDoc.data()?.companyId : null;
+  } catch (error) {
+    console.error('Error verifying session cookie:', error);
+    return null;
+  }
+}
+export default async function ProjectsPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  const companyId = await getCompanyId();
 
-  useEffect(() => {
-    if (companyProfile?.id) {
-      startTransition(async () => {
-        const [projectsData, clientsData] = await Promise.all([
-          getProjectsByCompany(companyProfile.id, { serialize: true }),
-          getClientsByCompany(companyProfile.id),
-        ]);
-        setProjects(projectsData);
-        setClients(clientsData);
-      });
-    }
-  }, [companyProfile]);
+  if (!companyId) {
+    return (
+      <AppShell>
+        <PageHeader title="Project Portfolio" />
+        <div className="p-4">
+          <p>Unable to load projects. Company information not found.</p>
+        </div>
+      </AppShell>
+    );
+  }
+  const { page, per_page, sort, ...filters } =
+    searchParamsSchema.parse(searchParams);
+
+  const [{ projects, totalCount }, clients] = await Promise.all([
+    getPaginatedProjects({
+      companyId,
+      page,
+      perPage: per_page,
+      sort,
+      filters,
+    }),
+    getClientsByCompany(companyId),
+  ]);
+
+  const pageCount = Math.ceil(totalCount / per_page);
 
   const clientMap = new Map(
     clients.map((client) => [client.id, client.basicInfo.clientName])
   );
 
-  return (
-    <div className="flex flex-col gap-4">
-      <PageHeader title="Projects">
-        <Button asChild>
-          <Link href="/projects/add">
-            <PlusCircle className="mr-2" />
-            Add Project
-          </Link>
-        </Button>
-      </PageHeader>
-      <Card>
-        <CardHeader>
-          <CardTitle>Project Portfolio</CardTitle>
-          <CardDescription>
-            An overview of all your company&apos;s projects.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Project Name</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Deadline</TableHead>
-                <TableHead>Progress</TableHead>
-                <TableHead>
-                  <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={6}>
-                    <Skeleton className="h-10 w-full" />
-                  </TableCell>
-                </TableRow>
-              ) : projects.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 text-center">
-                    No projects found. Start by adding a new project.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                projects.map((project) => (
-                  <TableRow key={project.id}>
-                    <TableCell className="font-medium">
-                      <Link
-                        href={`/projects/${project.id}`}
-                        className="hover:underline"
-                      >
-                        {project.basicInfo.projectName}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      {clientMap.get(project.clientId) || project.clientId}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">
-                        {project.status.projectStatus}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {formatDate(project.timeline.plannedEndDate)}
-                    </TableCell>
-                    <TableCell>
-                      <Progress
-                        value={project.status.progressPercentage}
-                        className="w-[60%]"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Button asChild variant="ghost" size="sm">
-                        <Link href={`/projects/${project.id}`}>View</Link>
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+  const projectsWithClientNames = projects.map((project) => ({
+    ...project,
+    clientName: clientMap.get(project.clientId) || 'Unknown Client',
+  }));
 
-export default function ProjectsPage() {
   return (
     <AppShell>
-      <ProjectsContent />
+      <div className="flex flex-col gap-4">
+        <PageHeader title="Projects">
+          <Button asChild>
+            <Link href="/projects/add">
+              <PlusCircle className="mr-2" />
+              Add Project
+            </Link>
+          </Button>
+        </PageHeader>
+        <ProjectsClientPage
+          data={projectsWithClientNames}
+          pageCount={pageCount}
+          totalCount={totalCount}
+        />
+      </div>
     </AppShell>
   );
 }

@@ -1,14 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import * as React from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +13,10 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { updateTeamMemberStatusAction } from '@/app/actions/userActions';
-import type { DisplayMember } from '@/components/team/TeamPageClient';
+import type { DisplayMember } from './TeamPageClient';
+import { DataTable } from '../shared/DataTable';
+import { type ColumnDef } from '@tanstack/react-table';
+import { DataTableColumnHeader } from '../shared/DataTableColumnHeader';
 
 export function TeamMembersTable({
   members,
@@ -32,9 +27,9 @@ export function TeamMembersTable({
 }) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
-    {}
-  );
+  const [loadingStates, setLoadingStates] = React.useState<
+    Record<string, boolean>
+  >({});
 
   const handleStatusChange = async (
     targetUserId: string,
@@ -65,6 +60,8 @@ export function TeamMembersTable({
           isActive ? 'activated' : 'suspended'
         }.`,
       });
+      // Note: In a real app, you'd trigger a re-fetch of the data here
+      // instead of relying on a full page reload.
     } else {
       toast({
         variant: 'destructive',
@@ -74,14 +71,6 @@ export function TeamMembersTable({
     }
     setLoadingStates((prev) => ({ ...prev, [targetUserId]: false }));
   };
-
-  if (members.length === 0) {
-    return (
-      <div className="h-24 text-center flex items-center justify-center">
-        No team members found. Start by inviting a new member.
-      </div>
-    );
-  }
 
   const getBadgeVariant = (
     status: 'Active' | 'Suspended' | 'Invited'
@@ -96,71 +85,92 @@ export function TeamMembersTable({
     }
   };
 
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Role</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>
-            <span className="sr-only">Actions</span>
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {members.map((member) => (
-          <TableRow key={member.id}>
-            <TableCell>
-              {member.firstName} {member.lastName}
-            </TableCell>
-            <TableCell>{member.email}</TableCell>
-            <TableCell className="capitalize">{member.role}</TableCell>
-            <TableCell>
-              <Badge variant={getBadgeVariant(member.status)}>
-                {member.status}
-              </Badge>
-            </TableCell>
-            <TableCell>
-              {member.isRegistered && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      aria-haspopup="true"
-                      size="icon"
-                      variant="ghost"
-                      disabled={
-                        loadingStates[member.id] || member.id === user?.uid
-                      }
+  const columns = React.useMemo<ColumnDef<DisplayMember>[]>(
+    () => [
+      {
+        accessorFn: (row) => `${row.firstName} ${row.lastName}`,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Name" />
+        ),
+        id: 'name',
+      },
+      {
+        accessorKey: 'email',
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Email" />
+        ),
+      },
+      {
+        accessorKey: 'role',
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Role" />
+        ),
+        cell: ({ row }) => (
+          <span className="capitalize">{row.original.role}</span>
+        ),
+      },
+      {
+        accessorKey: 'status',
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Status" />
+        ),
+        cell: ({ row }) => (
+          <Badge variant={getBadgeVariant(row.original.status)}>
+            {row.original.status}
+          </Badge>
+        ),
+      },
+      {
+        id: 'actions',
+        cell: ({ row }) => {
+          const member = row.original;
+          return (
+            member.isRegistered && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    aria-haspopup="true"
+                    size="icon"
+                    variant="ghost"
+                    disabled={loadingStates[member.id] || member.id === user?.uid}
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Toggle menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {member.isActive ? (
+                    <DropdownMenuItem
+                      onSelect={() => handleStatusChange(member.id, false)}
                     >
-                      <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">Toggle menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {member.isActive ? (
-                      <DropdownMenuItem
-                        onSelect={() => handleStatusChange(member.id, false)}
-                      >
-                        <ShieldOff className="mr-2 h-4 w-4" />
-                        Suspend Member
-                      </DropdownMenuItem>
-                    ) : (
-                      <DropdownMenuItem
-                        onSelect={() => handleStatusChange(member.id, true)}
-                      >
-                        <ShieldCheck className="mr-2 h-4 w-4" />
-                        Activate Member
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+                      <ShieldOff className="mr-2 h-4 w-4" />
+                      Suspend Member
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem
+                      onSelect={() => handleStatusChange(member.id, true)}
+                    >
+                      <ShieldCheck className="mr-2 h-4 w-4" />
+                      Activate Member
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )
+          );
+        },
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [loadingStates, user]
+  );
+
+  return (
+    <DataTable
+      columns={columns}
+      data={members}
+      pageCount={Math.ceil(members.length / 10)} // Client-side pagination
+      totalCount={members.length}
+    />
   );
 }

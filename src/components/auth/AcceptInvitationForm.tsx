@@ -84,11 +84,20 @@ export function AcceptInvitationForm({
       if (state.success) {
         try {
           const auth = getAuth(app);
-          await signInWithEmailAndPassword(
+          const userCredential = await signInWithEmailAndPassword(
             auth,
             invitation.email,
             form.getValues('password')
           );
+
+          // Get the ID token to create a session
+          const idToken = await userCredential.user.getIdToken();
+          await fetch('/api/auth/session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken }),
+          });
+
           toast({
             title: 'Registration Complete!',
             description: "You're now logged in.",

@@ -557,6 +557,7 @@ export interface Project {
   id: string; // Document ID (auto-generated)
   companyId: string; // Reference to company document
   clientId: string; // Reference to client document
+  clientName?: string; // Denormalized for easy display
   projectCode?: string;
 
   // Basic Information
