@@ -45,18 +45,95 @@ import { Calendar } from '../ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import type { Resource } from '@/lib/types';
-import type { Timestamp } from 'firebase/firestore';
 import { extractSkills } from '@/ai/flows/smart-skills-extractor';
+import { toDate } from '@/lib/helpers/date-helpers';
 
-const toDate = (
-  date: Timestamp | Date | string | undefined
-): Date | undefined => {
-  if (!date) return undefined;
-  if (date instanceof Date) return date;
-  if (typeof date === 'string') return new Date(date);
-  if ('toDate' in date) return date.toDate();
-  return undefined;
-};
+function resourceToFormValues(resource: Resource): ResourceFormValues {
+  return {
+    resourceCode: resource.resourceCode || '',
+    personalInfo: {
+      firstName: resource.personalInfo?.firstName || '',
+      lastName: resource.personalInfo?.lastName || '',
+      email: resource.personalInfo?.email || '',
+      phone: resource.personalInfo?.phone || '',
+      profilePictureUrl: resource.personalInfo?.profilePictureUrl || '',
+      dateOfBirth: toDate(resource.personalInfo?.dateOfBirth),
+      gender: resource.personalInfo?.gender || '',
+      nationality: resource.personalInfo?.nationality || '',
+      languagesSpoken: resource.personalInfo?.languagesSpoken || [],
+    },
+    address: {
+      line1: resource.address?.line1 || '',
+      line2: resource.address?.line2 || '',
+      city: resource.address?.city || '',
+      state: resource.address?.state || '',
+      country: resource.address?.country || '',
+      postalCode: resource.address?.postalCode || '',
+    },
+    professionalInfo: {
+      designation: resource.professionalInfo?.designation || '',
+      department: resource.professionalInfo?.department || '',
+      practiceArea: resource.professionalInfo?.practiceArea || '',
+      seniorityLevel: resource.professionalInfo?.seniorityLevel || '',
+      employmentType: resource.professionalInfo?.employmentType || '',
+    },
+    employmentDetails: {
+      joiningDate: toDate(resource.employmentDetails?.joiningDate),
+      probationEndDate: toDate(resource.employmentDetails?.probationEndDate),
+      reportingManagerId: resource.employmentDetails?.reportingManagerId || '',
+      workLocation: resource.employmentDetails?.workLocation || '',
+      workMode: resource.employmentDetails?.workMode || '',
+      status: resource.employmentDetails?.status || 'active',
+    },
+    experience: {
+      totalYears: resource.experience?.totalYears ?? null,
+      yearsWithCompany: resource.experience?.yearsWithCompany ?? null,
+      previousCompanies:
+        resource.experience?.previousCompanies?.map((c) => ({
+          ...c,
+          startDate: toDate(c.startDate),
+          endDate: toDate(c.endDate),
+        })) || [],
+      education: resource.experience?.education?.map((e) => ({ ...e })) || [],
+      certifications:
+        resource.experience?.certifications?.map((c) => ({
+          ...c,
+          issueDate: toDate(c.issueDate),
+          expiryDate: toDate(c.expiryDate),
+        })) || [],
+    },
+    skills: {
+      technical: resource.skills?.technical?.map((s) => s.skill) || [],
+      soft: resource.skills?.soft?.map((s) => s.skill) || [],
+    },
+    availability: {
+      status: resource.availability?.status || 'available',
+      currentAllocationPercentage:
+        resource.availability?.currentAllocationPercentage ?? 0,
+      maxAllocationPercentage:
+        resource.availability?.maxAllocationPercentage ?? 100,
+      noticePeriodDays: resource.availability?.noticePeriodDays ?? null,
+    },
+    financial: {
+      currency: resource.financial?.currency || '',
+      hourlyRate: resource.financial?.hourlyRate ?? null,
+      dailyRate: resource.financial?.dailyRate ?? null,
+      monthlySalary: resource.financial?.monthlySalary ?? null,
+      billingRateClient: resource.financial?.billingRateClient ?? null,
+      costCenter: resource.financial?.costCenter || '',
+    },
+    performance: {
+      rating: resource.performance?.rating ?? null,
+      careerGoals: resource.performance?.careerGoals || '',
+      developmentAreas: resource.performance?.developmentAreas || [],
+    },
+    externalProfiles: {
+      portfolioUrl: resource.externalProfiles?.portfolioUrl || '',
+      linkedinProfile: resource.externalProfiles?.linkedinProfile || '',
+      githubProfile: resource.externalProfiles?.githubProfile || '',
+    },
+  };
+}
 
 const resourceFormSchema = z.object({
   resourceCode: z.string().optional(),
@@ -188,91 +265,7 @@ export function EditResourceForm({ resource }: { resource: Resource }) {
 
   const form = useForm<ResourceFormValues>({
     resolver: zodResolver(resourceFormSchema),
-    defaultValues: {
-      resourceCode: resource.resourceCode || '',
-      personalInfo: {
-        firstName: resource.personalInfo?.firstName || '',
-        lastName: resource.personalInfo?.lastName || '',
-        email: resource.personalInfo?.email || '',
-        phone: resource.personalInfo?.phone || '',
-        profilePictureUrl: resource.personalInfo?.profilePictureUrl || '',
-        dateOfBirth: toDate(resource.personalInfo?.dateOfBirth),
-        gender: resource.personalInfo?.gender || '',
-        nationality: resource.personalInfo?.nationality || '',
-        languagesSpoken: resource.personalInfo?.languagesSpoken || [],
-      },
-      address: {
-        line1: resource.address?.line1 || '',
-        line2: resource.address?.line2 || '',
-        city: resource.address?.city || '',
-        state: resource.address?.state || '',
-        country: resource.address?.country || '',
-        postalCode: resource.address?.postalCode || '',
-      },
-      professionalInfo: {
-        designation: resource.professionalInfo?.designation || '',
-        department: resource.professionalInfo?.department || '',
-        practiceArea: resource.professionalInfo?.practiceArea || '',
-        seniorityLevel: resource.professionalInfo?.seniorityLevel || '',
-        employmentType: resource.professionalInfo?.employmentType || '',
-      },
-      employmentDetails: {
-        joiningDate: toDate(resource.employmentDetails?.joiningDate),
-        probationEndDate: toDate(resource.employmentDetails?.probationEndDate),
-        reportingManagerId:
-          resource.employmentDetails?.reportingManagerId || '',
-        workLocation: resource.employmentDetails?.workLocation || '',
-        workMode: resource.employmentDetails?.workMode || '',
-        status: resource.employmentDetails?.status || 'active',
-      },
-      experience: {
-        totalYears: resource.experience?.totalYears ?? null,
-        yearsWithCompany: resource.experience?.yearsWithCompany ?? null,
-        previousCompanies:
-          resource.experience?.previousCompanies?.map((c) => ({ ...c })) || [],
-        education:
-          resource.experience?.education?.map((e) => ({ ...e })) || [],
-        certifications:
-          resource.experience?.certifications?.map((c) => ({
-            ...c,
-            issueDate: toDate(c.issueDate),
-            expiryDate: toDate(c.expiryDate),
-          })) || [],
-      },
-      skills: {
-        technical: resource.skills?.technical?.map((s) => s.skill) || [],
-        soft: resource.skills?.soft?.map((s) => s.skill) || [],
-      },
-      availability: {
-        status: resource.availability?.status || 'available',
-        currentAllocationPercentage:
-          resource.availability?.currentAllocationPercentage ?? 0,
-        maxAllocationPercentage:
-          resource.availability?.maxAllocationPercentage ?? 100,
-        noticePeriodDays: resource.availability?.noticePeriodDays ?? null,
-      },
-      financial: {
-        currency:
-          resource.financial?.currency ||
-          companyProfile?.settings?.currency ||
-          'USD',
-        hourlyRate: resource.financial?.hourlyRate ?? null,
-        dailyRate: resource.financial?.dailyRate ?? null,
-        monthlySalary: resource.financial?.monthlySalary ?? null,
-        billingRateClient: resource.financial?.billingRateClient ?? null,
-        costCenter: resource.financial?.costCenter || '',
-      },
-      performance: {
-        rating: resource.performance?.rating ?? null,
-        careerGoals: resource.performance?.careerGoals || '',
-        developmentAreas: resource.performance?.developmentAreas || [],
-      },
-      externalProfiles: {
-        portfolioUrl: resource.externalProfiles?.portfolioUrl || '',
-        linkedinProfile: resource.externalProfiles?.linkedinProfile || '',
-        githubProfile: resource.externalProfiles?.githubProfile || '',
-      },
-    },
+    defaultValues: resourceToFormValues(resource),
     mode: 'onBlur',
   });
 
@@ -317,7 +310,9 @@ export function EditResourceForm({ resource }: { resource: Resource }) {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     setIsExtractingSkills(true);
     toast({
@@ -413,7 +408,9 @@ export function EditResourceForm({ resource }: { resource: Resource }) {
                       const fileInput = formRef.current?.querySelector(
                         'input[type="file"]'
                       ) as HTMLInputElement | null;
-                      if (fileInput) fileInput.click();
+                      if (fileInput) {
+                        fileInput.click();
+                      }
                     }}
                     className="w-40"
                   >
@@ -559,10 +556,7 @@ export function EditResourceForm({ resource }: { resource: Resource }) {
                           <Calendar
                             mode="single"
                             selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) =>
-                              date > new Date() || date < new Date('1900-01-01')
-                            }
+                            onSelect={(date) => field.onChange(date)}
                             initialFocus
                           />
                         </PopoverContent>
@@ -612,7 +606,7 @@ export function EditResourceForm({ resource }: { resource: Resource }) {
                     </FormItem>
                   )}
                 />
-                 <FormField
+                <FormField
                   control={form.control}
                   name="personalInfo.languagesSpoken"
                   render={({ field }) => (
@@ -622,8 +616,16 @@ export function EditResourceForm({ resource }: { resource: Resource }) {
                         <Input
                           placeholder="English, Spanish, French"
                           {...field}
-                          value={Array.isArray(field.value) ? field.value.join(', ') : field.value}
-                          onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()))}
+                          value={
+                            Array.isArray(field.value)
+                              ? field.value.join(', ')
+                              : field.value
+                          }
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value.split(',').map((s) => s.trim())
+                            )
+                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -867,7 +869,7 @@ export function EditResourceForm({ resource }: { resource: Resource }) {
                           <Calendar
                             mode="single"
                             selected={field.value}
-                            onSelect={field.onChange}
+                            onSelect={(date) => field.onChange(date)}
                             initialFocus
                           />
                         </PopoverContent>
@@ -905,7 +907,7 @@ export function EditResourceForm({ resource }: { resource: Resource }) {
                           <Calendar
                             mode="single"
                             selected={field.value}
-                            onSelect={field.onChange}
+                            onSelect={(date) => field.onChange(date)}
                             initialFocus
                           />
                         </PopoverContent>
@@ -971,8 +973,16 @@ export function EditResourceForm({ resource }: { resource: Resource }) {
                       <Textarea
                         placeholder="Comma-separated, e.g., React, Node.js, TypeScript"
                         {...field}
-                         value={Array.isArray(field.value) ? field.value.join(', ') : field.value}
-                        onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()))}
+                        value={
+                          Array.isArray(field.value)
+                            ? field.value.join(', ')
+                            : field.value
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value.split(',').map((s) => s.trim())
+                          )
+                        }
                       />
                     </FormControl>
                     <FormMessage />
@@ -989,8 +999,16 @@ export function EditResourceForm({ resource }: { resource: Resource }) {
                       <Textarea
                         placeholder="Comma-separated, e.g., Communication, Teamwork"
                         {...field}
-                         value={Array.isArray(field.value) ? field.value.join(', ') : field.value}
-                        onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()))}
+                        value={
+                          Array.isArray(field.value)
+                            ? field.value.join(', ')
+                            : field.value
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value.split(',').map((s) => s.trim())
+                          )
+                        }
                       />
                     </FormControl>
                     <FormMessage />
@@ -1393,7 +1411,7 @@ export function EditResourceForm({ resource }: { resource: Resource }) {
                               <Calendar
                                 mode="single"
                                 selected={field.value}
-                                onSelect={field.onChange}
+                                onSelect={(date) => field.onChange(date)}
                                 initialFocus
                               />
                             </PopoverContent>
@@ -1434,7 +1452,7 @@ export function EditResourceForm({ resource }: { resource: Resource }) {
                               <Calendar
                                 mode="single"
                                 selected={field.value}
-                                onSelect={field.onChange}
+                                onSelect={(date) => field.onChange(date)}
                                 initialFocus
                               />
                             </PopoverContent>
@@ -1517,8 +1535,16 @@ export function EditResourceForm({ resource }: { resource: Resource }) {
                       <Textarea
                         placeholder="Comma-separated skills or topics"
                         {...field}
-                         value={Array.isArray(field.value) ? field.value.join(', ') : field.value}
-                        onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()))}
+                        value={
+                          Array.isArray(field.value)
+                            ? field.value.join(', ')
+                            : field.value
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value.split(',').map((s) => s.trim())
+                          )
+                        }
                       />
                     </FormControl>
                     <FormMessage />
