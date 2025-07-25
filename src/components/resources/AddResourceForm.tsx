@@ -289,7 +289,9 @@ export function AddResourceForm() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     setIsExtractingSkills(true);
     toast({
@@ -302,7 +304,7 @@ export function AddResourceForm() {
       reader.onload = async (e) => {
         const resumeDataUri = e.target?.result as string;
         const result = await extractSkills({ resumeDataUri });
-        
+
         let toastDescription = '';
         if (result.skills.length > 0) {
           form.setValue('skills.technical', result.skills);
@@ -314,7 +316,7 @@ export function AddResourceForm() {
         }
 
         if (toastDescription) {
-           toast({
+          toast({
             title: 'Skills Extracted Successfully',
             description: toastDescription.trim(),
           });
@@ -583,8 +585,16 @@ export function AddResourceForm() {
                         <Input
                           placeholder="English, Spanish, French"
                           {...field}
-                          value={Array.isArray(field.value) ? field.value.join(', ') : field.value}
-                          onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()))}
+                          value={
+                            Array.isArray(field.value)
+                              ? field.value.join(', ')
+                              : field.value
+                          }
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value.split(',').map((s) => s.trim())
+                            )
+                          }
                         />
                       </FormControl>
                       <FormMessage />
@@ -932,8 +942,16 @@ export function AddResourceForm() {
                       <Textarea
                         placeholder="Comma-separated, e.g., React, Node.js, TypeScript"
                         {...field}
-                        value={Array.isArray(field.value) ? field.value.join(', ') : field.value}
-                        onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()))}
+                        value={
+                          Array.isArray(field.value)
+                            ? field.value.join(', ')
+                            : field.value
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value.split(',').map((s) => s.trim())
+                          )
+                        }
                       />
                     </FormControl>
                     <FormMessage />
@@ -950,8 +968,16 @@ export function AddResourceForm() {
                       <Textarea
                         placeholder="Comma-separated, e.g., Communication, Teamwork"
                         {...field}
-                        value={Array.isArray(field.value) ? field.value.join(', ') : field.value}
-                        onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()))}
+                        value={
+                          Array.isArray(field.value)
+                            ? field.value.join(', ')
+                            : field.value
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value.split(',').map((s) => s.trim())
+                          )
+                        }
                       />
                     </FormControl>
                     <FormMessage />
@@ -1394,8 +1420,16 @@ export function AddResourceForm() {
                       <Textarea
                         placeholder="Comma-separated skills or topics"
                         {...field}
-                         value={Array.isArray(field.value) ? field.value.join(', ') : field.value}
-                        onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()))}
+                        value={
+                          Array.isArray(field.value)
+                            ? field.value.join(', ')
+                            : field.value
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value.split(',').map((s) => s.trim())
+                          )
+                        }
                       />
                     </FormControl>
                     <FormMessage />

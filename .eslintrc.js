@@ -1,5 +1,6 @@
 module.exports = {
   extends: ['next/core-web-vitals', 'prettier'],
+  plugins: ['unused-imports'],
   ignorePatterns: [
     '.next/**',
     'node_modules/**',
@@ -23,5 +24,6 @@ module.exports = {
     'no-nested-ternary': 'warn',
     'prefer-template': 'warn',
     'object-shorthand': 'warn',
+    'unused-imports/no-unused-imports': 'warn',
   },
 };

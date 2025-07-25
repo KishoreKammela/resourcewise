@@ -56,6 +56,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Dialog, DialogTrigger } from '../ui/dialog';
 import { ChangePasswordDialog } from './ChangePasswordDialog';
+import { toDate } from '@/lib/helpers/date-helpers';
 
 const profileFormSchema = z.object({
   email: z.string().email(),
@@ -89,21 +90,6 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 type UserProfileProps = (PlatformUser | TeamMember) & {
   userRole: 'platform' | 'company';
   id: string;
-};
-
-const toDate = (timestamp?: Timestamp | Date): Date | undefined => {
-  if (!timestamp) {
-    return undefined;
-  }
-  // Firestore Timestamps have a toDate() method, plain Dates do not.
-  if (timestamp && typeof (timestamp as Timestamp).toDate === 'function') {
-    return (timestamp as Timestamp).toDate();
-  }
-  // If it's already a Date object, return it.
-  if (timestamp instanceof Date) {
-    return timestamp;
-  }
-  return undefined;
 };
 
 function SubmitButton() {

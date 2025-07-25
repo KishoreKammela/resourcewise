@@ -20,7 +20,11 @@ function safeToDate(
   if (!dateString || typeof dateString !== 'string') {
     return undefined;
   }
-  if (dateString === 'undefined' || dateString === 'null' || dateString === '') {
+  if (
+    dateString === 'undefined' ||
+    dateString === 'null' ||
+    dateString === ''
+  ) {
     return undefined;
   }
   const date = new Date(dateString);
@@ -128,8 +132,7 @@ function buildResourceData(
     professionalInfo: {
       designation:
         (formData.get('professionalInfo.designation') as string) || '',
-      department:
-        (formData.get('professionalInfo.department') as string) || '',
+      department: (formData.get('professionalInfo.department') as string) || '',
       practiceArea:
         (formData.get('professionalInfo.practiceArea') as string) || '',
       seniorityLevel:
@@ -220,7 +223,11 @@ function buildResourceData(
             newObj[key] = cleanedChild;
           }
         } else if (Array.isArray(obj[key])) {
-          newObj[key] = obj[key].map(cleanObject).filter(item => Object.keys(item).length > 0 || (typeof item !== 'object'));
+          newObj[key] = obj[key]
+            .map(cleanObject)
+            .filter(
+              (item) => Object.keys(item).length > 0 || typeof item !== 'object'
+            );
         } else {
           newObj[key] = obj[key];
         }

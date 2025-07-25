@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { format } from 'date-fns';
+import { formatDate } from '@/lib/helpers/date-helpers';
 import type { Timestamp } from 'firebase/firestore';
 
 function DetailItem({
@@ -28,30 +28,6 @@ function DetailItem({
       <p className="text-base">{value}</p>
     </div>
   );
-}
-
-function formatDate(
-  date: Timestamp | Date | string | undefined
-): string | null {
-  if (!date) {
-    return null;
-  }
-  let jsDate: Date;
-  if (typeof date === 'string') {
-    jsDate = new Date(date);
-  } else if (date instanceof Date) {
-    jsDate = date;
-  } else if (date && 'toDate' in date) {
-    jsDate = date.toDate();
-  } else {
-    return null;
-  }
-
-  if (isNaN(jsDate.getTime())) {
-    return null;
-  }
-
-  return format(jsDate, 'PPP');
 }
 
 export function ResourceDetailClient({ resource }: { resource: Resource }) {
@@ -199,9 +175,7 @@ export function ResourceDetailClient({ resource }: { resource: Resource }) {
                 {cert.issuingOrganization}
               </p>
               {cert.issueDate && (
-                <p className="text-sm">
-                  Issued: {formatDate(cert.issueDate)}
-                </p>
+                <p className="text-sm">Issued: {formatDate(cert.issueDate)}</p>
               )}
               {cert.expiryDate && (
                 <p className="text-sm">
