@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { AppShell } from '@/components/layout/AppShell';
 import { getPlatformConfig } from '@/services/platform.services';
 import { PlatformConfigForm } from '@/components/settings/PlatformConfigForm';
-import { cookies } from 'next/headers';
+import { getSessionCookieValue } from '@/services/sessionManager';
 import { auth, db } from '@/lib/firebase-admin';
 import { redirect } from 'next/navigation';
 
@@ -28,8 +28,8 @@ async function checkUserRole(cookie: string | undefined) {
 }
 
 export default async function PlatformConfigurationPage() {
-  const sessionCookie = (await cookies()).get('__session')?.value;
-  const userRole = await checkUserRole(sessionCookie);
+  const sessionCookie = await getSessionCookieValue();
+  const userRole = await checkUserRole(sessionCookie || undefined);
 
   if (userRole !== 'platform') {
     redirect('/');

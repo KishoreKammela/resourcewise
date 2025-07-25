@@ -168,7 +168,7 @@ export async function getPaginatedProjects({
   const snapshot = await query.get();
 
   const projects = snapshot.docs.map(
-    (doc) => ({ id: doc.id, ...serializeTimestamps(doc.data()) } as Project)
+    (doc) => ({ id: doc.id, ...serializeTimestamps(doc.data()) }) as Project
   );
 
   return { projects, totalCount };

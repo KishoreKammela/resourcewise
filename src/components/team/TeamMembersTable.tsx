@@ -132,7 +132,9 @@ export function TeamMembersTable({
                     aria-haspopup="true"
                     size="icon"
                     variant="ghost"
-                    disabled={loadingStates[member.id] || member.id === user?.uid}
+                    disabled={
+                      loadingStates[member.id] || member.id === user?.uid
+                    }
                   >
                     <MoreHorizontal className="h-4 w-4" />
                     <span className="sr-only">Toggle menu</span>

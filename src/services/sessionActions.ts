@@ -3,8 +3,10 @@
 import { auth } from '@/lib/firebase-admin';
 import { cookies } from 'next/headers';
 import { createAuditLog } from '@/services/audit.services';
-
-const SESSION_COOKIE_EXPIRATION = 60 * 60 * 24 * 5 * 1000; // 5 days
+import {
+  SESSION_COOKIE_NAME,
+  SESSION_COOKIE_EXPIRATION,
+} from '@/services/sessionManager.constants';
 
 export async function createSessionCookie(
   idToken: string
@@ -21,10 +23,10 @@ export async function createSessionCookie(
     const cookieStore = await cookies();
 
     // Clear any existing session
-    cookieStore.delete('__session');
+    cookieStore.delete(SESSION_COOKIE_NAME);
 
     // Set new session cookie with proper options
-    cookieStore.set('__session', sessionCookie, {
+    cookieStore.set(SESSION_COOKIE_NAME, sessionCookie, {
       maxAge: SESSION_COOKIE_EXPIRATION / 1000, // Convert to seconds
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -79,7 +81,7 @@ export async function createSessionCookie(
 export async function clearSessionCookie(): Promise<{ success: boolean }> {
   try {
     const cookieStore = await cookies();
-    cookieStore.delete('__session');
+    cookieStore.delete(SESSION_COOKIE_NAME);
 
     return { success: true };
   } catch (error) {

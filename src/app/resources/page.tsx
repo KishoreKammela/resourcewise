@@ -8,8 +8,7 @@ import { UserPlus } from 'lucide-react';
 import Link from 'next/link';
 import { z } from 'zod';
 import { ResourcesClientPage } from '@/components/resources/ResourcesClientPage';
-import { cookies } from 'next/headers';
-import { auth, db } from '@/lib/firebase-admin';
+import { getSessionUser } from '@/services/sessionManager';
 
 const searchParamsSchema = z.object({
   page: z.coerce.number().default(1),
@@ -21,19 +20,8 @@ const searchParamsSchema = z.object({
 });
 
 async function getCompanyId() {
-  const sessionCookie = cookies().get('__session')?.value;
-  if (!sessionCookie) return null;
-  try {
-    const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
-    const teamMemberDoc = await db
-      .collection('teamMembers')
-      .doc(decodedToken.uid)
-      .get();
-    return teamMemberDoc.exists ? teamMemberDoc.data()?.companyId : null;
-  } catch (error) {
-    console.error('Error verifying session cookie:', error);
-    return null;
-  }
+  const user = await getSessionUser();
+  return user?.companyId ?? null;
 }
 export default async function ResourcesPage({
   searchParams,

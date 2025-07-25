@@ -5,12 +5,11 @@ import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
-import { cookies } from 'next/headers';
 import { z } from 'zod';
-import { auth, db } from '@/lib/firebase-admin';
 import { getPaginatedProjects } from '@/services/project.services';
 import { getClientsByCompany } from '@/services/client.services';
 import { ProjectsClientPage } from '@/components/projects/ProjectsClientPage';
+import { getSessionUser } from '@/services/sessionManager';
 
 const searchParamsSchema = z.object({
   page: z.coerce.number().default(1),
@@ -21,19 +20,8 @@ const searchParamsSchema = z.object({
 });
 
 async function getCompanyId() {
-  const sessionCookie = cookies().get('__session')?.value;
-  if (!sessionCookie) return null;
-  try {
-    const decodedToken = await auth.verifySessionCookie(sessionCookie, true);
-    const teamMemberDoc = await db
-      .collection('teamMembers')
-      .doc(decodedToken.uid)
-      .get();
-    return teamMemberDoc.exists ? teamMemberDoc.data()?.companyId : null;
-  } catch (error) {
-    console.error('Error verifying session cookie:', error);
-    return null;
-  }
+  const user = await getSessionUser();
+  return user?.companyId ?? null;
 }
 export default async function ProjectsPage({
   searchParams,

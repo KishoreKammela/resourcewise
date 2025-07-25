@@ -38,8 +38,6 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from 'lucide-react';
-import { Input } from '../ui/input';
-import { useDebounce } from '@/hooks/use-debounce';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -77,8 +75,9 @@ export function DataTable<TData, TValue>({
   );
 
   // Search and filter state
-  const [columnFilters, setColumnFilters] =
-    React.useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
 
   // Sorting state
   const [sorting, setSorting] = React.useState<SortingState>(() => {
@@ -214,7 +213,9 @@ export function DataTable<TData, TValue>({
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => router.push(`${pathname}?${createQueryString({ page: 1 })}`)}
+              onClick={() =>
+                router.push(`${pathname}?${createQueryString({ page: 1 })}`)
+              }
               disabled={table.getState().pagination.pageIndex === 0}
             >
               <span className="sr-only">Go to first page</span>
@@ -242,7 +243,8 @@ export function DataTable<TData, TValue>({
                 )
               }
               disabled={
-                table.getState().pagination.pageIndex >= table.getPageCount() - 1
+                table.getState().pagination.pageIndex >=
+                table.getPageCount() - 1
               }
             >
               <span className="sr-only">Go to next page</span>
@@ -257,7 +259,8 @@ export function DataTable<TData, TValue>({
                 )
               }
               disabled={
-                table.getState().pagination.pageIndex >= table.getPageCount() - 1
+                table.getState().pagination.pageIndex >=
+                table.getPageCount() - 1
               }
             >
               <span className="sr-only">Go to last page</span>

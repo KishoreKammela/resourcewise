@@ -163,7 +163,7 @@ export async function getPaginatedClients({
   const snapshot = await query.get();
 
   const clients = snapshot.docs.map(
-    (doc) => ({ id: doc.id, ...serializeTimestamps(doc.data()) } as Client)
+    (doc) => ({ id: doc.id, ...serializeTimestamps(doc.data()) }) as Client
   );
 
   return { clients, totalCount };

@@ -3,10 +3,13 @@
 ## 1. Introduction
 
 ### 1.1 Purpose
+
 This document provides a comprehensive guide for the Quality Assurance (QA) team to test the ResourceWise platform. Its goal is to ensure the application is robust, reliable, and meets all functional requirements before deployment. This is a living document and should be updated as new features are added.
 
 ### 1.2 Testing Scope
+
 This guide covers testing for all major features, including:
+
 - User Authentication & Registration
 - Core Data Management (Resources, Clients, Projects)
 - AI-Powered Features
@@ -14,6 +17,7 @@ This guide covers testing for all major features, including:
 - User Interface & User Experience
 
 ### 1.3 Tools & Environment
+
 - **Environment**: Staging environment, which should be a mirror of production.
 - **Browser**: All tests should be performed on the latest versions of Google Chrome, Mozilla Firefox, and Safari.
 - **Developer Tools**: Browser developer tools are essential for inspecting the console for errors, checking network requests, and examining the DOM.
@@ -23,6 +27,7 @@ This guide covers testing for all major features, including:
 ## 2. Authentication & Onboarding
 
 ### 2.1 Company Registration (`/signup`)
+
 - **Objective**: Ensure a new company and its first admin user can register successfully.
 - **Test Cases**:
   1. **Happy Path**: Complete the multi-step form with valid data.
@@ -42,6 +47,7 @@ This guide covers testing for all major features, including:
      - Ensure the "Go Back" button works and preserves the state of the previous step's form fields.
 
 ### 2.2 User Login (`/login`)
+
 - **Objective**: Ensure registered users can log in securely.
 - **Test Cases**:
   1. **Happy Path**: Log in with valid credentials for both a "Platform Admin" and a "Company Admin".
@@ -52,6 +58,7 @@ This guide covers testing for all major features, including:
   3. **UI/UX**: The "Sign in" button should show a loading spinner and be disabled during the login attempt.
 
 ### 2.3 Invitation Flow (`/signup/invite/[token]`)
+
 - **Objective**: Ensure users can register successfully via an invitation link.
 - **Test Cases**:
   1. **Happy Path (Company & Platform)**:
@@ -71,6 +78,7 @@ This guide covers testing for all major features, including:
 ## 3. Resource Management (`/resources`)
 
 ### 3.1 Resource Pool (`/resources`)
+
 - **Objective**: Verify the functionality of the advanced data table for resources.
 - **Test Cases**:
   1. **Pagination**:
@@ -86,6 +94,7 @@ This guide covers testing for all major features, including:
   4. **Empty State**: If no resources exist, ensure the table shows a "No results" message.
 
 ### 3.2 Add/Edit Resource Form
+
 - **Objective**: Ensure resources can be created and updated correctly.
 - **Test Cases**:
   1. **Happy Path**: Fill out all fields with valid data and save.
@@ -102,6 +111,7 @@ This guide covers testing for all major features, including:
      - Enter invalid data (e.g., non-URL for a URL field). Expected: Validation errors.
 
 ### 3.3 Skills Matrix (`/resources/skills-matrix`)
+
 - **Objective**: Test the functionality of the skills grid.
 - **Test Cases**:
   1. **Display**: Verify that all unique skills from all resources are displayed as columns, and all resources are displayed as rows. A checkmark should appear at the intersection if a resource has that skill.
@@ -116,6 +126,7 @@ This guide covers testing for all major features, including:
 ## 4. Platform Administration (`/settings/*` for Platform Users)
 
 ### 4.1 Platform User Management (`/settings/users`)
+
 - **Objective**: Ensure platform admins can manage other platform users.
 - **Test Cases**:
   1. **Invite User**:
@@ -128,6 +139,7 @@ This guide covers testing for all major features, including:
      - An admin cannot suspend themselves. Expected: The action menu should be disabled for the currently logged-in user.
 
 ### 4.2 Platform Configuration (`/settings/platform-configuration`)
+
 - **Objective**: Test the dynamic configuration of platform-wide settings.
 - **Test Cases**:
   1. **Update Session Timeout**:

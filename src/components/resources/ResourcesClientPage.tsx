@@ -1,10 +1,8 @@
-
 'use client';
 
 import * as React from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { type ColumnDef } from '@tanstack/react-table';
-import { useDebounce } from '@/hooks/use-debounce';
 import type { Resource } from '@/lib/types';
 import { DataTable } from '@/components/shared/DataTable';
 import { DataTableColumnHeader } from '@/components/shared/DataTableColumnHeader';
@@ -87,7 +85,9 @@ export function ResourcesClientPage({
           <DataTableColumnHeader column={column} title="Availability" />
         ),
         cell: ({ row }) => (
-          <span className="capitalize">{row.original.availability?.status}</span>
+          <span className="capitalize">
+            {row.original.availability?.status}
+          </span>
         ),
         id: 'status',
       },

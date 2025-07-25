@@ -122,14 +122,14 @@ export async function getPaginatedResources({
     // We will search by first name for this example.
     query = query
       .where('personalInfo.firstName', '>=', filters.name)
-      .where(
-        'personalInfo.firstName',
-        '<=',
-        filters.name + '\uf8ff'
-      );
+      .where('personalInfo.firstName', '<=', `${filters.name}\uf8ff`);
   }
   if (filters.designation) {
-    query = query.where('professionalInfo.designation', '==', filters.designation);
+    query = query.where(
+      'professionalInfo.designation',
+      '==',
+      filters.designation
+    );
   }
   if (filters.status) {
     query = query.where('availability.status', '==', filters.status);
@@ -163,12 +163,11 @@ export async function getPaginatedResources({
   const snapshot = await query.get();
 
   const resources = snapshot.docs.map(
-    (doc) => ({ id: doc.id, ...serializeTimestamps(doc.data()) } as Resource)
+    (doc) => ({ id: doc.id, ...serializeTimestamps(doc.data()) }) as Resource
   );
 
   return { resources, totalCount };
 }
-
 
 /**
  * Retrieves a single resource by its ID.
