@@ -84,10 +84,10 @@ This document outlines the detailed product development plan for the ResourceWis
 
 ### Milestone 3.2: Comprehensive Analytics & Reporting
 
-- **Step 3.2.1: Foundational Analytics Dashboard (In Progress)**:
-  - Design and implement the main dashboard view for company executives.
-  - Add key KPI cards for high-level metrics like Total Resources, Active Projects, and overall Resource Utilization %.
-  - Create basic charts visualizing resource allocation (e.g., Billable vs. Non-Billable).
+- **Step 3.2.1: Foundational Analytics Dashboard (Completed)**:
+  - Designed and implemented the main dashboard view for company executives.
+  - Added key KPI cards for high-level metrics like Total Resources, Active Projects, and overall Resource Utilization %.
+  - Created basic charts visualizing resource allocation (e.g., Billable vs. Non-Billable).
 - **Step 3.2.2: Role-Based Dashboards**:
   - Implement specialized analytics dashboards for different user roles (Admin, HR, Project Manager).
 - **Step 3.2.3: AI-Powered Recommendations**:
