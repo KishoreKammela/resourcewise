@@ -31,13 +31,32 @@ export default function LoginPage() {
 
     try {
       const auth = getAuth(app);
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      // Get the ID token
+      const idToken = await userCredential.user.getIdToken();
+
+      // Create session cookie
+      const response = await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to create session');
+      }
+
       toast({
         title: 'Login Successful',
         description: 'Welcome back!',
       });
-      // The onAuthStateChanged listener in AuthContext will handle the redirect,
-      // but we push here for a faster perceived response.
+
       router.push('/');
     } catch (error: any) {
       let errorMessage = 'An unexpected error occurred. Please try again.';
