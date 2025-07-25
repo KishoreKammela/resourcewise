@@ -1,8 +1,14 @@
 'use client';
 
 import type { Client } from '@/lib/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { formatDate } from '@/lib/helpers/date-helpers';
+import { Check, X } from 'lucide-react';
 
 function DetailItem({
   label,
@@ -13,7 +19,7 @@ function DetailItem({
   value: string | number | undefined | null;
   isLink?: boolean;
 }) {
-  if (!value) {
+  if (value === undefined || value === null || value === '') {
     return null;
   }
   return (
@@ -35,6 +41,28 @@ function DetailItem({
   );
 }
 
+function BooleanDetailItem({
+  label,
+  value,
+}: {
+  label: string;
+  value: boolean | undefined;
+}) {
+  if (value === undefined || value === null) {
+    return null;
+  }
+  return (
+    <div className="flex items-center gap-2">
+      {value ? (
+        <Check className="h-5 w-5 text-green-500" />
+      ) : (
+        <X className="h-5 w-5 text-red-500" />
+      )}
+      <span className="text-base">{label}</span>
+    </div>
+  );
+}
+
 export function ClientDetailClient({ client }: { client: Client }) {
   return (
     <div className="space-y-6">
@@ -45,7 +73,12 @@ export function ClientDetailClient({ client }: { client: Client }) {
         <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <DetailItem label="Client Name" value={client.basicInfo.clientName} />
           <DetailItem label="Client Code" value={client.clientCode} />
+          <DetailItem label="Client Type" value={client.basicInfo.clientType} />
           <DetailItem label="Industry" value={client.basicInfo.industry} />
+          <DetailItem
+            label="Company Size"
+            value={client.basicInfo.companySize}
+          />
           <DetailItem label="Website" value={client.basicInfo.website} isLink />
           <DetailItem label="Status" value={client.relationship.status} />
           <DetailItem
@@ -72,6 +105,58 @@ export function ClientDetailClient({ client }: { client: Client }) {
 
       <Card>
         <CardHeader>
+          <CardTitle>Relationship Management</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <DetailItem
+            label="Health Score"
+            value={`${client.relationship.healthScore}/5`}
+          />
+          <DetailItem
+            label="Satisfaction"
+            value={`${client.relationship.satisfactionRating}/5`}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Commercial Information</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <DetailItem
+            label="Billing Currency"
+            value={client.commercial.billingCurrency}
+          />
+          <DetailItem
+            label="Payment Terms"
+            value={client.commercial.paymentTerms}
+          />
+          <DetailItem
+            label="Contract Type"
+            value={client.commercial.contractType}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Contract & Legal</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center gap-6">
+          <BooleanDetailItem
+            label="NDA Signed"
+            value={client.contract.ndaSigned}
+          />
+          <BooleanDetailItem
+            label="MSA Signed"
+            value={client.contract.msaSigned}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Address</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -87,13 +172,9 @@ export function ClientDetailClient({ client }: { client: Client }) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Commercials</CardTitle>
+          <CardTitle>Analytics</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <DetailItem
-            label="Billing Currency"
-            value={client.commercial.billingCurrency}
-          />
           <DetailItem
             label="Active Projects"
             value={client.analytics.activeProjectsCount}
@@ -101,6 +182,14 @@ export function ClientDetailClient({ client }: { client: Client }) {
           <DetailItem
             label="Total Projects"
             value={client.analytics.totalProjectsCount}
+          />
+          <DetailItem
+            label="Total Revenue"
+            value={
+              client.analytics.totalRevenueGenerated > 0
+                ? `$${client.analytics.totalRevenueGenerated.toLocaleString()}`
+                : '$0'
+            }
           />
         </CardContent>
       </Card>

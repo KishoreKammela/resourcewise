@@ -27,11 +27,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '../ui/card';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { Checkbox } from '../ui/checkbox';
 
 const clientFormSchema = z.object({
   clientCode: z.string().optional(),
@@ -39,6 +45,7 @@ const clientFormSchema = z.object({
     clientName: z.string().min(1, 'Client name is required.'),
     clientType: z.string().optional(),
     industry: z.string().optional(),
+    companySize: z.string().optional(),
     website: z.string().url().optional().or(z.literal('')),
     logoUrl: z.string().url().optional().or(z.literal('')),
   }),
@@ -59,14 +66,42 @@ const clientFormSchema = z.object({
     postalCode: z.string().optional(),
     timezone: z.string().optional(),
   }),
+  businessInfo: z.object({
+    registrationNumber: z.string().optional(),
+    taxIdentificationNumber: z.string().optional(),
+    annualRevenueRange: z.string().optional(),
+    employeeCountRange: z.string().optional(),
+    businessModel: z.string().optional(),
+  }),
   relationship: z.object({
     accountManagerId: z.string().optional(),
     status: z.string().min(1, 'Status is required.'),
     startDate: z.date().optional(),
-    healthScore: z.coerce.number().min(1).max(10).optional(),
+    healthScore: z.coerce.number().min(1).max(5).optional(),
+    satisfactionRating: z.coerce.number().min(1).max(5).optional(),
   }),
   commercial: z.object({
+    contractType: z.string().optional(),
+    paymentTerms: z.string().optional(),
     billingCurrency: z.string().min(1, 'Currency is required.'),
+    standardBillingRate: z.coerce.number().optional(),
+    discountPercentage: z.coerce.number().optional(),
+    creditLimit: z.coerce.number().optional(),
+    paymentHistoryRating: z.string().optional(),
+  }),
+  contract: z.object({
+    startDate: z.date().optional(),
+    endDate: z.date().optional(),
+    value: z.coerce.number().optional(),
+    documentUrl: z.string().url().optional().or(z.literal('')),
+    ndaSigned: z.boolean().default(false),
+    ndaExpiryDate: z.date().optional(),
+    msaSigned: z.boolean().default(false),
+    msaExpiryDate: z.date().optional(),
+  }),
+  communication: z.object({
+    preferredMethod: z.string().optional(),
+    frequency: z.string().optional(),
   }),
 });
 
@@ -104,18 +139,26 @@ export function AddClientForm() {
         industry: '',
         website: '',
         logoUrl: '',
+        companySize: '',
       },
       contactInfo: {
         primary: { name: '', email: '', phone: '', designation: '' },
       },
       address: {},
+      businessInfo: {},
       relationship: {
         status: 'Active',
-        healthScore: 5,
+        healthScore: 3,
+        satisfactionRating: 3,
       },
       commercial: {
         billingCurrency: companyProfile?.settings?.currency || 'USD',
       },
+      contract: {
+        ndaSigned: false,
+        msaSigned: false,
+      },
+      communication: {},
     },
     mode: 'onBlur',
   });
@@ -177,6 +220,36 @@ export function AddClientForm() {
               />
               <FormField
                 control={form.control}
+                name="basicInfo.clientType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Client Type</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select client type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Direct Client">
+                          Direct Client
+                        </SelectItem>
+                        <SelectItem value="Partner">Partner</SelectItem>
+                        <SelectItem value="Subcontractor">
+                          Subcontractor
+                        </SelectItem>
+                        <SelectItem value="Internal">Internal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="basicInfo.industry"
                 render={({ field }) => (
                   <FormItem>
@@ -184,6 +257,36 @@ export function AddClientForm() {
                     <FormControl>
                       <Input placeholder="e.g. Technology" {...field} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="basicInfo.companySize"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Company Size</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select company size" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Startup">Startup (1-50)</SelectItem>
+                        <SelectItem value="SME">SME (51-500)</SelectItem>
+                        <SelectItem value="Enterprise">
+                          Enterprise (501-5000)
+                        </SelectItem>
+                        <SelectItem value="Large Enterprise">
+                          Large Enterprise (5000+)
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -274,6 +377,91 @@ export function AddClientForm() {
 
           <Card>
             <CardHeader>
+              <CardTitle>Business Information</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="businessInfo.registrationNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Registration Number</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="businessInfo.taxIdentificationNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tax ID Number (TIN)</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="businessInfo.annualRevenueRange"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Annual Revenue Range</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select revenue range" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="0-1M">0 - 1M USD</SelectItem>
+                        <SelectItem value="1M-10M">1M - 10M USD</SelectItem>
+                        <SelectItem value="10M-50M">10M - 50M USD</SelectItem>
+                        <SelectItem value="50M+">50M+ USD</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="businessInfo.businessModel"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Business Model</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select business model" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="B2B">B2B</SelectItem>
+                        <SelectItem value="B2C">B2C</SelectItem>
+                        <SelectItem value="B2B2C">B2B2C</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle>Relationship</CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -293,34 +481,11 @@ export function AddClientForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value="Prospect">Prospect</SelectItem>
                         <SelectItem value="Active">Active</SelectItem>
                         <SelectItem value="Inactive">Inactive</SelectItem>
-                        <SelectItem value="Prospect">Prospect</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="commercial.billingCurrency"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Billing Currency</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select currency" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="USD">USD</SelectItem>
-                        <SelectItem value="EUR">EUR</SelectItem>
-                        <SelectItem value="GBP">GBP</SelectItem>
+                        <SelectItem value="Lost">Lost</SelectItem>
+                        <SelectItem value="On Hold">On Hold</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -362,6 +527,135 @@ export function AddClientForm() {
                       </PopoverContent>
                     </Popover>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="relationship.healthScore"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Health Score (1-5)</FormLabel>
+                    <FormControl>
+                      <Input type="number" min="1" max="5" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="relationship.satisfactionRating"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Satisfaction Rating (1-5)</FormLabel>
+                    <FormControl>
+                      <Input type="number" min="1" max="5" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Commercial Information</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="commercial.billingCurrency"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Billing Currency</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select currency" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="USD">USD</SelectItem>
+                        <SelectItem value="EUR">EUR</SelectItem>
+                        <SelectItem value="GBP">GBP</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="commercial.paymentTerms"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Payment Terms</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select payment terms" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Net 30">Net 30</SelectItem>
+                        <SelectItem value="Net 60">Net 60</SelectItem>
+                        <SelectItem value="Advance">Advance</SelectItem>
+                        <SelectItem value="Milestone-based">
+                          Milestone-based
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Contract & Legal</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="contract.ndaSigned"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>NDA Signed?</FormLabel>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="contract.msaSigned"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-4">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>MSA Signed?</FormLabel>
+                    </div>
                   </FormItem>
                 )}
               />

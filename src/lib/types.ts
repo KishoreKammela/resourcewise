@@ -460,8 +460,9 @@ export interface Client {
   // Basic Information
   basicInfo: {
     clientName: string;
-    clientType?: string;
+    clientType?: string; // 'Direct Client' | 'Partner' | 'Subcontractor' | 'Internal'
     industry?: string;
+    companySize?: string; // 'Startup' | 'SME' | 'Enterprise' | 'Fortune 500'
     website?: string;
     logoUrl?: string;
   };
@@ -492,27 +493,70 @@ export interface Client {
     timezone?: string;
   };
 
+  // Business Information
+  businessInfo: {
+    registrationNumber?: string;
+    taxIdentificationNumber?: string;
+    annualRevenueRange?: string;
+    employeeCountRange?: string;
+    primaryTechnologies?: string[];
+    businessModel?: string; // 'B2B' | 'B2C' | 'B2B2C'
+  };
+
   // Relationship Management
   relationship: {
     accountManagerId?: string; // Reference to teamMember
-    status: string;
-    startDate?: Timestamp;
-    endDate?: Timestamp;
-    healthScore?: number;
-    satisfactionRating?: number;
-    lastInteractionDate?: Timestamp;
-    nextFollowupDate?: Timestamp;
+    status: string; // 'Prospect' | 'Active' | 'Inactive' | 'Lost' | 'On Hold'
+    startDate?: AdminTimestamp | ClientTimestamp;
+    endDate?: AdminTimestamp | ClientTimestamp;
+    healthScore?: number; // 1-5
+    satisfactionRating?: number; // 1-5
+    lastInteractionDate?: AdminTimestamp | ClientTimestamp;
+    nextFollowupDate?: AdminTimestamp | ClientTimestamp;
   };
 
   // Commercial Information
   commercial: {
-    contractType?: string;
-    paymentTerms?: string;
+    contractType?: string; // 'MSA' | 'SOW' | 'Project-based' | 'Retainer' | 'Ad-hoc'
+    paymentTerms?: string; // 'Net 30' | 'Net 60' | 'Advance' | 'Milestone-based'
     billingCurrency: string;
     standardBillingRate?: number;
     discountPercentage?: number;
     creditLimit?: number;
-    paymentHistoryRating?: string;
+    paymentHistoryRating?: string; // 'Excellent' | 'Good' | 'Average' | 'Poor'
+  };
+
+  // Contract & Legal
+  contract: {
+    startDate?: AdminTimestamp | ClientTimestamp;
+    endDate?: AdminTimestamp | ClientTimestamp;
+    value?: number;
+    documentUrl?: string;
+    ndaSigned: boolean;
+    ndaExpiryDate?: AdminTimestamp | ClientTimestamp;
+    msaSigned: boolean;
+    msaExpiryDate?: AdminTimestamp | ClientTimestamp;
+  };
+
+  // Communication & Preferences
+  communication: {
+    preferredMethod?: string; // 'Email' | 'Phone' | 'Slack' | 'Teams' | 'WhatsApp'
+    frequency?: string; // 'Daily' | 'Weekly' | 'Bi-weekly' | 'Monthly'
+    meetingPreferences?: {
+      preferredTimes: string[];
+      platforms: string[];
+    };
+    reportingRequirements?: Array<{
+      reportType: string;
+      frequency: string;
+      recipients: string[];
+    }>;
+    escalationContacts?: Array<{
+      name: string;
+      email: string;
+      phone?: string;
+      role: string;
+    }>;
   };
 
   // Analytics & Tracking
@@ -528,9 +572,9 @@ export interface Client {
   // Audit & Metadata
   isActive: boolean;
   deactivationReason?: string;
-  deactivationDate?: Timestamp;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+  deactivationDate?: AdminTimestamp | ClientTimestamp;
+  createdAt: AdminTimestamp | ClientTimestamp;
+  updatedAt: AdminTimestamp | ClientTimestamp;
   createdBy?: string;
   updatedBy?: string;
 }
@@ -637,7 +681,6 @@ export interface Project {
     reportingSchedule?: Array<{
       reportType: string;
       frequency: string;
-      dueDate: string;
       recipients: string[];
     }>;
     meetingSchedule?: Array<{
