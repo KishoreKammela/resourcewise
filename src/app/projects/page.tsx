@@ -22,8 +22,9 @@ import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState, useTransition } from 'react';
-import type { Project } from '@/lib/types';
+import type { Project, Client } from '@/lib/types';
 import { getProjectsByCompany } from '@/services/project.services';
+import { getClientsByCompany } from '@/services/client.services';
 import { formatDate } from '@/lib/helpers/date-helpers';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -32,19 +33,27 @@ import { Skeleton } from '@/components/ui/skeleton';
 function ProjectsContent() {
   const { companyProfile, loading: authLoading } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [isPending, startTransition] = useTransition();
 
   const loading = authLoading || isPending;
 
   useEffect(() => {
     if (companyProfile?.id) {
-      startTransition(() => {
-        getProjectsByCompany(companyProfile.id, { serialize: true }).then(
-          setProjects
-        );
+      startTransition(async () => {
+        const [projectsData, clientsData] = await Promise.all([
+          getProjectsByCompany(companyProfile.id, { serialize: true }),
+          getClientsByCompany(companyProfile.id),
+        ]);
+        setProjects(projectsData);
+        setClients(clientsData);
       });
     }
   }, [companyProfile]);
+
+  const clientMap = new Map(
+    clients.map((client) => [client.id, client.basicInfo.clientName])
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -101,7 +110,9 @@ function ProjectsContent() {
                         {project.basicInfo.projectName}
                       </Link>
                     </TableCell>
-                    <TableCell>{project.clientId}</TableCell>
+                    <TableCell>
+                      {clientMap.get(project.clientId) || project.clientId}
+                    </TableCell>
                     <TableCell>
                       <Badge variant="secondary">
                         {project.status.projectStatus}
