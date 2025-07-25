@@ -1,56 +1,102 @@
-# Documentation: Executive Dashboard (Company)
+# Documentation: Company-Facing Application & Dashboards
 
-## 1. Purpose
+## 1. Overall Purpose
 
-The Executive Dashboard is the primary landing page and central hub for users within a client company (e.g., an administrator, project manager, or executive). Its purpose is to provide a high-level, at-a-glance overview of the company's operational health, resource allocation, project status, and overall performance. It aggregates data from across the platform into digestible KPIs and visualizations.
+This document outlines the features and structure of the main application used by customer companies. It covers all modules, from high-level executive dashboards to detailed management pages for resources, clients, and projects. Its purpose is to provide a comprehensive guide for company users like administrators, project managers, and executives.
 
 ---
 
-## 2. Feature Breakdown
+## 2. Main Application Structure & Status
 
-### Completed Features
+### 2.1 Dashboard Module
 
-- **Key Performance Indicator (KPI) Cards (`/analytics`)**:
-  - **Functionality**: A set of prominent cards at the top of the dashboard that display real-time, critical business metrics.
-  - **Live Metrics**:
-    - **Total Resources**: A live count of all resources in the company's talent pool.
-    - **Active Projects**: A live count of all projects currently in an "Active" state.
-    - **Total Clients**: A live count of all clients managed by the company.
-    - **Overall Utilization**: A calculated percentage showing how much of the total resource capacity is currently allocated to projects.
+- **Purpose**: Provides at-a-glance overviews tailored to different strategic needs.
+- **Pages**:
+  - `/dashboard/executive-summary`: **(Placeholder)** Intended to be the primary landing page with consolidated KPIs. The current implementation is on `/analytics`.
+  - `/dashboard/resource-overview`: **(Placeholder)** Will provide a deep dive into resource allocation, availability, and skills distribution.
+  - `/dashboard/project-portfolio`: **(Placeholder)** A visual summary of the health, progress, and financial status of all projects.
+  - `/dashboard/financial-summary`: **(Placeholder)** A roll-up of all financial data, including revenue, costs, and profitability across the company.
 
-- **Resource Capacity Chart (`/analytics`)**:
-  - **Functionality**: A bar chart that provides a clear visual comparison between the total number of available resources (capacity) and the number of resources currently allocated to projects.
-  - **Data Source**: This chart is powered by a live server action that aggregates data from the `resources` and `allocations` collections in real-time.
+### 2.2 Resources Module
 
-- **AI-Powered Demand Forecasting (`/analytics/predictive-analytics`)**:
-  - **Functionality**: A strategic tool that uses the Gemini API to analyze historical and current project data to predict future skill demand.
-  - **Capabilities**:
-    - **Trigger Analysis**: Users can initiate the AI analysis with a single button click.
-    - **View Forecast**: The dashboard displays the AI-generated results, including:
-      - A high-level summary of upcoming trends.
-      - A detailed list of skills with predicted "rising", "stable", or "declining" demand.
-      - Actionable strategic recommendations for hiring and training.
+- **Purpose**: The central hub for managing the company's talent pool.
+- **Pages**:
+  - `/resources`: **(Completed)** The main "Resource Pool" view. Displays a filterable and searchable table of all company resources, showing key details like name, designation, and availability.
+  - `/resources/add`: **(Completed)** Form for adding a new resource profile. Includes the AI-powered resume parsing feature to extract skills.
+  - `/resources/[resourceId]`: **(Completed)** The detailed profile page for a single resource, showing all their information across multiple cards.
+  - `/resources/[resourceId]/edit`: **(Completed)** Form for editing an existing resource's profile. Also includes the AI skill extraction feature.
+  - `/resources/skills-matrix`: **(Placeholder)** Will provide a grid view of all resources against all skills, allowing for easy identification of experts and skill gaps.
+  - `/resources/performance-analytics`: **(Placeholder)** A dashboard to analyze and compare resource performance metrics across projects.
+  - `/resources/availability-planning`: **(Placeholder)** A visual tool for forecasting resource availability and planning for future project needs.
+  - `/resources/resource-development`: **(Placeholder)** Tools for setting development goals, tracking training, and managing career progression for resources.
 
-### Planned Features (Based on Roadmap)
+### 2.3 Clients Module
 
-- **Role-Based Dashboards**:
-  - **Goal**: The current dashboard is geared towards executives. The plan is to create specialized versions of the dashboard for different user roles within the company.
-  - **Planned Views**:
-    - **Project Manager Dashboard**: Would focus on the health, budget, and timeline of the projects they manage directly.
-    - **Resource Manager Dashboard**: Would highlight resource availability, skills gaps, and allocation conflicts.
-    - **HR Dashboard**: Would focus on employee performance metrics, development goals, and skills matrix.
-  - **Implementation Plan**:
-    1.  Create dedicated React components for each dashboard variant.
-    2.  Develop specific server actions to fetch the data required for each role.
-    3.  Dynamically render the appropriate dashboard based on the logged-in user's assigned role.
+- **Purpose**: Manages all information and interactions related to the company's clients.
+- **Pages**:
+  - `/clients`: **(Completed)** The "Client Portfolio" view. Displays a table of all clients with key contact info, status, and project count.
+  - `/clients/add`: **(Completed)** A comprehensive form for adding a new client.
+  - `/clients/[clientId]`: **(Completed)** A detailed view of a single client, showing all their commercial, contact, and relationship information.
+  - `/clients/[clientId]/edit`: **(Completed)** Form for editing an existing client's profile.
+  - `/clients/relationship-management`: **(Placeholder)** A CRM-focused view to track client health scores, interactions, and satisfaction ratings.
+  - `/clients/contract-management`: **(Placeholder)** A dedicated area to manage client contracts, NDAs, MSAs, and renewal dates.
+  - `/clients/client-analytics`: **(Placeholder)** A dashboard for analyzing client profitability, project success rates, and overall lifetime value.
+
+### 2.4 Projects Module
+
+- **Purpose**: The central hub for defining, tracking, and managing all projects.
+- **Pages**:
+  - `/projects`: **(Completed)** The "Project Portfolio" view. Displays a table of all projects, their associated client, status, deadline, and progress.
+  - `/projects/add`: **(Completed)** Form for adding a new project and linking it to a client.
+  - `/projects/[projectId]`: **(Completed)** A detailed, tabbed view of a single project, including an overview, team allocations, budget, and timeline. Features the "Allocate Resource" dialog with AI recommendations.
+  - `/projects/project-planning`: **(Placeholder)** Advanced tools for project setup, including defining milestones, dependencies, and detailed requirements.
+  - `/projects/timeline-management`: **(Placeholder)** A Gantt chart view for visualizing and managing project timelines and dependencies.
+  - `/projects/budget-tracking`: **(Placeholder)** A dashboard for tracking project expenses against budget, with burn-down charts and cost analysis.
+  - `/projects/performance-metrics`: **(Placeholder)** Analytics view to track project KPIs like on-time delivery, budget variance, and scope creep.
+
+### 2.5 Allocations Module
+
+- **Purpose**: Provides tools for assigning resources to projects and managing their workload.
+- **Pages**:
+  - `/allocations`: **(Completed)** The main "Allocation Board". Currently shows a placeholder, but is planned to be a visual board (e.g., a timeline or Kanban view) of all resource allocations.
+  - `/allocations/capacity-planning`: **(Placeholder)** A strategic tool to forecast resource capacity vs. project demand.
+  - `/allocations/conflict-resolution`: **(Placeholder)** An interface to identify and resolve scheduling conflicts for over-allocated resources.
+  - `/allocations/performance-tracking`: **(In Progress)** The foundation is built. Future work will allow managers to input and track performance scores for allocated resources.
+  - `/allocations/time-management`: **(Placeholder)** Integration with time-tracking tools to monitor hours logged against allocated hours.
+
+### 2.6 Team Module
+
+- **Purpose**: Manages user accounts, roles, and permissions within the company.
+- **Pages**:
+  - `/team`: **(Completed)** The "Team Members" view. A table of all invited and registered users, with their roles and status. Admins can suspend or reactivate members.
+  - `/team/role-management`: **(Placeholder)** An interface to create custom roles and define granular permissions for each.
+  - `/team/access-control`: **(Placeholder)** A detailed view to manage which users have access to which projects or clients.
+  - `/team/team-analytics`: **(Placeholder)** A dashboard to analyze team composition, role distribution, and other HR-related metrics.
+
+### 2.7 Analytics Module
+
+- **Purpose**: Provides high-level strategic insights by aggregating data from across the platform.
+- **Pages**:
+  - `/analytics`: **(Completed)** The "Executive Dashboard". Features live KPI cards for key metrics (Total Resources, Active Projects, etc.) and a chart for resource capacity vs. allocation.
+  - `/analytics/resource-analytics`: **(Placeholder)** Deep-dive analytics on resource utilization, billability, and skill distribution.
+  - `/analytics/project-performance`: **(Placeholder)** Comparative analytics across all projects to identify trends and measure success.
+  - `/analytics/client-insights`: **(Placeholder)** Insights into client health, profitability, and project history.
+  - `/analytics/financial-reports`: **(Placeholder)** Comprehensive financial reporting, including revenue, cost, and profit margin analysis.
+  - `/analytics/predictive-analytics`: **(Completed)** The AI-powered "Demand Forecast" page, which analyzes project data to predict future skill needs.
+
+### 2.8 Settings Module
+
+- **Purpose**: Configuration for the company's account.
+- **Pages**:
+  - `/settings`: **(Completed)** The "Company Profile" page where admins can update company name, website, timezone, and default currency.
+  - `/settings/integration-management`: **(Placeholder)** A page to manage integrations with third-party tools (e.g., accounting software, code repositories).
+  - `/settings/subscription-management`: **(Placeholder)** A portal for the company to manage their subscription plan, view invoices, and update billing details.
 
 ---
 
 ## 3. Future Enhancements & Improvements
 
-- **Customizable Widgets**: Allow users to add, remove, and rearrange widgets on their dashboard to tailor it to their specific needs.
-- **Project Profitability Tracking**: Add a new chart or KPI to visualize the profitability of projects, comparing total billed amounts against the internal costs of allocated resources.
-- **Client Health Scores**: Display a list of top clients, color-coded by their relationship health score, allowing for proactive relationship management.
-- **Upcoming Deadline Widget**: Create a dedicated widget that lists all projects with deadlines approaching in the next 7 or 30 days.
-- **Alerts & Notifications**: Implement a system to show important alerts on the dashboard, such as budget overruns, projects at risk, or critical allocation conflicts.
-- **Date Range Filters**: Allow users to filter the entire dashboard by a specific date range (e.g., this quarter, last month) to analyze historical performance.
+- **Client Collaboration Portal**: A secure, client-facing portal where clients can log in to view the progress of their specific projects.
+- **Advanced Role-Based Access Control (RBAC)**: Fully implement the planned granular permissions system.
+- **Custom Reporting Engine**: Allow users to build and save their own custom reports from any data source in the platform.
+- **Automated Alerts & Notifications**: A system to notify users about critical events, such as budget overruns, approaching deadlines, or allocation conflicts.

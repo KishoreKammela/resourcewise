@@ -1,4 +1,4 @@
-# Documentation: Platform Dashboard
+# Documentation: Platform Administration
 
 ## 1. Purpose
 
@@ -23,14 +23,30 @@ The Platform Dashboard serves as the central command center for the super-admini
   - **Capabilities**:
     - **Session Management**: Admins can define the rules for automatic user session timeouts due to inactivity, including the timeout duration and the warning period before logout.
 
-### Planned Features (Based on Roadmap)
+### Placeholder & Planned Features (Based on Roadmap)
 
-- **Full Customer Company Management (`/companies`)**:
+- **Platform Dashboard (`/`)**:
+  - **Goal**: This will be the main landing page for platform admins.
+  - **Planned Features**:
+    - **KPI Cards**: Key metrics like Total Customer Companies, Monthly Active Users (MAU), New Sign-ups, and Total Revenue.
+    - **System Health Status**: A quick overview of critical system components (e.g., API, Database, AI Services).
+    - **Recent Activity Feed**: A log of important platform-level events.
+
+- **Customer Company Management (`/companies`)**:
   - **Goal**: Implement a comprehensive view to manage the lifecycle of all customer companies.
   - **Planned Steps**:
     1.  Develop a table view to list all companies, showing key details like name, subscription plan, status (active, trial, suspended), and total users.
     2.  Implement actions to manually approve, suspend, or deactivate a company account.
     3.  Create a detailed view for each company, showing their usage statistics, admin users, and audit logs.
+
+- **Platform-Wide Analytics (`/platform-analytics`)**:
+  - **Goal**: Create a dashboard with KPIs that measure the health and growth of the entire platform.
+  - **Planned Metrics**:
+    - Monthly Active Users (MAU) & Daily Active Users (DAU)
+    - New Company Sign-ups & Churn Rate
+    - Subscription Growth Rate (MRR/ARR)
+    - Feature Adoption Rates (e.g., how many companies use the AI features).
+    - Platform Performance Metrics (e.g., API response times, error rates).
 
 - **Subscription & Billing Management (`/subscriptions`)**:
   - **Goal**: Integrate with a payment provider like Stripe to manage subscription plans and billing.
@@ -39,19 +55,18 @@ The Platform Dashboard serves as the central command center for the super-admini
     2.  Build an interface for admins to view a company's current subscription, billing history, and upcoming invoices.
     3.  Implement functionality to upgrade, downgrade, or cancel a company's subscription plan.
 
-- **Platform-Wide Analytics (`/platform-analytics`)**:
-  - **Goal**: Create a dashboard with KPIs that measure the health and growth of the entire platform.
-  - **Planned Metrics**:
-    - Monthly Active Users (MAU)
-    - New Company Sign-ups
-    - Subscription Growth Rate
-    - Churn Rate
-    - Feature Adoption Rates
+- **Support Ticket Management (`/support`)**:
+  - **Goal**: A full ticketing system for platform admins to manage support requests from companies.
+  - **Planned Features**:
+    - Ticket creation, assignment, and status tracking (Open, In Progress, Closed).
+    - Canned responses for common issues.
+    - Analytics on ticket volume and resolution times.
 
-### Placeholders (Routes Exist, Implementation Pending)
-
-- **Support Ticket Management (`/support`)**: A route exists, but a full ticketing system needs to be designed and built.
-- **Advanced Roles & Permissions (`/settings/roles`)**: The route is in place, but a granular, role-based access control (RBAC) system for platform staff needs to be implemented.
+- **Advanced Roles & Permissions (`/settings/roles`)**:
+  - **Goal**: Implement a granular, role-based access control (RBAC) system for the platform's internal administrative team.
+  - **Planned Features**:
+    - Create and define roles (e.g., Super Admin, Support Agent, Data Analyst).
+    - Assign specific permissions to each role (e.g., "Can manage users," "Can view billing info").
 
 ---
 
