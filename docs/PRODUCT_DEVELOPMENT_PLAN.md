@@ -49,12 +49,13 @@ This document outlines the detailed product development plan for the ResourceWis
   - Implemented the Genkit flow (`smart-skills-extractor`) using the Gemini API to parse resumes (PDF, DOCX) and extract both technical and soft skills.
   - Integrated the AI flow with both the "Add Resource" and "Edit Resource" forms to auto-populate the skills fields upon resume upload.
 
-### Milestone 2.2: Client & Project Management (Next Up)
+### Milestone 2.2: Client & Project Management (In Progress)
 
-- **Step 2.2.1: Client Relationship Management (CRM) Core**:
-  - Implement the UI and backend services for adding and listing clients.
-  - Develop the detailed client profile page, capturing business and relationship information.
-- **Step 2.2.2: Comprehensive Project Management**:
+- **Step 2.2.1: Client Relationship Management (CRM) Core (Completed)**:
+  - Implemented the UI and backend services for adding and listing clients.
+  - Developed the detailed client profile page, capturing business and relationship information.
+  - Implemented full editing functionality for client profiles.
+- **Step 2.2.2: Comprehensive Project Management (Next Up)**:
   - Implement the UI and backend services for adding projects under a specific client.
   - Develop the detailed project page, including tabs for overview, budget, team, and timeline.
 
