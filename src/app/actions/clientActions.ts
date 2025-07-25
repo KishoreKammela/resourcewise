@@ -14,6 +14,27 @@ interface ActionResult {
   clientId?: string;
 }
 
+// Helper to remove undefined properties from an object, which Firestore doesn't allow.
+function cleanUndefined(obj: any): any {
+  if (obj === null || obj === undefined) {
+    return undefined;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(cleanUndefined).filter((v) => v !== undefined);
+  }
+  if (typeof obj === 'object' && !(obj instanceof Timestamp)) {
+    const newObj: { [key: string]: any } = {};
+    for (const key in obj) {
+      const value = cleanUndefined(obj[key]);
+      if (value !== undefined) {
+        newObj[key] = value;
+      }
+    }
+    return newObj;
+  }
+  return obj;
+}
+
 function safeToDate(
   dateString: string | FormDataEntryValue | null
 ): Timestamp | undefined {
@@ -154,7 +175,8 @@ export async function createClientAction(
   formData: FormData
 ): Promise<ActionResult> {
   const actor = await auth.getUser(actorId);
-  const finalClientData = buildClientData(formData, companyId, actorId);
+  const rawClientData = buildClientData(formData, companyId, actorId);
+  const finalClientData = cleanUndefined(rawClientData);
 
   try {
     const clientId = await createClient(finalClientData);
@@ -208,7 +230,8 @@ export async function updateClientAction(
   formData: FormData
 ): Promise<ActionResult> {
   const actor = await auth.getUser(actorId);
-  const finalClientData = buildClientData(formData, companyId, actorId);
+  const rawClientData = buildClientData(formData, companyId, actorId);
+  const finalClientData = cleanUndefined(rawClientData);
 
   try {
     await updateClient(clientId, finalClientData);
