@@ -47,6 +47,8 @@ const allocationFormSchema = z.object({
   allocationPercentage: z.coerce.number().min(1).max(100),
   startDate: z.date(),
   endDate: z.date().optional(),
+  allocationType: z.string().optional(),
+  allocatedHoursPerDay: z.coerce.number().optional(),
 });
 
 type AllocationFormValues = z.infer<typeof allocationFormSchema>;
@@ -90,6 +92,7 @@ export function AllocateResourceDialog({
       resourceId: '',
       roleInProject: '',
       allocationPercentage: 100,
+      allocationType: 'Full-time',
     },
     mode: 'onBlur',
   });
@@ -117,7 +120,7 @@ export function AllocateResourceDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>
             Allocate Resource to {project.basicInfo.projectName}
@@ -185,6 +188,48 @@ export function AllocateResourceDialog({
                   </FormItem>
                 )}
               />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="allocationType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Allocation Type</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select allocation type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Full-time">Full-time</SelectItem>
+                          <SelectItem value="Part-time">Part-time</SelectItem>
+                          <SelectItem value="As-needed">As-needed</SelectItem>
+                          <SelectItem value="Consulting">Consulting</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="allocatedHoursPerDay"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Hours/Day (Optional)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min="1" max="12" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <FormField
                 control={form.control}
                 name="allocationPercentage"

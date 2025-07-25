@@ -126,14 +126,16 @@ export function ProjectDetailClient({
                   <TableRow>
                     <TableHead>Resource</TableHead>
                     <TableHead>Role</TableHead>
-                    <TableHead>Allocation %</TableHead>
+                    <TableHead>Allocation</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Hours/Day</TableHead>
                     <TableHead>Duration</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {allocations.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center h-24">
+                      <TableCell colSpan={6} className="text-center h-24">
                         No resources allocated yet.
                       </TableCell>
                     </TableRow>
@@ -154,6 +156,13 @@ export function ProjectDetailClient({
                           </TableCell>
                           <TableCell>
                             {alloc.allocationDetails.allocationPercentage}%
+                          </TableCell>
+                          <TableCell>
+                            {alloc.allocationDetails.allocationType}
+                          </TableCell>
+                          <TableCell>
+                            {alloc.allocationDetails.allocatedHoursPerDay ??
+                              'N/A'}
                           </TableCell>
                           <TableCell>
                             {formatDate(alloc.timeline.startDate)} -{' '}

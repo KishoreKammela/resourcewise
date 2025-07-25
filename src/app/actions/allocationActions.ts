@@ -66,6 +66,8 @@ function buildAllocationData(
       roleInProject: formData.get('roleInProject') as string,
       allocationPercentage:
         safeToNumber(formData.get('allocationPercentage')) ?? 100,
+      allocationType: formData.get('allocationType') as string,
+      allocatedHoursPerDay: safeToNumber(formData.get('allocatedHoursPerDay')),
     },
     timeline: {
       startDate: safeToDate(formData.get('startDate') as string)!,
