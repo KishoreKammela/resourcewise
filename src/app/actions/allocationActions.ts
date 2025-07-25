@@ -85,6 +85,9 @@ function buildAllocationData(
     },
     performance: {
       actualHoursTotal: 0,
+      qualityRating: 0,
+      productivityScore: 0,
+      communicationScore: 0,
     },
     responsibilities: {},
     skills: {},

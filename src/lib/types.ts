@@ -809,16 +809,10 @@ export interface Allocation {
 
   // Performance & Tracking
   performance: {
-    plannedHoursTotal?: number;
     actualHoursTotal: number;
-    efficiencyPercentage?: number; // actual vs planned productivity
-    qualityRating?: number; // 1-5
-    clientFeedbackRating?: number; // 1-5
-    productivityScore?: number; // 1-5
-    collaborationScore?: number; // 1-5
-    technicalPerformanceScore?: number; // 1-5
-    communicationScore?: number; // 1-5
-    overallPerformanceScore?: number; // 1-5
+    qualityRating: number; // 1-5
+    productivityScore: number; // 1-5
+    communicationScore: number; // 1-5
   };
 
   // Responsibilities & Tasks

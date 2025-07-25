@@ -12,7 +12,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatDate } from '@/lib/helpers/date-helpers';
 import { Button } from '../ui/button';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, Star } from 'lucide-react';
 import { AllocateResourceDialog } from '../allocations/AllocateResourceDialog';
 import {
   Table,
@@ -37,6 +37,23 @@ function DetailItem({
     <div>
       <p className="text-sm font-medium text-muted-foreground">{label}</p>
       <p className="text-base">{value}</p>
+    </div>
+  );
+}
+
+function RatingDisplay({ rating }: { rating: number }) {
+  return (
+    <div className="flex items-center">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star
+          key={i}
+          className={`h-4 w-4 ${
+            i < rating
+              ? 'text-yellow-400 fill-yellow-400'
+              : 'text-muted-foreground'
+          }`}
+        />
+      ))}
     </div>
   );
 }
@@ -127,9 +144,9 @@ export function ProjectDetailClient({
                     <TableHead>Resource</TableHead>
                     <TableHead>Role</TableHead>
                     <TableHead>Allocation</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Hours/Day</TableHead>
-                    <TableHead>Duration</TableHead>
+                    <TableHead>Quality</TableHead>
+                    <TableHead>Productivity</TableHead>
+                    <TableHead>Communication</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -158,15 +175,19 @@ export function ProjectDetailClient({
                             {alloc.allocationDetails.allocationPercentage}%
                           </TableCell>
                           <TableCell>
-                            {alloc.allocationDetails.allocationType}
+                            <RatingDisplay
+                              rating={alloc.performance.qualityRating}
+                            />
                           </TableCell>
                           <TableCell>
-                            {alloc.allocationDetails.allocatedHoursPerDay ??
-                              'N/A'}
+                            <RatingDisplay
+                              rating={alloc.performance.productivityScore}
+                            />
                           </TableCell>
                           <TableCell>
-                            {formatDate(alloc.timeline.startDate)} -{' '}
-                            {formatDate(alloc.timeline.endDate) ?? 'Ongoing'}
+                            <RatingDisplay
+                              rating={alloc.performance.communicationScore}
+                            />
                           </TableCell>
                         </TableRow>
                       );
