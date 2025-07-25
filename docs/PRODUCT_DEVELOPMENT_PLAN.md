@@ -90,9 +90,9 @@ This document outlines the detailed product development plan for the ResourceWis
   - Created basic charts visualizing resource allocation (e.g., Billable vs. Non-Billable).
 - **Step 3.2.2: Role-Based Dashboards**:
   - Implement specialized analytics dashboards for different user roles (Admin, HR, Project Manager).
-- **Step 3.2.3: AI-Powered Recommendations**:
-  - Develop a Genkit flow that suggests the top 3-5 best-fit resources for a new project based on skills, availability, and past performance.
-  - Integrate these recommendations directly into the project setup and allocation screens.
+- **Step 3.2.3: AI-Powered Recommendations (Completed)**:
+  - Developed a Genkit flow (`resource-recommender`) that suggests the top 3-5 best-fit resources for a new project based on skills, availability, and past performance.
+  - Integrated these recommendations directly into the resource allocation dialog.
 
 ---
 
