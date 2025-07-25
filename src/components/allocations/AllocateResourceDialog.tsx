@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useActionState } from 'react';
+import { useEffect, useRef, useActionState, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon, Loader2 } from 'lucide-react';
+import { CalendarIcon, Loader2, Sparkles, UserCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -40,6 +40,12 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import type { Project, Resource } from '@/lib/types';
 import { createAllocationAction } from '@/app/actions/allocationActions';
+import {
+  recommendResources,
+  type RecommendResourcesOutput,
+} from '@/ai/flows/resource-recommender';
+import { Skeleton } from '../ui/skeleton';
+import { Badge } from '../ui/badge';
 
 const allocationFormSchema = z.object({
   resourceId: z.string().min(1, 'A resource must be selected.'),
@@ -77,6 +83,10 @@ export function AllocateResourceDialog({
   const { toast } = useToast();
   const { user, companyProfile } = useAuth();
   const formRef = useRef<HTMLFormElement>(null);
+  const [recommendations, setRecommendations] = useState<
+    RecommendResourcesOutput['recommendations']
+  >([]);
+  const [isRecommending, setIsRecommending] = useState(false);
 
   const boundAction = createAllocationAction.bind(null, {
     companyId: project.companyId,
@@ -97,6 +107,46 @@ export function AllocateResourceDialog({
     mode: 'onBlur',
   });
 
+  const handleGetRecommendations = async () => {
+    setIsRecommending(true);
+    setRecommendations([]);
+    try {
+      const result = await recommendResources({
+        project,
+        availableResources,
+      });
+      if (result.recommendations.length > 0) {
+        setRecommendations(result.recommendations);
+        toast({
+          title: 'Recommendations Ready',
+          description: 'Top candidates are shown below.',
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'No Recommendations Found',
+          description:
+            'The AI could not find suitable candidates with the current information.',
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Recommendation Failed',
+        description: 'An unexpected error occurred. Please try again.',
+      });
+    } finally {
+      setIsRecommending(false);
+    }
+  };
+
+  const handleSelectRecommendation = (resourceId: string) => {
+    form.setValue('resourceId', resourceId, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+
   useEffect(() => {
     if (state.success) {
       toast({
@@ -105,6 +155,7 @@ export function AllocateResourceDialog({
       });
       form.reset();
       setOpen(false);
+      setRecommendations([]);
     } else if (state.error) {
       toast({
         variant: 'destructive',
@@ -113,6 +164,13 @@ export function AllocateResourceDialog({
       });
     }
   }, [state, toast, setOpen, form]);
+
+  useEffect(() => {
+    // Reset recommendations when the dialog is closed or opened
+    if (!isOpen) {
+      setRecommendations([]);
+    }
+  }, [isOpen]);
 
   if (!companyProfile || !user) {
     return null;
@@ -147,16 +205,72 @@ export function AllocateResourceDialog({
                 formAction(formData);
               })}
             >
+              <div className="space-y-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleGetRecommendations}
+                  disabled={isRecommending}
+                >
+                  {isRecommending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="mr-2 h-4 w-4" />
+                  )}
+                  Get AI Recommendations
+                </Button>
+                {isRecommending && (
+                  <div className="space-y-2 pt-2">
+                    <Skeleton className="h-20 w-full" />
+                    <Skeleton className="h-20 w-full" />
+                    <Skeleton className="h-20 w-full" />
+                  </div>
+                )}
+                {recommendations.length > 0 && (
+                  <div className="space-y-2 pt-2">
+                    <h4 className="font-semibold text-sm">
+                      Top Recommendations
+                    </h4>
+                    {recommendations.map((rec) => (
+                      <div
+                        key={rec.resourceId}
+                        className="p-3 border rounded-md"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <div className="font-semibold flex items-center gap-2">
+                              {rec.resourceName}
+                              <Badge variant="secondary">
+                                {rec.matchScore}% Match
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {rec.justification}
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() =>
+                              handleSelectRecommendation(rec.resourceId)
+                            }
+                          >
+                            <UserCheck className="mr-2 h-4 w-4" />
+                            Select
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <FormField
                 control={form.control}
                 name="resourceId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Resource</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a resource" />
