@@ -35,16 +35,17 @@ This document outlines the detailed product development plan for the ResourceWis
 
 **Goal**: Enable companies to manage their core business operations: clients, projects, and resource allocation.
 
-### Milestone 2.1: Resource Management & AI Integration (Next Up)
-- **Step 2.1.1: Resource Management Foundation**:
-    - Create the "Add Resource" form and page structure.
-    - Develop the backend services to create and store resource profiles in Firestore.
-    - Build the UI to list and display all resources in the company's talent pool.
-- **Step 2.1.2: AI-Powered Skills Extraction**:
-    - Implement the Genkit flow (`smart-skills-extractor`) using the Gemini API to parse resumes (PDF, DOCX) and extract a list of technical skills.
-    - Integrate the AI flow with the "Add Resource" form to auto-populate the skills field upon resume upload.
+### Milestone 2.1: Resource Management & AI Integration (Completed)
+- **Step 2.1.1: Resource Management Foundation (Completed)**:
+    - Created the "Add Resource" form and page structure (`/resources/add`).
+    - Developed the backend services to create and store resource profiles in Firestore (`resource.services.ts`, `resourceActions.ts`).
+    - Built the UI to list and display all resources (`/resources`) and view individual details (`/resources/[resourceId]`).
+    - Implemented full editing functionality for resource profiles (`/resources/[resourceId]/edit`).
+- **Step 2.1.2: AI-Powered Skills Extraction (Completed)**:
+    - Implemented the Genkit flow (`smart-skills-extractor`) using the Gemini API to parse resumes (PDF, DOCX) and extract both technical and soft skills.
+    - Integrated the AI flow with both the "Add Resource" and "Edit Resource" forms to auto-populate the skills fields upon resume upload.
 
-### Milestone 2.2: Client & Project Management (Upcoming)
+### Milestone 2.2: Client & Project Management (Next Up)
 - **Step 2.2.1: Client Relationship Management (CRM) Core**:
     - Implement the UI and backend services for adding and listing clients.
     - Develop the detailed client profile page, capturing business and relationship information.

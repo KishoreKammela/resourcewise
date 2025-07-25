@@ -1,5 +1,8 @@
 import type { LucideIcon } from 'lucide-react';
-import type { Timestamp } from 'firebase/firestore';
+import type { Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
+import type { Timestamp as ClientTimestamp } from 'firebase/firestore';
+
+export type Timestamp = AdminTimestamp | ClientTimestamp;
 
 export type UserProfileUpdate = {
   personalInfo: {
@@ -385,7 +388,9 @@ export interface Resource {
       yearsOfExperience: number;
       lastUsed?: Timestamp;
     }>;
-    soft: string[];
+    soft: Array<{
+      skill: string;
+    }>;
     aiExtractedSkills?: string[];
     endorsements?: Array<{
       skill: string;

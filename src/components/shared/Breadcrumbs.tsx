@@ -22,7 +22,7 @@ export function Breadcrumbs() {
   const homeLink = '/';
 
   // If we are on the root dashboard, don't show any breadcrumbs.
-  if (segments.length === 0 || segments[0] === 'dashboard') {
+  if (segments.length === 0 || (segments.length === 1 && segments[0] === 'dashboard')) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <span className="font-semibold text-foreground">{homeText}</span>
@@ -30,18 +30,18 @@ export function Breadcrumbs() {
     );
   }
 
-  const breadcrumbs = segments
-    .map((segment, index) => {
+  const breadcrumbs = segments.map((segment, index) => {
       const href = `/${segments.slice(0, index + 1).join('/')}`;
       const isLast = index === segments.length - 1;
       let name = formatSegment(segment);
-      if (name === 'Dashboard') {
-        return null;
-      } // Don't show 'Dashboard' again in path
+      
+      // Handle the dynamic resource routes
+      if (segments[0] === 'resources' && index === 1) {
+        name = 'Details';
+      }
 
-      return { name, href, isLast };
-    })
-    .filter(Boolean);
+      return { name, href, isLast, originalSegment: segment };
+    });
 
   return (
     <nav aria-label="Breadcrumb" className="hidden md:flex">
@@ -55,8 +55,41 @@ export function Breadcrumbs() {
           </Link>
         </li>
         {breadcrumbs.map(
-          (breadcrumb) =>
-            breadcrumb && (
+          (breadcrumb, index) => {
+            if (!breadcrumb) return null;
+
+            // Don't show the resource ID segment
+            if (segments[0] === 'resources' && index === 1 && breadcrumb.name === 'Details') {
+                 if (breadcrumb.isLast) {
+                    return (
+                        <li key={breadcrumb.href}>
+                            <div className="flex items-center gap-2">
+                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-semibold text-foreground">
+                                {breadcrumb.name}
+                            </span>
+                            </div>
+                      </li>
+                    )
+                 } else {
+                     return (
+                        <li key={breadcrumb.href}>
+                            <div className="flex items-center gap-2">
+                            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                             <Link
+                                href={`/resources/${segments[1]}`}
+                                className={'text-muted-foreground hover:text-foreground'}
+                              >
+                                {breadcrumb.name}
+                              </Link>
+                            </div>
+                        </li>
+                     )
+                 }
+            }
+
+
+            return (
               <li key={breadcrumb.href}>
                 <div className="flex items-center gap-2">
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -74,6 +107,7 @@ export function Breadcrumbs() {
                 </div>
               </li>
             )
+          }
         )}
       </ol>
     </nav>

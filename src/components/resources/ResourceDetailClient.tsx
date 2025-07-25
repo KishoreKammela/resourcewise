@@ -30,11 +30,27 @@ function DetailItem({
   );
 }
 
-function formatDate(date: Timestamp | Date | undefined): string | null {
+function formatDate(
+  date: Timestamp | Date | string | undefined
+): string | null {
   if (!date) {
     return null;
   }
-  const jsDate = date instanceof Date ? date : date.toDate();
+  let jsDate: Date;
+  if (typeof date === 'string') {
+    jsDate = new Date(date);
+  } else if (date instanceof Date) {
+    jsDate = date;
+  } else if (date && 'toDate' in date) {
+    jsDate = date.toDate();
+  } else {
+    return null;
+  }
+
+  if (isNaN(jsDate.getTime())) {
+    return null;
+  }
+
   return format(jsDate, 'PPP');
 }
 
@@ -92,23 +108,23 @@ export function ResourceDetailClient({ resource }: { resource: Resource }) {
         <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           <DetailItem
             label="Designation"
-            value={resource.professionalInfo.designation}
+            value={resource.professionalInfo?.designation}
           />
           <DetailItem
             label="Employment Type"
-            value={resource.professionalInfo.employmentType}
+            value={resource.professionalInfo?.employmentType}
           />
           <DetailItem
             label="Employment Status"
-            value={resource.employmentDetails.status}
+            value={resource.employmentDetails?.status}
           />
           <DetailItem
             label="Availability"
-            value={resource.availability.status}
+            value={resource.availability?.status}
           />
           <DetailItem
             label="Current Allocation"
-            value={`${resource.availability.currentAllocationPercentage}%`}
+            value={`${resource.availability?.currentAllocationPercentage}%`}
           />
         </CardContent>
       </Card>
@@ -121,7 +137,7 @@ export function ResourceDetailClient({ resource }: { resource: Resource }) {
           <div>
             <h4 className="font-semibold">Technical Skills</h4>
             <div className="flex flex-wrap gap-2 mt-2">
-              {resource.skills.technical.map((skill, index) => (
+              {resource.skills?.technical?.map((skill, index) => (
                 <Badge key={index} variant="secondary">
                   {skill.skill}
                 </Badge>
@@ -131,9 +147,9 @@ export function ResourceDetailClient({ resource }: { resource: Resource }) {
           <div>
             <h4 className="font-semibold">Soft Skills</h4>
             <div className="flex flex-wrap gap-2 mt-2">
-              {resource.skills.soft.map((skill, index) => (
+              {resource.skills?.soft?.map((skill, index) => (
                 <Badge key={index} variant="outline">
-                  {skill}
+                  {skill.skill}
                 </Badge>
               ))}
             </div>
@@ -146,7 +162,7 @@ export function ResourceDetailClient({ resource }: { resource: Resource }) {
           <CardTitle>Work Experience</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {resource.experience.previousCompanies?.map((exp, index) => (
+          {resource.experience?.previousCompanies?.map((exp, index) => (
             <div key={index} className="p-4 border rounded-md">
               <h4 className="font-bold">{exp.companyName}</h4>
               <p className="text-muted-foreground">{exp.role}</p>
@@ -161,7 +177,7 @@ export function ResourceDetailClient({ resource }: { resource: Resource }) {
           <CardTitle>Education</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {resource.experience.education?.map((edu, index) => (
+          {resource.experience?.education?.map((edu, index) => (
             <div key={index} className="p-4 border rounded-md">
               <h4 className="font-bold">{edu.degree}</h4>
               <p className="text-muted-foreground">{edu.institution}</p>
@@ -176,12 +192,22 @@ export function ResourceDetailClient({ resource }: { resource: Resource }) {
           <CardTitle>Certifications</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {resource.experience.certifications?.map((cert, index) => (
+          {resource.experience?.certifications?.map((cert, index) => (
             <div key={index} className="p-4 border rounded-md">
               <h4 className="font-bold">{cert.name}</h4>
               <p className="text-muted-foreground">
                 {cert.issuingOrganization}
               </p>
+              {cert.issueDate && (
+                <p className="text-sm">
+                  Issued: {formatDate(cert.issueDate)}
+                </p>
+              )}
+              {cert.expiryDate && (
+                <p className="text-sm">
+                  Expires: {formatDate(cert.expiryDate)}
+                </p>
+              )}
             </div>
           ))}
         </CardContent>

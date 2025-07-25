@@ -4,7 +4,6 @@ import { useEffect, useRef, useActionState, useState } from 'react';
 import { useForm, useFieldArray, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useRouter } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
 import {
   Form,
@@ -24,7 +23,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { createResourceAction } from '@/app/actions/resourceActions';
+import { updateResourceAction } from '@/app/actions/resourceActions';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Select,
@@ -45,7 +44,19 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import type { Resource } from '@/lib/types';
+import type { Timestamp } from 'firebase/firestore';
 import { extractSkills } from '@/ai/flows/smart-skills-extractor';
+
+const toDate = (
+  date: Timestamp | Date | string | undefined
+): Date | undefined => {
+  if (!date) return undefined;
+  if (date instanceof Date) return date;
+  if (typeof date === 'string') return new Date(date);
+  if ('toDate' in date) return date.toDate();
+  return undefined;
+};
 
 const resourceFormSchema = z.object({
   resourceCode: z.string().optional(),
@@ -113,6 +124,8 @@ const resourceFormSchema = z.object({
         z.object({
           name: z.string().min(1, 'Cannot be empty'),
           issuingOrganization: z.string().min(1, 'Cannot be empty'),
+          issueDate: z.date().optional(),
+          expiryDate: z.date().optional(),
         })
       )
       .optional(),
@@ -154,19 +167,19 @@ function SubmitButton() {
   return (
     <Button type="submit" disabled={pending} className="w-full sm:w-auto">
       {pending && <Loader2 className="mr-2 animate-spin" />}
-      Add Resource
+      Save Changes
     </Button>
   );
 }
 
-export function AddResourceForm() {
+export function EditResourceForm({ resource }: { resource: Resource }) {
   const { toast } = useToast();
-  const router = useRouter();
   const { companyProfile, user } = useAuth();
   const formRef = useRef<HTMLFormElement>(null);
   const [isExtractingSkills, setIsExtractingSkills] = useState(false);
 
-  const boundAction = createResourceAction.bind(null, {
+  const boundAction = updateResourceAction.bind(null, {
+    resourceId: resource.id,
     companyId: companyProfile?.id ?? '',
     actorId: user?.uid ?? '',
   });
@@ -176,72 +189,88 @@ export function AddResourceForm() {
   const form = useForm<ResourceFormValues>({
     resolver: zodResolver(resourceFormSchema),
     defaultValues: {
-      resourceCode: '',
+      resourceCode: resource.resourceCode || '',
       personalInfo: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        profilePictureUrl: '',
-        gender: '',
-        nationality: '',
-        languagesSpoken: [],
+        firstName: resource.personalInfo?.firstName || '',
+        lastName: resource.personalInfo?.lastName || '',
+        email: resource.personalInfo?.email || '',
+        phone: resource.personalInfo?.phone || '',
+        profilePictureUrl: resource.personalInfo?.profilePictureUrl || '',
+        dateOfBirth: toDate(resource.personalInfo?.dateOfBirth),
+        gender: resource.personalInfo?.gender || '',
+        nationality: resource.personalInfo?.nationality || '',
+        languagesSpoken: resource.personalInfo?.languagesSpoken || [],
       },
       address: {
-        line1: '',
-        line2: '',
-        city: '',
-        state: '',
-        country: '',
-        postalCode: '',
+        line1: resource.address?.line1 || '',
+        line2: resource.address?.line2 || '',
+        city: resource.address?.city || '',
+        state: resource.address?.state || '',
+        country: resource.address?.country || '',
+        postalCode: resource.address?.postalCode || '',
       },
       professionalInfo: {
-        designation: '',
-        department: '',
-        practiceArea: '',
-        seniorityLevel: '',
-        employmentType: '',
+        designation: resource.professionalInfo?.designation || '',
+        department: resource.professionalInfo?.department || '',
+        practiceArea: resource.professionalInfo?.practiceArea || '',
+        seniorityLevel: resource.professionalInfo?.seniorityLevel || '',
+        employmentType: resource.professionalInfo?.employmentType || '',
       },
       employmentDetails: {
-        reportingManagerId: '',
-        workLocation: '',
-        workMode: '',
-        status: 'active',
+        joiningDate: toDate(resource.employmentDetails?.joiningDate),
+        probationEndDate: toDate(resource.employmentDetails?.probationEndDate),
+        reportingManagerId:
+          resource.employmentDetails?.reportingManagerId || '',
+        workLocation: resource.employmentDetails?.workLocation || '',
+        workMode: resource.employmentDetails?.workMode || '',
+        status: resource.employmentDetails?.status || 'active',
       },
       experience: {
-        totalYears: null,
-        yearsWithCompany: null,
-        previousCompanies: [],
-        education: [],
-        certifications: [],
+        totalYears: resource.experience?.totalYears ?? null,
+        yearsWithCompany: resource.experience?.yearsWithCompany ?? null,
+        previousCompanies:
+          resource.experience?.previousCompanies?.map((c) => ({ ...c })) || [],
+        education:
+          resource.experience?.education?.map((e) => ({ ...e })) || [],
+        certifications:
+          resource.experience?.certifications?.map((c) => ({
+            ...c,
+            issueDate: toDate(c.issueDate),
+            expiryDate: toDate(c.expiryDate),
+          })) || [],
       },
       skills: {
-        technical: [],
-        soft: [],
+        technical: resource.skills?.technical?.map((s) => s.skill) || [],
+        soft: resource.skills?.soft?.map((s) => s.skill) || [],
       },
       availability: {
-        status: 'available',
-        currentAllocationPercentage: 0,
-        maxAllocationPercentage: 100,
-        noticePeriodDays: null,
+        status: resource.availability?.status || 'available',
+        currentAllocationPercentage:
+          resource.availability?.currentAllocationPercentage ?? 0,
+        maxAllocationPercentage:
+          resource.availability?.maxAllocationPercentage ?? 100,
+        noticePeriodDays: resource.availability?.noticePeriodDays ?? null,
       },
       financial: {
-        currency: companyProfile?.settings?.currency || 'USD',
-        hourlyRate: null,
-        dailyRate: null,
-        monthlySalary: null,
-        billingRateClient: null,
-        costCenter: '',
+        currency:
+          resource.financial?.currency ||
+          companyProfile?.settings?.currency ||
+          'USD',
+        hourlyRate: resource.financial?.hourlyRate ?? null,
+        dailyRate: resource.financial?.dailyRate ?? null,
+        monthlySalary: resource.financial?.monthlySalary ?? null,
+        billingRateClient: resource.financial?.billingRateClient ?? null,
+        costCenter: resource.financial?.costCenter || '',
       },
       performance: {
-        rating: null,
-        careerGoals: '',
-        developmentAreas: [],
+        rating: resource.performance?.rating ?? null,
+        careerGoals: resource.performance?.careerGoals || '',
+        developmentAreas: resource.performance?.developmentAreas || [],
       },
       externalProfiles: {
-        portfolioUrl: '',
-        linkedinProfile: '',
-        githubProfile: '',
+        portfolioUrl: resource.externalProfiles?.portfolioUrl || '',
+        linkedinProfile: resource.externalProfiles?.linkedinProfile || '',
+        githubProfile: resource.externalProfiles?.githubProfile || '',
       },
     },
     mode: 'onBlur',
@@ -270,20 +299,19 @@ export function AddResourceForm() {
   });
 
   useEffect(() => {
-    if (state.success && state.resourceId) {
+    if (state.success) {
       toast({
-        title: 'Resource Added',
-        description: 'The new resource has been added to your talent pool.',
+        title: 'Resource Updated',
+        description: 'The resource details have been saved.',
       });
-      router.push('/resources');
     } else if (state.error) {
       toast({
         variant: 'destructive',
-        title: 'Error Adding Resource',
+        title: 'Error Updating Resource',
         description: state.error,
       });
     }
-  }, [state, router, toast]);
+  }, [state, toast]);
 
   const handleResumeUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -302,19 +330,23 @@ export function AddResourceForm() {
       reader.onload = async (e) => {
         const resumeDataUri = e.target?.result as string;
         const result = await extractSkills({ resumeDataUri });
-        
+
         let toastDescription = '';
         if (result.skills.length > 0) {
-          form.setValue('skills.technical', result.skills);
+          form.setValue('skills.technical', result.skills, {
+            shouldDirty: true,
+          });
           toastDescription += 'Technical skills have been auto-populated. ';
         }
         if (result.softSkills.length > 0) {
-          form.setValue('skills.soft', result.softSkills);
+          form.setValue('skills.soft', result.softSkills, {
+            shouldDirty: true,
+          });
           toastDescription += 'Soft skills have been auto-populated.';
         }
 
         if (toastDescription) {
-           toast({
+          toast({
             title: 'Skills Extracted Successfully',
             description: toastDescription.trim(),
           });
@@ -323,7 +355,7 @@ export function AddResourceForm() {
             variant: 'destructive',
             title: 'No Skills Found',
             description:
-              'The AI could not extract any skills. Please enter them manually.',
+              'The AI could not extract any skills. Please check the resume and try again.',
           });
         }
       };
@@ -337,7 +369,6 @@ export function AddResourceForm() {
       });
     } finally {
       setIsExtractingSkills(false);
-      // Reset file input
       if (event.target) {
         event.target.value = '';
       }
@@ -356,7 +387,8 @@ export function AddResourceForm() {
             <CardHeader>
               <CardTitle>AI-Powered Skill Extraction</CardTitle>
               <CardDescription>
-                Upload a resume to automatically fill in the technical skills.
+                Upload a resume to automatically fill in the technical and soft
+                skills.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -375,6 +407,14 @@ export function AddResourceForm() {
                     type="button"
                     variant="outline"
                     disabled={isExtractingSkills}
+                    onClick={() => {
+                      // This is a bit of a hack to re-trigger the input's onChange
+                      // if the user selects the same file again.
+                      const fileInput = formRef.current?.querySelector(
+                        'input[type="file"]'
+                      ) as HTMLInputElement | null;
+                      if (fileInput) fileInput.click();
+                    }}
                     className="w-40"
                   >
                     {isExtractingSkills ? (
@@ -388,7 +428,6 @@ export function AddResourceForm() {
               </FormItem>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
               <CardTitle>Core Identification</CardTitle>
@@ -573,7 +612,7 @@ export function AddResourceForm() {
                     </FormItem>
                   )}
                 />
-                <FormField
+                 <FormField
                   control={form.control}
                   name="personalInfo.languagesSpoken"
                   render={({ field }) => (
@@ -932,7 +971,7 @@ export function AddResourceForm() {
                       <Textarea
                         placeholder="Comma-separated, e.g., React, Node.js, TypeScript"
                         {...field}
-                        value={Array.isArray(field.value) ? field.value.join(', ') : field.value}
+                         value={Array.isArray(field.value) ? field.value.join(', ') : field.value}
                         onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()))}
                       />
                     </FormControl>
@@ -950,7 +989,7 @@ export function AddResourceForm() {
                       <Textarea
                         placeholder="Comma-separated, e.g., Communication, Teamwork"
                         {...field}
-                        value={Array.isArray(field.value) ? field.value.join(', ') : field.value}
+                         value={Array.isArray(field.value) ? field.value.join(', ') : field.value}
                         onChange={(e) => field.onChange(e.target.value.split(',').map(s => s.trim()))}
                       />
                     </FormControl>
@@ -1316,6 +1355,90 @@ export function AddResourceForm() {
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name={`experience.certifications.${index}.issueDate`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Issue Date</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={'outline'}
+                                  className={cn(
+                                    'w-full pl-3 text-left font-normal',
+                                    !field.value && 'text-muted-foreground'
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, 'PPP')
+                                  ) : (
+                                    <span>Pick a date</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`experience.certifications.${index}.expiryDate`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Expiry Date</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant={'outline'}
+                                  className={cn(
+                                    'w-full pl-3 text-left font-normal',
+                                    !field.value && 'text-muted-foreground'
+                                  )}
+                                >
+                                  {field.value ? (
+                                    format(field.value, 'PPP')
+                                  ) : (
+                                    <span>Pick a date</span>
+                                  )}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent
+                              className="w-auto p-0"
+                              align="start"
+                            >
+                              <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                initialFocus
+                              />
+                            </PopoverContent>
+                          </Popover>
                           <FormMessage />
                         </FormItem>
                       )}
