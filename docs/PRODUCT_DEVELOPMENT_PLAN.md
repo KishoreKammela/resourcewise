@@ -34,7 +34,7 @@ This document outlines the detailed product development plan for the ResourceWis
 
 ---
 
-## Phase 2: Core Operations (In Progress)
+## Phase 2: Core Operations (Completed)
 
 **Goal**: Enable companies to manage their core business operations: clients, projects, and resource allocation.
 
@@ -49,29 +49,27 @@ This document outlines the detailed product development plan for the ResourceWis
   - Implemented the Genkit flow (`smart-skills-extractor`) using the Gemini API to parse resumes (PDF, DOCX) and extract both technical and soft skills.
   - Integrated the AI flow with both the "Add Resource" and "Edit Resource" forms to auto-populate the skills fields upon resume upload.
 
-### Milestone 2.2: Client & Project Management (In Progress)
+### Milestone 2.2: Client & Project Management (Completed)
 
 - **Step 2.2.1: Client Relationship Management (CRM) Core (Completed)**:
-  - Implemented the UI and backend services for adding and listing clients.
-  - Developed the detailed client profile page, capturing business and relationship information.
-  - Implemented full editing functionality for client profiles.
-- **Step 2.2.2: Comprehensive Project Management (Next Up)**:
-  - Implement the UI and backend services for adding projects under a specific client.
-  - Develop the detailed project page, including tabs for overview, budget, team, and timeline.
+  - Implemented the UI and backend services for adding, listing, and editing clients.
+  - Developed the detailed client profile page, capturing comprehensive business and relationship information.
+- **Step 2.2.2: Comprehensive Project Management (Completed)**:
+  - Implemented the UI and backend services for adding and listing projects under a specific client.
+  - Developed the detailed project page, including tabs for overview, budget, team, and timeline.
 
-### Milestone 2.3: Initial Resource Allocation (Upcoming)
+### Milestone 2.3: Initial Resource Allocation (Completed)
 
-- **Step 2.3.1: Basic Allocation System**:
-  - Develop the UI for allocating a resource from the resource pool to a specific project.
-  - Implement the backend logic to create `Allocation` documents in Firestore, linking resources to projects.
-  - Display allocated resources on the project detail page.
-- **Step 2.3.2: Allocation & Conflict Visualization**:
-  - Create a basic "Allocation Board" or "Resource Calendar" view.
-  - Implement simple visual indicators to detect and flag potential over-allocations for a resource.
+- **Step 2.3.1: Basic Allocation System (Completed)**:
+  - Developed the UI for allocating a resource from the resource pool to a specific project via a dialog form.
+  - Implemented the backend logic to create `Allocation` documents in Firestore, linking resources to projects.
+- **Step 2.3.2: Allocation Visualization (Completed)**:
+  - Implemented a "Team" tab on the project detail page to display all allocated resources in a table.
+  - This provides basic visibility into who is assigned to each project.
 
 ---
 
-## Phase 3: Advanced Features & Intelligence (Future)
+## Phase 3: Advanced Features & Intelligence (Upcoming)
 
 **Goal**: Enhance the platform with advanced operational tools, deeper analytics, and more intelligent features.
 
