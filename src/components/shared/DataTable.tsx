@@ -100,7 +100,7 @@ export function DataTable<TData, TValue>({
     } else {
       router.push(`${pathname}?${createQueryString({ sort: null })}`);
     }
-  }, [sorting]);
+  }, [sorting, router, pathname, createQueryString]);
 
   // Initial state for table
   const table = useReactTable({
