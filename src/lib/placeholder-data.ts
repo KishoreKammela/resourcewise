@@ -9,15 +9,6 @@ import type {
   ProjectHealth,
   UpcomingDeadline,
 } from './types';
-import {
-  Users,
-  Briefcase,
-  FolderKanban,
-  DollarSign,
-  TrendingUp,
-  TrendingDown,
-} from 'lucide-react';
-import { Timestamp } from 'firebase/firestore';
 
 export const teamMembers: TeamMember[] = [];
 

@@ -27,10 +27,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
-import { useForm, type SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import type { Company } from '@/lib/types';
 import { useActionState, useEffect, useMemo, useRef } from 'react';
 import { updateCompanyAction } from '@/app/actions/companyActions';
 import { useToast } from '@/hooks/use-toast';

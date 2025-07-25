@@ -69,22 +69,22 @@ This document outlines the detailed product development plan for the ResourceWis
 
 ---
 
-## Phase 3: Advanced Features & Intelligence (Upcoming)
+## Phase 3: Advanced Features & Intelligence (Current)
 
 **Goal**: Enhance the platform with advanced operational tools, deeper analytics, and more intelligent features.
 
 ### Milestone 3.1: Advanced Allocation & Performance Tracking
 
-- **Step 3.1.1: Advanced Allocation Management**:
-  - Enhance the allocation form to include more details (e.g., role, allocation %, specific dates).
-  - Implement approval workflows for allocation requests.
-- **Step 3.1.2: Performance Tracking**:
-  - Add fields to the `Allocation` model for tracking performance metrics (e.g., feedback scores, task completion rates).
-  - Create a UI for project managers to provide feedback on allocated resources.
+- **Step 3.1.1: Advanced Allocation Management (Completed)**:
+  - Enhanced the allocation form to include more details (e.g., role, allocation %, specific dates).
+  - Implemented approval workflows for allocation requests.
+- **Step 3.1.2: Performance Tracking (Completed)**:
+  - Added fields to the `Allocation` model for tracking performance metrics (e.g., feedback scores, task completion rates).
+  - Created a UI for project managers to provide feedback on allocated resources.
 
 ### Milestone 3.2: Comprehensive Analytics & Reporting
 
-- **Step 3.2.1: Foundational Analytics Dashboard**:
+- **Step 3.2.1: Foundational Analytics Dashboard (In Progress)**:
   - Design and implement the main dashboard view for company executives.
   - Add key KPI cards for high-level metrics like Total Resources, Active Projects, and overall Resource Utilization %.
   - Create basic charts visualizing resource allocation (e.g., Billable vs. Non-Billable).

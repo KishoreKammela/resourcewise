@@ -1,6 +1,4 @@
 import { format } from 'date-fns';
-import { Timestamp as FirebaseTimestamp } from 'firebase/firestore';
-import { Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
 import { Timestamp } from '@/lib/types';
 
 /**

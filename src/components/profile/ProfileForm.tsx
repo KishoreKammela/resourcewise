@@ -31,7 +31,6 @@ import {
 import { Calendar } from '../ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import type { Timestamp } from 'firebase/firestore';
 import {
   Card,
   CardContent,

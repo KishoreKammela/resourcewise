@@ -1,16 +1,9 @@
 'use client';
 
 import type { Resource } from '@/lib/types';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '../ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { formatDate } from '@/lib/helpers/date-helpers';
-import type { Timestamp } from 'firebase/firestore';
 
 function DetailItem({
   label,

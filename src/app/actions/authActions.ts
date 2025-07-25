@@ -7,10 +7,7 @@ import {
   createTeamMemberFromInvitation,
 } from '@/services/company.services';
 import { createAuditLog } from '@/services/audit.services';
-import {
-  getInvitationByToken,
-  updateInvitationStatus,
-} from '@/services/invitation.services';
+import { updateInvitationStatus } from '@/services/invitation.services';
 import type { Invitation } from '@/lib/types';
 
 interface SignUpResult {
