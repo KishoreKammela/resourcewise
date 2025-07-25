@@ -37,13 +37,25 @@ export function Breadcrumbs() {
     const href = `/${segments.slice(0, index + 1).join('/')}`;
     const isLast = index === segments.length - 1;
     let name = formatSegment(segment);
+    let hide = false;
 
     // Handle the dynamic resource routes
     if (segments[0] === 'resources' && index === 1) {
       name = 'Details';
     }
+    // Handle the dynamic client routes
+    if (segments[0] === 'clients' && index === 1) {
+      name = 'Details';
+    }
+    // A simple way to hide the ID segment itself
+    if (
+      (segments[0] === 'resources' || segments[0] === 'clients') &&
+      index === 1
+    ) {
+      hide = true;
+    }
 
-    return { name, href, isLast, originalSegment: segment };
+    return { name, href, isLast, originalSegment: segment, hide };
   });
 
   return (
@@ -57,43 +69,9 @@ export function Breadcrumbs() {
             {homeText}
           </Link>
         </li>
-        {breadcrumbs.map((breadcrumb, index) => {
-          if (!breadcrumb) {
+        {breadcrumbs.map((breadcrumb) => {
+          if (breadcrumb.hide) {
             return null;
-          }
-
-          // Don't show the resource ID segment
-          if (
-            segments[0] === 'resources' &&
-            index === 1 &&
-            breadcrumb.name === 'Details'
-          ) {
-            if (breadcrumb.isLast) {
-              return (
-                <li key={breadcrumb.href}>
-                  <div className="flex items-center gap-2">
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-semibold text-foreground">
-                      {breadcrumb.name}
-                    </span>
-                  </div>
-                </li>
-              );
-            } else {
-              return (
-                <li key={breadcrumb.href}>
-                  <div className="flex items-center gap-2">
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    <Link
-                      href={`/resources/${segments[1]}`}
-                      className={'text-muted-foreground hover:text-foreground'}
-                    >
-                      {breadcrumb.name}
-                    </Link>
-                  </div>
-                </li>
-              );
-            }
           }
 
           return (

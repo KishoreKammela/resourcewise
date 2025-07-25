@@ -341,7 +341,7 @@ export interface Resource {
     department?: string;
     practiceArea?: string;
     seniorityLevel?: string;
-    employmentType?: string;
+    employmentType: string;
   };
 
   // Employment Details
@@ -425,7 +425,7 @@ export interface Resource {
     lastReviewDate?: Timestamp;
     nextReviewDate?: Timestamp;
     careerGoals?: string;
-    developmentAreas?: string[];
+    developmentAreas: string[];
   };
 
   // External Profiles
@@ -462,7 +462,6 @@ export interface Client {
     clientName: string;
     clientType?: string;
     industry?: string;
-    companySize?: string;
     website?: string;
     logoUrl?: string;
   };
@@ -493,16 +492,6 @@ export interface Client {
     timezone?: string;
   };
 
-  // Business Information
-  businessInfo: {
-    registrationNumber?: string;
-    taxIdentificationNumber?: string;
-    annualRevenueRange?: string;
-    employeeCountRange?: string;
-    primaryTechnologies?: string[];
-    businessModel?: string;
-  };
-
   // Relationship Management
   relationship: {
     accountManagerId?: string; // Reference to teamMember
@@ -524,39 +513,6 @@ export interface Client {
     discountPercentage?: number;
     creditLimit?: number;
     paymentHistoryRating?: string;
-  };
-
-  // Contract & Legal
-  contract: {
-    startDate?: Timestamp;
-    endDate?: Timestamp;
-    value?: number;
-    documentUrl?: string;
-    ndaSigned: boolean;
-    ndaExpiryDate?: Timestamp;
-    msaSigned: boolean;
-    msaExpiryDate?: Timestamp;
-  };
-
-  // Communication & Preferences
-  communication: {
-    preferredMethod?: string;
-    frequency?: string;
-    meetingPreferences?: {
-      preferredTimes: string[];
-      platforms: string[];
-    };
-    reportingRequirements?: Array<{
-      reportType: string;
-      frequency: string;
-      recipients: string[];
-    }>;
-    escalationContacts?: Array<{
-      name: string;
-      email: string;
-      phone?: string;
-      role: string;
-    }>;
   };
 
   // Analytics & Tracking
