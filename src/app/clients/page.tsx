@@ -1,5 +1,3 @@
-'use server';
-
 import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
@@ -25,8 +23,6 @@ import { cookies } from 'next/headers';
 import { auth, db } from '@/lib/firebase-admin';
 import { Badge } from '@/components/ui/badge';
 import { createAuditLog } from '@/services/audit.services';
-
-export const dynamic = 'force-dynamic';
 
 async function getCompanyIdForCurrentUser(): Promise<string | null> {
   const cookiesStore = await cookies();
