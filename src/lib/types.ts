@@ -507,12 +507,12 @@ export interface Client {
   relationship: {
     accountManagerId?: string; // Reference to teamMember
     status: string; // 'Prospect' | 'Active' | 'Inactive' | 'Lost' | 'On Hold'
-    startDate?: AdminTimestamp | ClientTimestamp;
-    endDate?: AdminTimestamp | ClientTimestamp;
+    startDate?: Timestamp;
+    endDate?: Timestamp;
     healthScore?: number; // 1-5
     satisfactionRating?: number; // 1-5
-    lastInteractionDate?: AdminTimestamp | ClientTimestamp;
-    nextFollowupDate?: AdminTimestamp | ClientTimestamp;
+    lastInteractionDate?: Timestamp;
+    nextFollowupDate?: Timestamp;
   };
 
   // Commercial Information
@@ -528,14 +528,14 @@ export interface Client {
 
   // Contract & Legal
   contract: {
-    startDate?: AdminTimestamp | ClientTimestamp;
-    endDate?: AdminTimestamp | ClientTimestamp;
+    startDate?: Timestamp;
+    endDate?: Timestamp;
     value?: number;
     documentUrl?: string;
     ndaSigned: boolean;
-    ndaExpiryDate?: AdminTimestamp | ClientTimestamp;
+    ndaExpiryDate?: Timestamp;
     msaSigned: boolean;
-    msaExpiryDate?: AdminTimestamp | ClientTimestamp;
+    msaExpiryDate?: Timestamp;
   };
 
   // Communication & Preferences
@@ -572,9 +572,9 @@ export interface Client {
   // Audit & Metadata
   isActive: boolean;
   deactivationReason?: string;
-  deactivationDate?: AdminTimestamp | ClientTimestamp;
-  createdAt: AdminTimestamp | ClientTimestamp;
-  updatedAt: AdminTimestamp | ClientTimestamp;
+  deactivationDate?: Timestamp;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
   createdBy?: string;
   updatedBy?: string;
 }
@@ -590,9 +590,9 @@ export interface Project {
   basicInfo: {
     projectName: string;
     description?: string;
-    type?: string;
-    category?: string;
-    priorityLevel?: string;
+    type?: string; // 'Development' | 'Maintenance' | 'Consulting' | 'Testing' | 'Migration' | 'Integration'
+    category?: string; // 'Web Application' | 'Mobile App' | 'API' | 'Infrastructure'
+    priorityLevel?: string; // 'Critical' | 'High' | 'Medium' | 'Low'
   };
 
   // Timeline Management
@@ -614,9 +614,9 @@ export interface Project {
 
   // Status & Progress
   status: {
-    projectStatus: string;
-    progressPercentage: number;
-    healthStatus: string;
+    projectStatus: string; // 'Planning' | 'Active' | 'On Hold' | 'Completed' | 'Cancelled' | 'Delayed'
+    progressPercentage: number; // 0-100
+    healthStatus: string; // 'Green' | 'Yellow' | 'Red'
     lastStatusUpdate?: Timestamp;
     statusNotes?: string;
   };
@@ -625,7 +625,7 @@ export interface Project {
   budget: {
     projectBudget?: number;
     currency: string;
-    billingModel?: string;
+    billingModel?: string; // 'Fixed Price' | 'Time & Material' | 'Milestone-based' | 'Hybrid'
     hourlyBillingRate?: number;
     totalBillableHours?: number;
     totalBilledAmount: number;
@@ -641,7 +641,7 @@ export interface Project {
       count: number;
     }>;
     technologyStack?: string[];
-    complexityLevel?: string;
+    complexityLevel?: string; // 'Low' | 'Medium' | 'High' | 'Critical'
     requirements?: string;
     deliverables?: string[];
   };
@@ -654,8 +654,8 @@ export interface Project {
       count: number;
       level: string;
     }>;
-    projectManagerId?: string;
-    technicalLeadId?: string;
+    projectManagerId?: string; // Reference to teamMember
+    technicalLeadId?: string; // Reference to resource
     clientProjectManager?: string;
     clientStakeholders?: Array<{
       name: string;
@@ -667,7 +667,7 @@ export interface Project {
 
   // Project Management
   management: {
-    methodology?: string;
+    methodology?: string; // 'Agile' | 'Waterfall' | 'Hybrid' | 'Kanban' | 'Scrum'
     sprintDurationWeeks?: number;
     totalSprintsPlanned?: number;
     currentSprintNumber?: number;
@@ -677,10 +677,11 @@ export interface Project {
 
   // Communication & Reporting
   communication: {
-    frequency?: string;
+    frequency?: string; // 'Daily' | 'Weekly' | 'Bi-weekly' | 'Monthly'
     reportingSchedule?: Array<{
       reportType: string;
       frequency: string;
+      dueDate: string;
       recipients: string[];
     }>;
     meetingSchedule?: Array<{
@@ -709,8 +710,8 @@ export interface Project {
     riskAssessment?: Array<{
       riskId: string;
       description: string;
-      probability: string;
-      impact: string;
+      probability: string; // 'Low' | 'Medium' | 'High'
+      impact: string; // 'Low' | 'Medium' | 'High'
       mitigation: string;
       owner: string;
       status: string;
@@ -750,7 +751,7 @@ export interface Project {
     repositoryUrls?: Array<{
       name: string;
       url: string;
-      type: string;
+      type: string; // 'Code' | 'Design' | 'Documentation'
     }>;
   };
 
@@ -759,16 +760,16 @@ export interface Project {
     resourceUtilizationPercentage?: number;
     budgetUtilizationPercentage?: number;
     timelineAdherencePercentage?: number;
-    clientSatisfactionScore?: number;
-    teamProductivityScore?: number;
+    clientSatisfactionScore?: number; // 1-5
+    teamProductivityScore?: number; // 1-5
   };
 
   // Contract & Legal
   legal: {
     contractReference?: string;
     sowReference?: string;
-    ipOwnership?: string;
-    confidentialityLevel?: string;
+    ipOwnership?: string; // 'Client' | 'Company' | 'Shared'
+    confidentialityLevel?: string; // 'Public' | 'Internal' | 'Confidential' | 'Restricted'
   };
 
   // Audit & Metadata
