@@ -4,8 +4,6 @@ This document tracks the implementation status of features based on the product 
 
 ## Phase 1: Foundation Layer - Core Platform Capabilities
 
-### 1. Comprehensive User Management System
-
 | Feature                                | Status        | Details & Pending Tasks                                                                                                                                                                                                                      |
 | -------------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **1.1 Multi-Role Auth & Auth**         |               |                                                                                                                                                                                                                                              |
@@ -28,4 +26,7 @@ This document tracks the implementation status of features based on the product 
 | AI Skill Extraction                    | `Completed`   | The Genkit flow `smart-skills-extractor` is implemented with a Gemini API prompt to parse resumes and extract both technical and soft skills. This is integrated into the "Add" and "Edit" resource forms.                                   |
 | **4. Basic Requirement & Job Mgmt**    | `Not Started` |                                                                                                                                                                                                                                              |
 | **5. Fundamental Matching Algorithm**  | `Not Started` |                                                                                                                                                                                                                                              |
-| **6. Basic Analytics & Reporting**     | `In Progress` | A basic analytics page exists (`/analytics`) with placeholder charts. It needs to be connected to real data from Firestore.                                                                                                                  |
+| **6. Basic Analytics & Reporting**     | `Completed` | A foundational analytics dashboard (`/analytics`) has been implemented with live data and key KPI cards.                                                                                                                                     |
+| **7. Role-Based Dashboards**           | `Not Started` | **Plan**: Develop specialized dashboards for roles like Project Manager, HR, and Resource Manager. This involves: 1) Creating dedicated components for each dashboard view. 2) Implementing specific backend actions to fetch role-relevant data. 3) Dynamically rendering the appropriate dashboard based on the logged-in user's role. |
+| **8. AI-Powered Recommendations**      | `Completed`   | A Genkit flow (`resource-recommender`) has been created to suggest best-fit resources for projects. The recommendations are integrated directly into the resource allocation dialog.                                                          |
+
