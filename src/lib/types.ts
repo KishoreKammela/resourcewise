@@ -384,9 +384,6 @@ export interface Resource {
   skills: {
     technical: Array<{
       skill: string;
-      level: string;
-      yearsOfExperience: number;
-      lastUsed?: Timestamp;
     }>;
     soft: Array<{
       skill: string;
@@ -499,7 +496,6 @@ export interface Client {
     taxIdentificationNumber?: string;
     annualRevenueRange?: string;
     employeeCountRange?: string;
-    primaryTechnologies?: string[];
     businessModel?: string; // 'B2B' | 'B2C' | 'B2B2C'
   };
 
@@ -508,11 +504,8 @@ export interface Client {
     accountManagerId?: string; // Reference to teamMember
     status: string; // 'Prospect' | 'Active' | 'Inactive' | 'Lost' | 'On Hold'
     startDate?: Timestamp;
-    endDate?: Timestamp;
     healthScore?: number; // 1-5
     satisfactionRating?: number; // 1-5
-    lastInteractionDate?: Timestamp;
-    nextFollowupDate?: Timestamp;
   };
 
   // Commercial Information
@@ -542,21 +535,6 @@ export interface Client {
   communication: {
     preferredMethod?: string; // 'Email' | 'Phone' | 'Slack' | 'Teams' | 'WhatsApp'
     frequency?: string; // 'Daily' | 'Weekly' | 'Bi-weekly' | 'Monthly'
-    meetingPreferences?: {
-      preferredTimes: string[];
-      platforms: string[];
-    };
-    reportingRequirements?: Array<{
-      reportType: string;
-      frequency: string;
-      recipients: string[];
-    }>;
-    escalationContacts?: Array<{
-      name: string;
-      email: string;
-      phone?: string;
-      role: string;
-    }>;
   };
 
   // Analytics & Tracking
@@ -564,15 +542,10 @@ export interface Client {
     totalProjectsCount: number;
     activeProjectsCount: number;
     totalRevenueGenerated: number;
-    averageProjectDurationDays?: number;
-    acquisitionCost?: number;
-    lifetimeValue?: number;
   };
 
   // Audit & Metadata
   isActive: boolean;
-  deactivationReason?: string;
-  deactivationDate?: Timestamp;
   createdAt: Timestamp;
   updatedAt: Timestamp;
   createdBy?: string;
@@ -792,11 +765,11 @@ export interface Allocation {
 
   // Allocation Details
   allocationDetails: {
-    roleInProject?: string;
-    allocationPercentage: number;
+    roleInProject?: string; // 'Lead Developer' | 'Senior Developer' | 'QA Engineer'
+    allocationPercentage: number; // 0-100
     allocatedHoursPerDay?: number;
     allocatedHoursPerWeek?: number;
-    allocationType?: string;
+    allocationType?: string; // 'Full-time' | 'Part-time' | 'As-needed' | 'Consulting'
   };
 
   // Timeline
@@ -811,7 +784,7 @@ export interface Allocation {
       requestDate: Timestamp;
       requestedEndDate: Timestamp;
       reason: string;
-      status: string;
+      status: string; // 'Pending' | 'Approved' | 'Rejected'
       approvedBy?: string;
       approvalDate?: Timestamp;
     }>;
@@ -819,15 +792,15 @@ export interface Allocation {
 
   // Status & Progress
   status: {
-    allocationStatus: string;
-    completionPercentage: number;
+    allocationStatus: string; // 'Planned' | 'Active' | 'On Hold' | 'Completed' | 'Cancelled' | 'Extended'
+    completionPercentage: number; // 0-100
     lastActivityDate?: Timestamp;
   };
 
   // Financial Information
   financial: {
-    billingRate?: number;
-    costRate?: number;
+    billingRate?: number; // Project-specific rate
+    costRate?: number; // Internal cost for this allocation
     currency: string;
     totalBillableHours: number;
     totalBilledAmount: number;
@@ -838,14 +811,14 @@ export interface Allocation {
   performance: {
     plannedHoursTotal?: number;
     actualHoursTotal: number;
-    efficiencyPercentage?: number;
-    qualityRating?: number;
-    clientFeedbackRating?: number;
-    productivityScore?: number;
-    collaborationScore?: number;
-    technicalPerformanceScore?: number;
-    communicationScore?: number;
-    overallPerformanceScore?: number;
+    efficiencyPercentage?: number; // actual vs planned productivity
+    qualityRating?: number; // 1-5
+    clientFeedbackRating?: number; // 1-5
+    productivityScore?: number; // 1-5
+    collaborationScore?: number; // 1-5
+    technicalPerformanceScore?: number; // 1-5
+    communicationScore?: number; // 1-5
+    overallPerformanceScore?: number; // 1-5
   };
 
   // Responsibilities & Tasks
@@ -878,7 +851,7 @@ export interface Allocation {
     requiredForAllocation?: Array<{
       skill: string;
       level: string;
-      importance: string;
+      importance: string; // 'Critical' | 'Important' | 'Nice-to-have'
     }>;
     skillsUtilized?: Array<{
       skill: string;
@@ -896,11 +869,11 @@ export interface Allocation {
 
   // Management & Approval
   management: {
-    allocatedBy?: string;
-    approvedBy?: string;
+    allocatedBy?: string; // Reference to teamMember who made allocation
+    approvedBy?: string; // Reference to teamMember who approved
     approvalDate?: Timestamp;
     allocationReason?: string;
-    replacementFor?: string;
+    replacementFor?: string; // Reference to another allocation if replacing
   };
 
   // Time Tracking Integration
