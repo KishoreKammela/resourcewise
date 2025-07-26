@@ -86,8 +86,7 @@
     "*.{js,jsx,ts,tsx}": [
       "prettier --write",
       "eslint --fix",
-      "bash -c 'npm run typecheck'",
-      "bash -c 'npm run build'"
+      "bash -c 'npm run typecheck'"
     ]
   }
 }

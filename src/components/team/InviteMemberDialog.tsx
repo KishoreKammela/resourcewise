@@ -120,8 +120,9 @@ export function InviteMemberDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Invite New Team Member</DialogTitle>
+          <DialogDescription>Loading form...</DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="space-y-4 pt-4">
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />

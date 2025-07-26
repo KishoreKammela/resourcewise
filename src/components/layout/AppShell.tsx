@@ -48,6 +48,7 @@ import {
 } from '@/components/ui/tooltip';
 import { useInactivityTimeout } from '@/hooks/useInactivityTimeout';
 import { InactivityWarningDialog } from '../shared/InactivityWarningDialog';
+import { Logo } from '../public/Logo';
 
 export type NavItem = {
   href: string;
@@ -58,7 +59,7 @@ export type NavItem = {
 
 export const companyNavItems: NavItem[] = [
   {
-    href: '/analytics',
+    href: '/dashboard',
     label: 'Dashboard',
     icon: LayoutDashboard,
   },
@@ -281,21 +282,14 @@ const platformSettingsNav: NavItem = {
   ],
 };
 
-function Logo() {
+function AppLogo() {
   const { state } = useSidebar();
   const { userRole } = useAuth();
   const href = userRole === 'platform' ? '/dashboard' : '/analytics';
 
   return (
     <Link href={href} className="flex items-center gap-2.5">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        className="h-7 w-7 text-primary"
-        fill="currentColor"
-      >
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5-10-5-10 5z" />
-      </svg>
+      <Logo />
       {state === 'expanded' && (
         <h1 className="text-xl font-bold font-serif tracking-tight">
           ResourceWise
@@ -405,9 +399,9 @@ const unauthenticatedRoutes = [
   '/signup',
   '/signup/platform',
   '/pricing',
-  '/about',
   '/features',
   '/contact',
+  '/case-studies',
 ];
 
 function AuthenticatedShell({ children }: { children: ReactNode }) {
@@ -423,7 +417,7 @@ function AuthenticatedShell({ children }: { children: ReactNode }) {
     <>
       <Sidebar>
         <SidebarHeader>
-          <Logo />
+          <AppLogo />
         </SidebarHeader>
         <SidebarContent>
           <div className="flex flex-col gap-1">
