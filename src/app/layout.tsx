@@ -6,7 +6,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { AppShell } from '@/components/layout/AppShell';
-
+import { Analytics } from '@vercel/analytics/next';
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
@@ -106,6 +106,7 @@ export default function RootLayout({
           <AuthProvider>
             <AppShell>{children}</AppShell>
             <Toaster />
+            <Analytics />
           </AuthProvider>
         </ThemeProvider>
       </body>
