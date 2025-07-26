@@ -303,9 +303,7 @@ export const NavMenuItem = ({ item }: { item: NavItem }) => {
   const pathname = usePathname();
   const { state } = useSidebar();
   const [isOpen, setIsOpen] = useState(
-    pathname.startsWith(item.href) &&
-      item.href !== '/analytics' &&
-      item.href !== '/dashboard'
+    pathname.startsWith(item.href) && item.href !== '/analytics'
   );
 
   useEffect(() => {
@@ -471,20 +469,17 @@ export function AppShell({ children }: { children: ReactNode }) {
       return;
     }
 
-    const isAppRoute = !unauthenticatedRoutes.some((route) => {
+    const isPublicRoute = unauthenticatedRoutes.some((route) => {
       if (route === '/') {
         return pathname === '/';
       }
       return pathname.startsWith(route);
     });
 
-    if (!user && isAppRoute) {
-      router.push('/login');
-    } else if (
-      user &&
-      (pathname === '/login' || pathname.startsWith('/signup'))
-    ) {
+    if (user && isPublicRoute) {
       router.push(userRole === 'platform' ? '/dashboard' : '/analytics');
+    } else if (!user && !isPublicRoute) {
+      router.push('/login');
     }
   }, [user, loading, pathname, router, userRole]);
 
