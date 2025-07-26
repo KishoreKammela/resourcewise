@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { PageHeader } from '@/components/shared/PageHeader';
-import { redirect } from 'next/navigation';
+import AnalyticsPage from '../analytics/page';
 
 function PlatformAdminDashboard() {
   return (
@@ -18,17 +18,12 @@ function PlatformAdminDashboard() {
   );
 }
 
-function CompanyDashboardContents() {
-  redirect('/analytics');
-  return null;
-}
-
 export default function Dashboard() {
   const { userRole } = useAuth();
 
   return userRole === 'platform' ? (
     <PlatformAdminDashboard />
   ) : (
-    <CompanyDashboardContents />
+    <AnalyticsPage />
   );
 }

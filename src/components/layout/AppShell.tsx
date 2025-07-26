@@ -284,8 +284,7 @@ const platformSettingsNav: NavItem = {
 
 function AppLogo() {
   const { state } = useSidebar();
-  const { userRole } = useAuth();
-  const href = userRole === 'platform' ? '/dashboard' : '/analytics';
+  const href = '/dashboard';
 
   return (
     <Link href={href} className="flex items-center gap-2.5">
@@ -303,7 +302,7 @@ export const NavMenuItem = ({ item }: { item: NavItem }) => {
   const pathname = usePathname();
   const { state } = useSidebar();
   const [isOpen, setIsOpen] = useState(
-    pathname.startsWith(item.href) && item.href !== '/analytics'
+    pathname.startsWith(item.href) && item.href !== '/dashboard'
   );
 
   useEffect(() => {
@@ -477,7 +476,7 @@ function FullPageLoader() {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loading, userRole } = useAuth();
+  const { user, loading } = useAuth();
   const [isRouting, setIsRouting] = useState(false);
 
   useEffect(() => {
@@ -487,20 +486,26 @@ export function AppShell({ children }: { children: ReactNode }) {
 
     const isPublicRoute = unauthenticatedRoutes.some((route) => {
       // Exact match for root, startsWith for others
-      return route === '/' ? pathname === '/' : pathname.startsWith(route);
+      if (route === '/') {return pathname === '/';}
+      if (route.startsWith('/signup/invite'))
+        {return pathname.startsWith('/signup/invite');}
+      return pathname.startsWith(route) && route !== '/';
     });
 
     if (user && isPublicRoute) {
       setIsRouting(true);
-      router.push(userRole === 'platform' ? '/dashboard' : '/analytics');
+      router.push('/dashboard');
     } else if (!user && !isPublicRoute) {
       setIsRouting(true);
       router.push('/login');
     }
-  }, [user, loading, pathname, router, userRole]);
+  }, [user, loading, pathname, router]);
 
   const isPublicRoute = unauthenticatedRoutes.some((route) => {
-    return route === '/' ? pathname === '/' : pathname.startsWith(route);
+    if (route === '/') {return pathname === '/';}
+    if (route.startsWith('/signup/invite'))
+      {return pathname.startsWith('/signup/invite');}
+    return pathname.startsWith(route) && route !== '/';
   });
 
   // While loading auth state or routing, show the full page loader.
