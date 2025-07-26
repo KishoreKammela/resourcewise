@@ -1,5 +1,4 @@
 import { PageHeader } from '@/components/shared/PageHeader';
-import { AppShell } from '@/components/layout/AppShell';
 import {
   Card,
   CardContent,
@@ -26,7 +25,7 @@ export type DisplayUser = {
 
 export const dynamic = 'force-dynamic';
 
-async function PlatformUsersPage() {
+export default async function PlatformUsersPage() {
   const users: PlatformUser[] = await getPlatformUsers();
   const pendingInvitations: Invitation[] =
     await getPendingPlatformInvitations();
@@ -56,7 +55,7 @@ async function PlatformUsersPage() {
   ];
 
   return (
-    <AppShell>
+    <>
       <PageHeader title="Platform Users">
         <InviteUserDialogWrapper />
       </PageHeader>
@@ -73,8 +72,6 @@ async function PlatformUsersPage() {
           </CardContent>
         </Card>
       </div>
-    </AppShell>
+    </>
   );
 }
-
-export default PlatformUsersPage;

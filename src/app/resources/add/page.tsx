@@ -12,9 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { AppShell } from '@/components/layout/AppShell';
 
-function AddResourcePageContent() {
+export default function AddResourcePage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
@@ -39,13 +38,5 @@ function AddResourcePageContent() {
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-export default function AddResourcePage() {
-  return (
-    <AppShell>
-      <AddResourcePageContent />
-    </AppShell>
   );
 }

@@ -11,7 +11,6 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import {
   Card,
@@ -56,7 +55,7 @@ function KpiCard({
   );
 }
 
-function AnalyticsContent() {
+export default function AnalyticsPage() {
   const { companyProfile, loading: authLoading } = useAuth();
   const [analyticsData, setAnalyticsData] = useState<DashboardAnalytics | null>(
     null
@@ -163,13 +162,5 @@ function AnalyticsContent() {
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-export default function AnalyticsPage() {
-  return (
-    <AppShell>
-      <AnalyticsContent />
-    </AppShell>
   );
 }

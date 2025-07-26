@@ -12,9 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { AppShell } from '@/components/layout/AppShell';
 
-function AddProjectPageContent() {
+export default function AddProjectPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4">
@@ -38,13 +37,5 @@ function AddProjectPageContent() {
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-export default function AddProjectPage() {
-  return (
-    <AppShell>
-      <AddProjectPageContent />
-    </AppShell>
   );
 }

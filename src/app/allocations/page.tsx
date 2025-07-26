@@ -1,4 +1,3 @@
-import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import {
   Card,
@@ -8,7 +7,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-function AllocationsContent() {
+export default function AllocationsPage() {
   return (
     <div className="flex flex-col gap-4">
       <PageHeader title="Allocation Board" />
@@ -27,12 +26,5 @@ function AllocationsContent() {
         </CardContent>
       </Card>
     </div>
-  );
-}
-export default function AllocationsPage() {
-  return (
-    <AppShell>
-      <AllocationsContent />
-    </AppShell>
   );
 }

@@ -1,6 +1,5 @@
 'use server';
 
-import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
 import { getPaginatedResources } from '@/services/resource.services';
@@ -33,12 +32,12 @@ export default async function ResourcesPage({
   if (!companyId) {
     // Handle case where companyId is not found, maybe redirect or show an error
     return (
-      <AppShell>
+      <>
         <PageHeader title="Resource Pool" />
         <div className="p-4">
           <p>Unable to load resources. Company information not found.</p>
         </div>
-      </AppShell>
+      </>
     );
   }
   const { page, per_page, sort, ...filters } =
@@ -55,22 +54,20 @@ export default async function ResourcesPage({
   const pageCount = Math.ceil(totalCount / per_page);
 
   return (
-    <AppShell>
-      <div className="flex flex-col gap-4">
-        <PageHeader title="Resource Pool">
-          <Button asChild>
-            <Link href="/resources/add">
-              <UserPlus className="mr-2" />
-              Add Resource
-            </Link>
-          </Button>
-        </PageHeader>
-        <ResourcesClientPage
-          data={resources}
-          pageCount={pageCount}
-          totalCount={totalCount}
-        />
-      </div>
-    </AppShell>
+    <div className="flex flex-col gap-4">
+      <PageHeader title="Resource Pool">
+        <Button asChild>
+          <Link href="/resources/add">
+            <UserPlus className="mr-2" />
+            Add Resource
+          </Link>
+        </Button>
+      </PageHeader>
+      <ResourcesClientPage
+        data={resources}
+        pageCount={pageCount}
+        totalCount={totalCount}
+      />
+    </div>
   );
 }

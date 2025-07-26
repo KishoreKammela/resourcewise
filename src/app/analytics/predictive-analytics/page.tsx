@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from 'react';
 import { BrainCircuit, TrendingDown, TrendingUp, Check } from 'lucide-react';
-import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
 import {
@@ -32,7 +31,7 @@ function TrendIcon({ trend }: { trend: 'rising' | 'stable' | 'declining' }) {
   }
 }
 
-function PredictiveAnalyticsContent() {
+export default function PredictiveAnalyticsPage() {
   const { companyProfile } = useAuth();
   const [forecast, setForecast] = useState<ForecastDemandOutput | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -131,13 +130,5 @@ function PredictiveAnalyticsContent() {
         </div>
       )}
     </div>
-  );
-}
-
-export default function PredictiveAnalyticsPage() {
-  return (
-    <AppShell>
-      <PredictiveAnalyticsContent />
-    </AppShell>
   );
 }

@@ -1,5 +1,4 @@
 'use server';
-import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { getSkillsMatrixData } from '@/app/actions/skillsMatrixActions';
 import { SkillsMatrixClient } from '@/components/resources/SkillsMatrixClient';
@@ -17,11 +16,11 @@ export default async function SkillsMatrixPage() {
     : { resources: [], technicalSkills: [], softSkills: [] };
 
   return (
-    <AppShell>
+    <>
       <PageHeader title="Skills Matrix" />
       <div className="mt-6">
         <SkillsMatrixClient initialData={skillsMatrixData} />
       </div>
-    </AppShell>
+    </>
   );
 }

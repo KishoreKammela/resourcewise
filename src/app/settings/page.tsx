@@ -1,6 +1,5 @@
 'use client';
 
-import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
 import {
@@ -86,7 +85,7 @@ function SaveButton({ isDirty }: { isDirty: boolean }) {
   );
 }
 
-function SettingsContent() {
+export default function SettingsPage() {
   const { userProfile, companyProfile, userRole, loading } = useAuth();
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
@@ -346,12 +345,5 @@ function SettingsContent() {
         )}
       </form>
     </Form>
-  );
-}
-export default function SettingsPage() {
-  return (
-    <AppShell>
-      <SettingsContent />
-    </AppShell>
   );
 }

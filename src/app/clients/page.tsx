@@ -1,6 +1,5 @@
 'use server';
 
-import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
@@ -31,12 +30,12 @@ export default async function ClientsPage({
 
   if (!companyId) {
     return (
-      <AppShell>
+      <>
         <PageHeader title="Client Portfolio" />
         <div className="p-4">
           <p>Unable to load clients. Company information not found.</p>
         </div>
-      </AppShell>
+      </>
     );
   }
   const { page, per_page, sort, ...filters } =
@@ -53,22 +52,20 @@ export default async function ClientsPage({
   const pageCount = Math.ceil(totalCount / per_page);
 
   return (
-    <AppShell>
-      <div className="flex flex-col gap-4">
-        <PageHeader title="Clients">
-          <Button asChild>
-            <Link href="/clients/add">
-              <PlusCircle className="mr-2" />
-              Add Client
-            </Link>
-          </Button>
-        </PageHeader>
-        <ClientsClientPage
-          data={clients}
-          pageCount={pageCount}
-          totalCount={totalCount}
-        />
-      </div>
-    </AppShell>
+    <div className="flex flex-col gap-4">
+      <PageHeader title="Clients">
+        <Button asChild>
+          <Link href="/clients/add">
+            <PlusCircle className="mr-2" />
+            Add Client
+          </Link>
+        </Button>
+      </PageHeader>
+      <ClientsClientPage
+        data={clients}
+        pageCount={pageCount}
+        totalCount={totalCount}
+      />
+    </div>
   );
 }

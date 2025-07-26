@@ -1,6 +1,5 @@
 'use client';
 
-import { AppShell } from '@/components/layout/AppShell';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { ProfileForm } from '@/components/profile/ProfileForm';
 import { useAuth } from '@/contexts/AuthContext';
@@ -47,9 +46,5 @@ function ProfileSkeleton() {
 }
 
 export default function ProfilePage() {
-  return (
-    <AppShell>
-      <ProfileContent />
-    </AppShell>
-  );
+  return <ProfileContent />;
 }
