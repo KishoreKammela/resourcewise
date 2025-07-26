@@ -1,6 +1,7 @@
 'use client';
 
-import { type ReactNode, useEffect, useState } from 'react';
+import * as React from 'react';
+import { type ReactNode, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -301,11 +302,11 @@ function AppLogo() {
 export const NavMenuItem = ({ item }: { item: NavItem }) => {
   const pathname = usePathname();
   const { state } = useSidebar();
-  const [isOpen, setIsOpen] = useState(
+  const [isOpen, setIsOpen] = React.useState(
     pathname.startsWith(item.href) && item.href !== '/dashboard'
   );
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (state === 'collapsed') {
       setIsOpen(false);
     }
@@ -476,50 +477,43 @@ function FullPageLoader() {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loading } = useAuth();
-  const [isRouting, setIsRouting] = useState(false);
+  const { sessionStatus, loading } = useAuth();
 
   useEffect(() => {
-    if (loading) {
+    if (sessionStatus === 'loading') {
       return;
     }
 
     const isPublicRoute = unauthenticatedRoutes.some((route) => {
-      // Exact match for root, startsWith for others
-      if (route === '/') {return pathname === '/';}
-      if (route.startsWith('/signup/invite'))
-        {return pathname.startsWith('/signup/invite');}
-      return pathname.startsWith(route) && route !== '/';
+      if (route.startsWith('/signup/invite')) {
+        return pathname.startsWith('/signup/invite');
+      }
+      return route === pathname;
     });
 
-    if (user && isPublicRoute) {
-      setIsRouting(true);
+    if (sessionStatus === 'authenticated' && isPublicRoute) {
       router.push('/dashboard');
-    } else if (!user && !isPublicRoute) {
-      setIsRouting(true);
+    } else if (sessionStatus === 'unauthenticated' && !isPublicRoute) {
       router.push('/login');
     }
-  }, [user, loading, pathname, router]);
+  }, [sessionStatus, pathname, router]);
 
   const isPublicRoute = unauthenticatedRoutes.some((route) => {
-    if (route === '/') {return pathname === '/';}
-    if (route.startsWith('/signup/invite'))
-      {return pathname.startsWith('/signup/invite');}
-    return pathname.startsWith(route) && route !== '/';
+    if (route.startsWith('/signup/invite')) {
+      return pathname.startsWith('/signup/invite');
+    }
+    return route === pathname;
   });
 
-  // While loading auth state or routing, show the full page loader.
-  if (loading || isRouting) {
+  if (loading) {
     return <FullPageLoader />;
   }
 
-  // If it's a public route and the user is not logged in, render the children directly.
-  if (isPublicRoute && !user) {
+  if (sessionStatus === 'unauthenticated' && isPublicRoute) {
     return <>{children}</>;
   }
 
-  // If it's an authenticated route and the user is logged in, show the app shell.
-  if (!isPublicRoute && user) {
+  if (sessionStatus === 'authenticated' && !isPublicRoute) {
     return (
       <SidebarProvider>
         <AuthenticatedShell>{children}</AuthenticatedShell>
@@ -527,7 +521,5 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   }
 
-  // Fallback, which should ideally not be reached if logic is correct.
-  // Can render a loader or null.
   return <FullPageLoader />;
 }

@@ -20,6 +20,8 @@ import type {
 } from '@/lib/types';
 import { getPlatformConfig } from '@/services/platform.services';
 
+type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated';
+
 interface AuthContextType {
   user: User | null;
   userProfile: (PlatformUser | TeamMember) | null;
@@ -27,6 +29,7 @@ interface AuthContextType {
   companyProfile: Company | null;
   platformConfig: PlatformConfiguration | null;
   loading: boolean;
+  sessionStatus: SessionStatus;
   logout: () => Promise<void>;
   refreshUserProfile: () => Promise<void>;
 }
@@ -43,10 +46,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [platformConfig, setPlatformConfig] =
     useState<PlatformConfiguration | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionStatus, setSessionStatus] = useState<SessionStatus>('loading');
 
   const fetchUserProfile = useCallback(async (userToFetch: User | null) => {
     if (!userToFetch) {
-      setUser(null);
       setUserProfile(null);
       setUserRole(null);
       setCompanyProfile(null);
@@ -55,7 +58,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    setUser(userToFetch);
     // Fetch platform-wide config first
     const config = await getPlatformConfig('sessionManagement');
     setPlatformConfig(config);
@@ -98,7 +100,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setLoading(true);
-      await fetchUserProfile(user);
+      setUser(user);
+      if (user) {
+        setSessionStatus('authenticated');
+        await fetchUserProfile(user);
+      } else {
+        setSessionStatus('unauthenticated');
+        await fetchUserProfile(null);
+      }
     });
 
     return () => unsubscribe();
@@ -106,16 +115,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     await signOut(auth);
-    setUser(null);
-    setUserProfile(null);
-    setUserRole(null);
-    setCompanyProfile(null);
-    setPlatformConfig(null);
+    // State clearing will be handled by onAuthStateChanged
   }, []);
 
   const refreshUserProfile = useCallback(async () => {
-    setLoading(true);
-    await fetchUserProfile(user);
+    if (user) {
+      setLoading(true);
+      await fetchUserProfile(user);
+    }
   }, [user, fetchUserProfile]);
 
   const value = useMemo(
@@ -125,7 +132,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       userRole,
       companyProfile,
       platformConfig,
-      loading,
+      loading: sessionStatus === 'loading' || loading,
+      sessionStatus,
       logout,
       refreshUserProfile,
     }),
@@ -136,6 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       companyProfile,
       platformConfig,
       loading,
+      sessionStatus,
       logout,
       refreshUserProfile,
     ]
