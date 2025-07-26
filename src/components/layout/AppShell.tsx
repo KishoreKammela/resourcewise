@@ -461,7 +461,7 @@ function AuthenticatedShell({ children }: { children: ReactNode }) {
 
 function FullPageLoader() {
   return (
-    <div className="flex h-screen items-center justify-center bg-background">
+    <div className="flex h-screen items-center justify-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
