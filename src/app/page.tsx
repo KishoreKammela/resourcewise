@@ -1,62 +1,36 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
-import { AppShell } from '@/components/layout/AppShell';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { PageHeader } from '@/components/shared/PageHeader';
+import { CtaSection } from '@/components/public/CtaSection';
+import { FeaturesSection } from '@/components/public/FeaturesSection';
+import { Footer } from '@/components/public/Footer';
+import { Header } from '@/components/public/Header';
+import { HeroSection } from '@/components/public/HeroSection';
+import { ProblemStatementSection } from '@/components/public/ProblemStatementSection';
+import { BenefitsSection } from '@/components/public/BenefitsSection';
+import { TechnologyShowcaseSection } from '@/components/public/TechnologyShowcaseSection';
+import { UseCasesSection } from '@/components/public/UseCasesSection';
+import { ComparisonSection } from '@/components/public/ComparisonSection';
+import { FaqSection } from '@/components/public/FaqSection';
+import { PricingSection } from '@/components/public/PricingSection';
 
-function PlatformAdminDashboard() {
+export default function LandingPage() {
   return (
-    <div>
-      <PageHeader title="Platform Admin Dashboard" />
-      <div className="p-4">
-        <p>Welcome to the platform administration area.</p>
-        <p>
-          Here you can manage companies, subscriptions, and platform settings.
-        </p>
-      </div>
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <Header />
+      <main className="flex-1">
+        <HeroSection />
+        {/* <StatsSection /> */}
+        <ProblemStatementSection />
+        <FeaturesSection />
+        <BenefitsSection />
+        <TechnologyShowcaseSection />
+        <UseCasesSection />
+        <PricingSection />
+        <ComparisonSection />
+        <FaqSection />
+        <CtaSection />
+      </main>
+      <Footer />
     </div>
-  );
-}
-
-function CompanyDashboardContents() {
-  return (
-    <div className="flex flex-col gap-6">
-      <PageHeader title="Executive Dashboard" />
-      <Card>
-        <CardHeader>
-          <CardTitle>Welcome to ResourceWise</CardTitle>
-          <CardDescription>
-            Your central hub for resource and project management.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center text-muted-foreground py-10">
-            <p>Your dashboard is being set up.</p>
-            <p>Key metrics and reports will appear here soon.</p>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-export default function Dashboard() {
-  const { userRole } = useAuth();
-
-  return (
-    <AppShell>
-      {userRole === 'platform' ? (
-        <PlatformAdminDashboard />
-      ) : (
-        <CompanyDashboardContents />
-      )}
-    </AppShell>
   );
 }

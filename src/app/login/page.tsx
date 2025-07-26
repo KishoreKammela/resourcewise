@@ -1,131 +1,98 @@
-'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { app } from '@/lib/firebase';
+import { Footer } from '@/components/public/Footer';
+import { Header } from '@/components/public/Header';
+import type { Metadata } from 'next';
+import { LoginForm } from '@/components/auth/LoginForm';
+import { BarChart3, Briefcase, Users } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Login | ResourceWise',
+  description: 'Access your ResourceWise account to manage your resources.',
+};
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const { toast } = useToast();
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const auth = getAuth(app);
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
-      // Get the ID token
-      const idToken = await userCredential.user.getIdToken();
-
-      // Create session cookie
-      const response = await fetch('/api/auth/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
-      });
-
-      const data = await response.json();
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || 'Failed to create session');
-      }
-
-      toast({
-        title: 'Login Successful',
-        description: 'Welcome back!',
-      });
-
-      router.push('/');
-    } catch (error: any) {
-      let errorMessage = 'An unexpected error occurred. Please try again.';
-      if (
-        error.code === 'auth/user-not-found' ||
-        error.code === 'auth/wrong-password' ||
-        error.code === 'auth/invalid-credential'
-      ) {
-        errorMessage = 'Invalid email or password. Please try again.';
-      }
-      toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: errorMessage,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
-          <CardDescription>
-            Enter your email below to login to your account.
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleLogin}>
-          <CardContent className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
-              />
+    <div className="flex min-h-screen flex-col bg-background">
+      <Header />
+      <main className="flex-1">
+        <div className="w-full lg:grid lg:min-h-[calc(100vh-8rem)] lg:grid-cols-2">
+          <div className="hidden bg-muted lg:flex lg:flex-col lg:items-center lg:justify-center p-12 text-white">
+            <div className="max-w-md text-center">
+              <h2 className="text-3xl font-bold font-serif text-foreground">
+                Unlock Your Team&apos;s Potential
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                Sign in to access your dashboard and revolutionize how you
+                manage talent.
+              </p>
+              <ul className="mt-8 space-y-6 text-left">
+                <li className="flex items-start gap-4">
+                  <div className="flex-shrink-0 rounded-full bg-primary/10 p-3">
+                    <Users className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">
+                      Intelligent Resource Allocation
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Match the right talent to the right projects with our
+                      AI-powered suggestions.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-4">
+                  <div className="flex-shrink-0 rounded-full bg-primary/10 p-3">
+                    <Briefcase className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">
+                      Comprehensive Talent Management
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Maintain a complete, up-to-date view of your team&apos;s
+                      skills and availability.
+                    </p>
+                  </div>
+                </li>
+                <li className="flex items-start gap-4">
+                  <div className="flex-shrink-0 rounded-full bg-primary/10 p-3">
+                    <BarChart3 className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">
+                      Advanced Analytics
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Gain data-driven insights for strategic decision-making
+                      and capacity planning.
+                    </p>
+                  </div>
+                </li>
+              </ul>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign in
-            </Button>
-            <div className="text-center text-sm">
-              Don&apos;t have an account?{' '}
-              <Link href="/signup" className="underline">
-                Sign up
-              </Link>
-            </div>
-          </CardFooter>
-        </form>
-      </Card>
+          </div>
+          <div className="flex items-center justify-center py-12">
+            <Card className="w-full max-w-sm">
+              <CardHeader>
+                <CardTitle className="text-2xl">Welcome Back</CardTitle>
+                <CardDescription>
+                  Enter your email to sign in to your account.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <LoginForm />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }

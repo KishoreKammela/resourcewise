@@ -58,31 +58,9 @@ export type NavItem = {
 
 export const companyNavItems: NavItem[] = [
   {
-    href: '/dashboard',
+    href: '/analytics',
     label: 'Dashboard',
     icon: LayoutDashboard,
-    children: [
-      {
-        href: '/dashboard/executive-summary',
-        label: 'Executive Summary',
-        icon: Users,
-      },
-      {
-        href: '/dashboard/resource-overview',
-        label: 'Resource Overview',
-        icon: Users,
-      },
-      {
-        href: '/dashboard/project-portfolio',
-        label: 'Project Portfolio',
-        icon: Users,
-      },
-      {
-        href: '/dashboard/financial-summary',
-        label: 'Financial Summary',
-        icon: Users,
-      },
-    ],
   },
   {
     href: '/resources',
@@ -254,7 +232,7 @@ export const companySettingsNav: NavItem = {
 
 const platformNavItems: NavItem[] = [
   {
-    href: '/',
+    href: '/dashboard',
     label: 'Dashboard',
     icon: LayoutDashboard,
   },
@@ -306,7 +284,7 @@ const platformSettingsNav: NavItem = {
 function Logo() {
   const { state } = useSidebar();
   const { userRole } = useAuth();
-  const href = userRole === 'platform' ? '/' : '/';
+  const href = userRole === 'platform' ? '/dashboard' : '/analytics';
 
   return (
     <Link href={href} className="flex items-center gap-2.5">
@@ -331,7 +309,9 @@ export const NavMenuItem = ({ item }: { item: NavItem }) => {
   const pathname = usePathname();
   const { state } = useSidebar();
   const [isOpen, setIsOpen] = useState(
-    pathname.startsWith(item.href) && item.href !== '/'
+    pathname.startsWith(item.href) &&
+      item.href !== '/analytics' &&
+      item.href !== '/dashboard'
   );
 
   useEffect(() => {
@@ -419,7 +399,16 @@ export const NavMenuItem = ({ item }: { item: NavItem }) => {
   );
 };
 
-const unauthenticatedRoutes = ['/login', '/signup', '/signup/platform'];
+const unauthenticatedRoutes = [
+  '/',
+  '/login',
+  '/signup',
+  '/signup/platform',
+  '/pricing',
+  '/about',
+  '/features',
+  '/contact',
+];
 
 function AuthenticatedShell({ children }: { children: ReactNode }) {
   const { state } = useSidebar();
@@ -481,28 +470,38 @@ function AuthenticatedShell({ children }: { children: ReactNode }) {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading, userRole } = useAuth();
 
   useEffect(() => {
     if (loading) {
       return;
     }
 
-    const isUnauthenticatedRoute = unauthenticatedRoutes.some((route) =>
-      pathname.startsWith(route)
-    );
+    const isAppRoute = !unauthenticatedRoutes.some((route) => {
+      if (route === '/') {
+        return pathname === '/';
+      }
+      return pathname.startsWith(route);
+    });
 
-    if (!user && !isUnauthenticatedRoute) {
+    if (!user && isAppRoute) {
       router.push('/login');
-    } else if (user && isUnauthenticatedRoute) {
-      router.push('/');
+    } else if (
+      user &&
+      (pathname === '/login' || pathname.startsWith('/signup'))
+    ) {
+      router.push(userRole === 'platform' ? '/dashboard' : '/analytics');
     }
-  }, [user, loading, pathname, router]);
+  }, [user, loading, pathname, router, userRole]);
 
-  const isAuthRoute = unauthenticatedRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
-  if (loading && !isAuthRoute) {
+  const isAppRoute = !unauthenticatedRoutes.some((route) => {
+    if (route === '/') {
+      return pathname === '/';
+    }
+    return pathname.startsWith(route);
+  });
+
+  if (loading && isAppRoute) {
     return (
       <div className="flex h-screen items-center justify-center">
         <svg
@@ -517,7 +516,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   }
 
-  if (isAuthRoute) {
+  if (!isAppRoute) {
     return <>{children}</>;
   }
 
