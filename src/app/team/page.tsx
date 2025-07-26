@@ -18,7 +18,7 @@ export default async function TeamPage() {
     : { displayMembers: [] };
 
   return (
-    <>
+    <div className="flex flex-col gap-4">
       <PageHeader title="Team Members">
         <InviteMemberDialogWrapper />
       </PageHeader>
@@ -26,6 +26,6 @@ export default async function TeamPage() {
         initialMembers={displayMembers}
         companyId={companyId ?? ''}
       />
-    </>
+    </div>
   );
 }

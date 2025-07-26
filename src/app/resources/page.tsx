@@ -32,12 +32,12 @@ export default async function ResourcesPage({
   if (!companyId) {
     // Handle case where companyId is not found, maybe redirect or show an error
     return (
-      <>
+      <div className="flex flex-col gap-4">
         <PageHeader title="Resource Pool" />
         <div className="p-4">
           <p>Unable to load resources. Company information not found.</p>
         </div>
-      </>
+      </div>
     );
   }
   const { page, per_page, sort, ...filters } =

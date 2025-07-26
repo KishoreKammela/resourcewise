@@ -16,11 +16,11 @@ export default async function SkillsMatrixPage() {
     : { resources: [], technicalSkills: [], softSkills: [] };
 
   return (
-    <>
+    <div className="flex flex-col gap-4">
       <PageHeader title="Skills Matrix" />
       <div className="mt-6">
         <SkillsMatrixClient initialData={skillsMatrixData} />
       </div>
-    </>
+    </div>
   );
 }

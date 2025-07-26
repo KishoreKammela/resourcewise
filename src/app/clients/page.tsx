@@ -30,12 +30,12 @@ export default async function ClientsPage({
 
   if (!companyId) {
     return (
-      <>
+      <div className="flex flex-col gap-4">
         <PageHeader title="Client Portfolio" />
         <div className="p-4">
           <p>Unable to load clients. Company information not found.</p>
         </div>
-      </>
+      </div>
     );
   }
   const { page, per_page, sort, ...filters } =
