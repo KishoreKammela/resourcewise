@@ -145,6 +145,12 @@ export async function getPaginatedProjects({
     .collection('projects')
     .where('companyId', '==', companyId);
 
+  if (filters.name) {
+    query = query
+      .where('basicInfo.projectName', '>=', filters.name)
+      .where('basicInfo.projectName', '<=', `${filters.name}\uf8ff`);
+  }
+
   const countSnapshot = await query.count().get();
   const totalCount = countSnapshot.data().count;
 
@@ -152,11 +158,11 @@ export async function getPaginatedProjects({
     const [sortField, sortDirection] = sort.split('.');
     const direction = sortDirection === 'desc' ? 'desc' : 'asc';
     const fieldPathMap: { [key: string]: string } = {
-      'basicInfo.projectName': 'basicInfo.projectName',
+      name: 'basicInfo.projectName',
       'status.projectStatus': 'status.projectStatus',
       'timeline.plannedEndDate': 'timeline.plannedEndDate',
     };
-    const firestoreField = fieldPathMap[sortField] || 'createdAt';
+    const firestoreField = fieldPathMap[sortField] || 'basicInfo.projectName';
     query = query.orderBy(firestoreField, direction);
   } else {
     query = query.orderBy('createdAt', 'desc');

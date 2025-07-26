@@ -16,7 +16,7 @@ import {
 } from '@tanstack/react-table';
 
 import {
-  Table,
+  Table as ShadcnTable,
   TableBody,
   TableCell,
   TableHead,
@@ -38,12 +38,14 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from 'lucide-react';
+import { DataTableToolbar, type FilterConfig } from './DataTableToolbar';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   pageCount: number;
   totalCount: number;
+  filterConfig?: FilterConfig[];
 }
 
 export function DataTable<TData, TValue>({
@@ -51,6 +53,7 @@ export function DataTable<TData, TValue>({
   data,
   pageCount,
   totalCount,
+  filterConfig,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const pathname = usePathname();
@@ -126,8 +129,11 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
+      {filterConfig && (
+        <DataTableToolbar table={table} filterConfig={filterConfig} />
+      )}
       <div className="rounded-md border">
-        <Table>
+        <ShadcnTable>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -174,7 +180,7 @@ export function DataTable<TData, TValue>({
               </TableRow>
             )}
           </TableBody>
-        </Table>
+        </ShadcnTable>
       </div>
       <div className="flex items-center justify-between px-2">
         <div className="flex-1 text-sm text-muted-foreground">

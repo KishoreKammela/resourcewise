@@ -15,12 +15,17 @@ import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
+import { type FilterConfig } from '../shared/DataTableToolbar';
 
 interface ClientsClientPageProps {
   data: Client[];
   pageCount: number;
   totalCount: number;
 }
+
+const filterConfig: FilterConfig[] = [
+  { columnId: 'name', placeholder: 'Filter by client name...' },
+];
 
 export function ClientsClientPage({
   data,
@@ -111,6 +116,7 @@ export function ClientsClientPage({
       data={data}
       pageCount={pageCount}
       totalCount={totalCount}
+      filterConfig={filterConfig}
     />
   );
 }

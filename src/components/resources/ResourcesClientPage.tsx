@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { type ColumnDef } from '@tanstack/react-table';
 import type { Resource } from '@/lib/types';
 import { DataTable } from '@/components/shared/DataTable';
@@ -16,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
+import { type FilterConfig } from '../shared/DataTableToolbar';
 
 interface ResourcesClientPageProps {
   data: Resource[];
@@ -23,15 +23,16 @@ interface ResourcesClientPageProps {
   totalCount: number;
 }
 
+const filterConfig: FilterConfig[] = [
+  { columnId: 'name', placeholder: 'Filter by name...' },
+  { columnId: 'designation', placeholder: 'Filter by designation...' },
+];
+
 export function ResourcesClientPage({
   data,
   pageCount,
   totalCount,
 }: ResourcesClientPageProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
   // Memoize columns to prevent unnecessary re-renders
   const columns = React.useMemo<ColumnDef<Resource, unknown>[]>(
     () => [
@@ -131,6 +132,7 @@ export function ResourcesClientPage({
       data={data}
       pageCount={pageCount}
       totalCount={totalCount}
+      filterConfig={filterConfig}
     />
   );
 }

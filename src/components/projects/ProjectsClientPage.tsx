@@ -17,12 +17,17 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '../ui/progress';
 import { formatDate } from '@/lib/helpers/date-helpers';
+import { type FilterConfig } from '../shared/DataTableToolbar';
 
 interface ProjectsClientPageProps {
   data: Project[];
   pageCount: number;
   totalCount: number;
 }
+
+const filterConfig: FilterConfig[] = [
+  { columnId: 'name', placeholder: 'Filter by project name...' },
+];
 
 export function ProjectsClientPage({
   data,
@@ -44,6 +49,7 @@ export function ProjectsClientPage({
             {row.original.basicInfo.projectName}
           </Link>
         ),
+        id: 'name',
       },
       {
         accessorKey: 'clientName',
@@ -108,6 +114,7 @@ export function ProjectsClientPage({
       data={data}
       pageCount={pageCount}
       totalCount={totalCount}
+      filterConfig={filterConfig}
     />
   );
 }

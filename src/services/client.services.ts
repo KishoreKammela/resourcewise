@@ -137,8 +137,11 @@ export async function getPaginatedClients({
     .collection('clients')
     .where('companyId', '==', companyId);
 
-  // Note: Firestore requires creating indexes for compound queries.
-  // If you add filters, you'll need to create corresponding indexes in your Firebase console.
+  if (filters.name) {
+    query = query
+      .where('basicInfo.clientName', '>=', filters.name)
+      .where('basicInfo.clientName', '<=', `${filters.name}\uf8ff`);
+  }
 
   const countSnapshot = await query.count().get();
   const totalCount = countSnapshot.data().count;
@@ -151,7 +154,7 @@ export async function getPaginatedClients({
       contact: 'contactInfo.primary.name',
       status: 'relationship.status',
     };
-    const firestoreField = fieldPathMap[sortField] || 'createdAt';
+    const firestoreField = fieldPathMap[sortField] || 'basicInfo.clientName';
     query = query.orderBy(firestoreField, direction);
   } else {
     query = query.orderBy('createdAt', 'desc');
