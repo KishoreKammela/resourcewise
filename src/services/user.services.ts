@@ -223,6 +223,27 @@ export async function getPlatformUsers(): Promise<PlatformUser[]> {
   return users;
 }
 
+// Helper function to recursively convert Timestamps to serializable strings
+function serializeTimestamps(obj: any): any {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+  if (obj instanceof Timestamp) {
+    return obj.toDate().toISOString();
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(serializeTimestamps);
+  }
+  if (typeof obj === 'object') {
+    const newObj: { [key: string]: any } = {};
+    for (const key in obj) {
+      newObj[key] = serializeTimestamps(obj[key]);
+    }
+    return newObj;
+  }
+  return obj;
+}
+
 /**
  * Retrieves all team members for a specific company from Firestore.
  * @returns A promise that resolves to an array of TeamMember objects.
@@ -240,7 +261,9 @@ export async function getTeamMembersByCompany(
 
   const members: TeamMember[] = [];
   membersSnapshot.forEach((doc) => {
-    members.push({ id: doc.id, ...doc.data() } as TeamMember);
+    const data = doc.data();
+    const serializedData = serializeTimestamps(data);
+    members.push({ id: doc.id, ...serializedData } as TeamMember);
   });
 
   return members;
