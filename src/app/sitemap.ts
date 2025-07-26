@@ -1,6 +1,8 @@
 import { type MetadataRoute } from 'next';
 
-const siteUrl = process.env.NEXT_PUBLIC_VERCEL_URL || 'http://localhost:9002';
+const siteUrl = process.env.NEXT_PUBLIC_VERCEL_URL
+  ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+  : 'http://localhost:9002';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes = [
