@@ -39,8 +39,16 @@ export default async function ProjectsPage({
       </div>
     );
   }
+
+  const plainSearchParams = {
+    page: searchParams.page,
+    per_page: searchParams.per_page,
+    sort: searchParams.sort,
+    name: searchParams.name,
+    status: searchParams.status,
+  };
   const { page, per_page, sort, ...filters } =
-    searchParamsSchema.parse(searchParams);
+    searchParamsSchema.parse(plainSearchParams);
 
   const [{ projects, totalCount }, clients] = await Promise.all([
     getPaginatedProjects({

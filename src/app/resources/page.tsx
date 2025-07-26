@@ -40,8 +40,17 @@ export default async function ResourcesPage({
       </div>
     );
   }
+
+  const plainSearchParams = {
+    page: searchParams.page,
+    per_page: searchParams.per_page,
+    sort: searchParams.sort,
+    name: searchParams.name,
+    designation: searchParams.designation,
+    status: searchParams.status,
+  };
   const { page, per_page, sort, ...filters } =
-    searchParamsSchema.parse(searchParams);
+    searchParamsSchema.parse(plainSearchParams);
 
   const { resources, totalCount } = await getPaginatedResources({
     companyId,

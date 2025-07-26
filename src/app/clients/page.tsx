@@ -38,8 +38,15 @@ export default async function ClientsPage({
       </div>
     );
   }
+  const plainSearchParams = {
+    page: searchParams.page,
+    per_page: searchParams.per_page,
+    sort: searchParams.sort,
+    name: searchParams.name,
+    status: searchParams.status,
+  };
   const { page, per_page, sort, ...filters } =
-    searchParamsSchema.parse(searchParams);
+    searchParamsSchema.parse(plainSearchParams);
 
   const { clients, totalCount } = await getPaginatedClients({
     companyId,
