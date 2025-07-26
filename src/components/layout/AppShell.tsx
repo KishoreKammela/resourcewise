@@ -459,10 +459,26 @@ function AuthenticatedShell({ children }: { children: ReactNode }) {
   );
 }
 
+function FullPageLoader() {
+  return (
+    <div className="flex h-screen items-center justify-center bg-background">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        className="h-12 w-12 animate-spin text-primary"
+        fill="currentColor"
+      >
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5-10-5-10 5z" />
+      </svg>
+    </div>
+  );
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading, userRole } = useAuth();
+  const [isRouting, setIsRouting] = useState(false);
 
   useEffect(() => {
     if (loading) {
@@ -470,48 +486,43 @@ export function AppShell({ children }: { children: ReactNode }) {
     }
 
     const isPublicRoute = unauthenticatedRoutes.some((route) => {
-      if (route === '/') {
-        return pathname === '/';
-      }
-      return pathname.startsWith(route);
+      // Exact match for root, startsWith for others
+      return route === '/' ? pathname === '/' : pathname.startsWith(route);
     });
 
     if (user && isPublicRoute) {
+      setIsRouting(true);
       router.push(userRole === 'platform' ? '/dashboard' : '/analytics');
     } else if (!user && !isPublicRoute) {
+      setIsRouting(true);
       router.push('/login');
     }
   }, [user, loading, pathname, router, userRole]);
 
-  const isAppRoute = !unauthenticatedRoutes.some((route) => {
-    if (route === '/') {
-      return pathname === '/';
-    }
-    return pathname.startsWith(route);
+  const isPublicRoute = unauthenticatedRoutes.some((route) => {
+    return route === '/' ? pathname === '/' : pathname.startsWith(route);
   });
 
-  if (loading && isAppRoute) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          className="h-12 w-12 animate-spin text-primary"
-          fill="currentColor"
-        >
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5-10-5-10 5z" />
-        </svg>
-      </div>
-    );
+  // While loading auth state or routing, show the full page loader.
+  if (loading || isRouting) {
+    return <FullPageLoader />;
   }
 
-  if (!isAppRoute) {
+  // If it's a public route and the user is not logged in, render the children directly.
+  if (isPublicRoute && !user) {
     return <>{children}</>;
   }
 
-  return (
-    <SidebarProvider>
-      <AuthenticatedShell>{children}</AuthenticatedShell>
-    </SidebarProvider>
-  );
+  // If it's an authenticated route and the user is logged in, show the app shell.
+  if (!isPublicRoute && user) {
+    return (
+      <SidebarProvider>
+        <AuthenticatedShell>{children}</AuthenticatedShell>
+      </SidebarProvider>
+    );
+  }
+
+  // Fallback, which should ideally not be reached if logic is correct.
+  // Can render a loader or null.
+  return <FullPageLoader />;
 }
